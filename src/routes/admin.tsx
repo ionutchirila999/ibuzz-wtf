@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, CheckCheck, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/use-admin";
-import { CATEGORY_LABEL, formatPrice, type Category, type Product } from "@/lib/shop";
+import { CATEGORY_LABEL, formatPrice, SHOP_NAME, type Category, type Product } from "@/lib/shop";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,9 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Owner dashboard — TechFix Marketplace" },
+      { title: `Owner dashboard — ${SHOP_NAME}` },
       { name: "description", content: "Manage listings, resale offers and profit." },
-      { property: "og:title", content: "Owner dashboard — TechFix Marketplace" },
+      { property: "og:title", content: `Owner dashboard — ${SHOP_NAME}` },
       { property: "og:description", content: "Manage listings, resale offers and profit." },
       { name: "robots", content: "noindex" },
     ],

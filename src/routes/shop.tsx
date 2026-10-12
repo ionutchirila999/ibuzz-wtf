@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORY_LABEL, SUBCATEGORIES, type Category } from "@/lib/shop";
+import { CATEGORY_LABEL, SHOP_NAME, SUBCATEGORIES, type Category } from "@/lib/shop";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,9 +20,9 @@ export const Route = createFileRoute("/shop")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop — TechFix Marketplace" },
+      { title: `Shop — ${SHOP_NAME}` },
       { name: "description", content: "Browse refurbished electronics, parts and women's footwear. Search, filter and enquire." },
-      { property: "og:title", content: "Shop — TechFix Marketplace" },
+      { property: "og:title", content: `Shop — ${SHOP_NAME}` },
       { property: "og:description", content: "Browse refurbished electronics, parts and women's footwear." },
     ],
   }),

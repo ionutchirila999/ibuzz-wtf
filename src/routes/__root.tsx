@@ -14,6 +14,7 @@ import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SHOP_NAME } from "@/lib/shop";
 
 function NotFoundComponent() {
   return (
@@ -80,8 +81,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TechFix & Digital Studio" },
-      { name: "description", content: "Repaired electronics and women's footwear." },
+      { title: SHOP_NAME },
+      { name: "description", content: "Repaired electronics and women's footwear. Enquire on WhatsApp or LINE." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },

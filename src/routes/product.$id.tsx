@@ -3,16 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ShieldCheck, Truck, RotateCcw, ImageOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORY_LABEL, CONDITION_LABEL, formatPrice, type Category } from "@/lib/shop";
+import { CATEGORY_LABEL, CONDITION_LABEL, formatPrice, SHOP_NAME, type Category } from "@/lib/shop";
 import { ContactButtons } from "@/components/ContactButtons";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
     meta: [
-      { title: "Product details — TechFix Marketplace" },
+      { title: `Product details — ${SHOP_NAME}` },
       { name: "description", content: "Photos, condition, price and availability. Enquire on WhatsApp or LINE." },
-      { property: "og:title", content: "Product details — TechFix Marketplace" },
+      { property: "og:title", content: `Product details — ${SHOP_NAME}` },
       { property: "og:description", content: "Photos, condition, price and availability." },
     ],
   }),

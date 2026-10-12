@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Cpu, Footprints, Wrench, ShieldCheck, Tag } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
+import { SHOP_NAME } from "@/lib/shop";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TechFix Marketplace — Refurbished Tech & Women's Shoes" },
+      { title: `${SHOP_NAME} — Refurbished Tech & Women's Shoes` },
       { name: "description", content: "Inspected, repaired electronics and new or pre-owned women's footwear. Enquire on WhatsApp or LINE." },
-      { property: "og:title", content: "TechFix Marketplace — Refurbished Tech & Women's Shoes" },
+      { property: "og:title", content: `${SHOP_NAME} — Refurbished Tech & Women's Shoes` },
       { property: "og:description", content: "Inspected, repaired electronics and new or pre-owned women's footwear." },
     ],
   }),

@@ -5,13 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SHOP_NAME } from "@/lib/shop";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Owner sign in — TechFix Marketplace" },
+      { title: `Owner sign in — ${SHOP_NAME}` },
       { name: "description", content: "Sign in to manage listings and offers." },
-      { property: "og:title", content: "Owner sign in — TechFix Marketplace" },
+      { property: "og:title", content: `Owner sign in — ${SHOP_NAME}` },
       { property: "og:description", content: "Sign in to manage listings and offers." },
       { name: "robots", content: "noindex" },
     ],
