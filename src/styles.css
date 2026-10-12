@@ -46,9 +46,9 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.17 0.05 282);
+  --background: oklch(0.16 0.025 270);
   --foreground: oklch(0.98 0.006 292);
-  --card: oklch(0.225 0.055 282);
+  --card: oklch(0.215 0.032 275);
   --card-foreground: oklch(0.98 0.006 292);
   --popover: oklch(0.225 0.055 282);
   --popover-foreground: oklch(0.98 0.006 292);
@@ -71,7 +71,7 @@
   --line-foreground: oklch(0.99 0 0);
   --azure: oklch(0.70 0.16 245);
   --azure-foreground: oklch(0.17 0.05 282);
-  --border: oklch(0.82 0.06 268 / 48%);
+  --border: oklch(0.65 0.035 270 / 40%);
   --input: oklch(0.82 0.06 268 / 54%);
   --ring: oklch(0.70 0.16 245);
   --glow: 0 8px 30px -8px oklch(0.63 0.22 302 / 0.6);
@@ -100,3 +100,16 @@
     radial-gradient(60% 55% at 18% 8%, color-mix(in oklab, var(--primary) 34%, transparent), transparent 70%),
     radial-gradient(55% 50% at 88% 22%, color-mix(in oklab, var(--azure) 30%, transparent), transparent 72%);
 }
+
+/* Homepage surfaces remain unframed and share the site's semantic palette. */
+.premium-hero { background: linear-gradient(120deg, var(--background), color-mix(in oklab, var(--background) 94%, var(--secondary))); }
+.hero-heading { font-size: 2rem; line-height: 1.18; }
+.hero-studio { aspect-ratio: 1.8; border-radius: var(--radius); }
+.section-heading { font-size: 1.65rem; line-height: 1.25; font-weight: 700; }
+.section-eyebrow { color: var(--primary-soft); font-size: 0.7rem; line-height: 1.6; font-weight: 700; }
+.section-space { padding-top: 3rem; padding-bottom: 3rem; }
+.service-card { background: linear-gradient(145deg, var(--card), color-mix(in oklab, var(--background) 90%, var(--card))); }
+.buying-band { background: linear-gradient(110deg, color-mix(in oklab, var(--background) 87%, var(--primary)), color-mix(in oklab, var(--background) 93%, var(--secondary))); }
+@media (min-width: 640px) { .hero-heading { font-size: 2.5rem; } .section-heading { font-size: 2rem; } .section-space { padding-top: 4rem; padding-bottom: 4rem; } }
+@media (min-width: 1024px) { .hero-heading { font-size: 3rem; } .hero-studio { aspect-ratio: 1.2; object-fit: cover; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }

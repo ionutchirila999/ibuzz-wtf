@@ -1,65 +1,17 @@
-import { Link } from "@tanstack/react-router";
-import logoWordmark from "@/assets/logo.png";
-import { LOGO_NAME, SHOP_NAME } from "@/lib/shop";
-import { LANGS, useT } from "@/lib/i18n";
-import { copy } from "@/lib/service-copy";
-import { Button } from "@/components/ui/button";
-
-const nav = [
-  { to: "/repair", label: "repair" },
-  { to: "/digital", label: "digital" },
-  { to: "/shop", label: "market" },
-  { to: "/portfolio", label: "portfolio" },
-  { to: "/sell", label: "nav.sell" },
-  { to: "/admin", label: "nav.owner" },
-] as const;
-
-export function SiteHeader() {
-  const { t, lang, setLang } = useT();
-  return (
-    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto grid min-h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-2 sm:flex sm:justify-between sm:py-0">
-        <Link to="/" aria-label={SHOP_NAME} className="flex min-w-0 shrink-0 items-center">
-          <img
-            src={logoWordmark}
-            alt={LOGO_NAME}
-            width={1356}
-            height={286}
-            className="h-6 w-auto sm:h-8"
-          />
-        </Link>
-        <nav className="col-span-2 row-start-2 flex min-w-0 justify-center flex-wrap gap-1 text-xs sm:order-none sm:gap-0 sm:text-sm">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className={`rounded-md px-1.5 py-1.5 text-muted-foreground hover:text-foreground sm:px-3 ${n.to === "/admin" ? "hidden sm:inline" : ""}`}
-              activeProps={{ className: "text-primary-soft" }}
-            >
-              {n.label === "nav.sell" || n.label === "nav.owner" ? t(n.label) : copy(lang,n.label)}
-            </Link>
-          ))}
-        </nav>
-        <div className="col-start-2 row-start-1 flex shrink-0 overflow-hidden rounded-md border text-xs" role="group" aria-label="Language">
-          {LANGS.map((l) => (
-            <Button variant="ghost" size="sm" key={l.code} onClick={() => setLang(l.code)} aria-pressed={lang === l.code}
-              className={`h-8 rounded-none px-2 ${lang === l.code ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-muted-foreground"}`}>
-              {l.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-export function SiteFooter() {
-  const { t } = useT();
-  return (
-    <footer className="mt-20 border-t py-8 text-center text-xs text-muted-foreground">
-      <img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} loading="lazy" className="mx-auto mb-3 h-8 w-auto" />
-      <p className="font-display text-sm font-bold text-foreground">{SHOP_NAME}</p>
-      <p className="mx-auto mt-1 max-w-md px-4">{t("tagline")}</p>
-    </footer>
-  );
-}
+import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { Menu, ArrowUpRight, MessageCircle } from 'lucide-react';
+import logoWordmark from '@/assets/logo.png';
+import { LOGO_NAME, SHOP_NAME, lineLink, whatsappLink } from '@/lib/shop';
+import { LANGS, useT } from '@/lib/i18n';
+import { copy } from '@/lib/service-copy';
+import { homeCopy } from '@/lib/home-copy';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/shop',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/sell',label:'nav.sell'}] as const;
+export function SiteHeader(){const {t,lang,setLang}=useT();const [open,setOpen]=useState(false);const label=(n:typeof nav[number])=>n.label==='nav.sell'?t(n.label):copy(lang,n.label);return <header className="sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur-xl"><div className="mx-auto grid h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-8 lg:flex lg:justify-between">
+ <Link to="/" aria-label={SHOP_NAME} className="min-w-0 shrink-0"><img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} className="h-auto w-28 sm:w-36"/></Link>
+ <nav aria-label={homeCopy(lang,'navigation')} className="hidden items-center gap-1 lg:flex">{nav.map(n=><Button key={n.to} asChild variant="ghost" className="px-3 text-sm text-muted-foreground"><Link to={n.to} activeProps={{className:'text-primary-soft'}}>{label(n)}</Link></Button>)}</nav>
+ <div className="flex shrink-0 items-center gap-1.5"><div role="group" aria-label="Language" className="flex rounded-lg border border-border/40 p-0.5">{LANGS.map(l=><Button key={l.code} variant="ghost" size="sm" onClick={()=>setLang(l.code)} aria-pressed={lang===l.code} className={`h-8 rounded-md px-2 text-xs ${lang===l.code?'bg-accent text-foreground':'text-muted-foreground'}`}>{l.label}</Button>)}</div><Sheet open={open} onOpenChange={setOpen}><SheetTrigger asChild><Button variant="ghost" size="icon" className="h-10 w-10 lg:hidden" aria-label={homeCopy(lang,'menu')}><Menu className="h-5 w-5"/></Button></SheetTrigger><SheetContent className="w-[min(88vw,360px)]"><SheetTitle className="mt-5"><img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} className="w-36"/></SheetTitle><SheetDescription className="mt-3">{copy(lang,'tagline')}</SheetDescription><nav className="mt-8 grid gap-2" aria-label={homeCopy(lang,'navigation')}>{nav.map(n=><Button key={n.to} asChild variant="ghost" className="h-14 justify-between border-b border-border/30 text-base"><Link to={n.to} onClick={()=>setOpen(false)}>{label(n)}<ArrowUpRight className="h-4 w-4 text-azure"/></Link></Button>)}</nav><div className="mt-8 flex gap-3"><Button asChild variant="outline"><a href={whatsappLink()} target="_blank" rel="noreferrer">WhatsApp</a></Button><Button asChild variant="outline"><a href={lineLink()} target="_blank" rel="noreferrer">LINE</a></Button></div></SheetContent></Sheet></div>
+ </div></header>;}
+export function SiteFooter(){const {t,lang}=useT();return <footer className="border-t border-border/30 bg-card/25"><div className="mx-auto max-w-6xl px-5 py-10 sm:px-8"><div className="grid gap-7 md:grid-cols-[1fr_auto]"><div><Link to="/" aria-label={SHOP_NAME}><img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} loading="lazy" className="w-32"/></Link><p className="mt-3 text-sm text-muted-foreground">{copy(lang,'tagline')}</p></div><nav className="flex flex-wrap items-start gap-x-5 gap-y-3 text-sm" aria-label={homeCopy(lang,'navigation')}>{nav.map(n=><Link key={n.to} to={n.to} className="text-muted-foreground transition-colors hover:text-foreground">{n.label==='nav.sell'?t(n.label):copy(lang,n.label)}</Link>)}</nav></div><div className="mt-7 flex flex-wrap gap-3"><Button asChild variant="outline" size="sm"><a href={whatsappLink()} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4"/>WhatsApp</a></Button><Button asChild variant="outline" size="sm"><a href={lineLink()} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4"/>LINE · 55wandee</a></Button></div><div className="mt-8 flex flex-wrap justify-between gap-4 border-t border-border/25 pt-5 text-xs text-muted-foreground"><p>© {new Date().getFullYear()} iBuzz.wtf</p><div className="flex gap-5"><Link to="/privacy">{homeCopy(lang,'privacy')}</Link><Link to="/terms">{homeCopy(lang,'terms')}</Link><Link to="/admin">{t('nav.owner')}</Link></div></div></div></footer>;}
