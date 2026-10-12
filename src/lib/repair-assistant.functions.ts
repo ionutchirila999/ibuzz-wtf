@@ -13,6 +13,17 @@ export const suggestRepair = createServerFn({ method: 'POST' })
   .handler(async ({ data }): Promise<{ ok: true; suggestion: RepairSuggestion } | { ok: false; error: string }> => {
     const key = process.env['LOVABLE_API_KEY'];
     if (!key) return { ok: false, error: 'config' };
+    // Per-visitor rate limit: same shared table as the enquiry forms, so the
+    // AI endpoint cannot be hammered to burn credits.
+    const { getRequest } = await import('@tanstack/react-start/server');
+    const req = getRequest();
+    const ip = req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const visitor = await hashVisitor(process.env['SUPABASE_SERVICE_ROLE_KEY']!, `ai:${ip}`);
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const since = new Date(Date.now() - 3600_000).toISOString();
+    const { data: recent } = await supabaseAdmin.from('enquiry_rate_limits').select('created_at').eq('visitor_hash', visitor).gte('created_at', since);
+    if (cooldownDecision((recent ?? []).map((r) => new Date(r.created_at).getTime())) === 'cooldown') return { ok: false, error: 'busy' };
+    await supabaseAdmin.from('enquiry_rate_limits').insert({ visitor_hash: visitor });
     const res = await fetch('https://ai.gateway.lovable.dev/v1/responses', {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Lovable-API-Key': key, 'X-Lovable-AIG-SDK': 'fetch', 'Content-Type': 'application/json' },
