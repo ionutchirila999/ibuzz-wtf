@@ -9,3 +9,4 @@
 - [x] Easier-question button gives genuinely simpler sums
 - [ ] Verify keyboard/screen-reader switching of checks
 - [ ] Publish updated forms
+- [ ] Make the logo dot blue
