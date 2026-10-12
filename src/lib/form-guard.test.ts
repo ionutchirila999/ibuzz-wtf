@@ -18,3 +18,14 @@ describe('form guard', () => {
     expect(await verifyChallenge('s', c.token, String(a + b), now + 1000)).toBe(false);
   });
 });
+
+import { createConfirmChallenge } from './form-guard';
+describe('non-math confirmation check', () => {
+  it('accepts the confirmation after 3 seconds, rejects too-fast or wrong answers', async () => {
+    const now = Date.now(); const c = await createConfirmChallenge('s', now);
+    expect(await verifyChallenge('s', c.token, 'confirm', now + 5000)).toBe(true);
+    expect(await verifyChallenge('s', c.token, 'confirm', now + 1000)).toBe(false);
+    expect(await verifyChallenge('s', c.token, 'yes', now + 5000)).toBe(false);
+    expect(await verifyChallenge('s', 'c.' + Math.floor(now/1000) + '.bad', 'confirm', now + 5000)).toBe(false);
+  });
+});

@@ -18,7 +18,20 @@ export async function createChallenge(secret: string, now = Date.now()) {
   return { question: `${a} + ${b}`, token: `${issued}.${sig}` };
 }
 
+/** Non-math alternative: visitor ticks a confirmation box. Still time-gated, signed, and rate-limited. */
+export const CONFIRM_ANSWER = 'confirm';
+export async function createConfirmChallenge(secret: string, now = Date.now()) {
+  const issued = Math.floor(now / 1000);
+  return { token: `c.${issued}.${await hmac(secret, `confirm.${issued}`)}` };
+}
+
 export async function verifyChallenge(secret: string, token: string, answer: string, now = Date.now()) {
+  if (token.startsWith('c.')) {
+    const [, issuedRaw, sig] = token.split('.');
+    const issued = Number(issuedRaw), age = Math.floor(now / 1000) - issued;
+    if (!Number.isFinite(issued) || !sig || age < MIN_FILL_SECONDS || age > CHALLENGE_TTL_SECONDS || answer !== CONFIRM_ANSWER) return false;
+    return (await hmac(secret, `confirm.${issued}`)) === sig;
+  }
   const [issuedRaw, sig] = token.split('.');
   const issued = Number(issuedRaw), age = Math.floor(now / 1000) - issued;
   if (!Number.isFinite(issued) || !sig || age < MIN_FILL_SECONDS || age > CHALLENGE_TTL_SECONDS) return false;

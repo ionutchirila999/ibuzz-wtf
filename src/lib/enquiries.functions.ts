@@ -1,8 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { enquirySchema } from './enquiry-schema';
-import { cooldownDecision, createChallenge, hashVisitor, verifyChallenge } from './form-guard';
+import { cooldownDecision, createChallenge, createConfirmChallenge, hashVisitor, verifyChallenge } from './form-guard';
 
 export const getHumanCheck = createServerFn({method:'POST'}).handler(async () => createChallenge(process.env['SUPABASE_SERVICE_ROLE_KEY']!));
+
+export const getConfirmCheck = createServerFn({method:'POST'}).handler(async () => createConfirmChallenge(process.env['SUPABASE_SERVICE_ROLE_KEY']!));
 
 export const submitEnquiry = createServerFn({method:'POST'}).inputValidator((input: unknown) => enquirySchema.parse(input)).handler(async ({data}) => {
  const secret = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
