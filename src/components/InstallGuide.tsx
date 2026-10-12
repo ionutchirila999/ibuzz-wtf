@@ -54,9 +54,9 @@ export function InstallGuide() {
         ) : (
           <Tabs defaultValue={platform ?? 'desktop'}>
             <TabsList className="w-full">
-              <TabsTrigger value="android" className="flex-1 gap-1.5"><Smartphone className="h-4 w-4" aria-hidden />{homeCopy(lang, 'installAndroid')}</TabsTrigger>
-              <TabsTrigger value="ios" className="flex-1 gap-1.5"><Tablet className="h-4 w-4" aria-hidden />{homeCopy(lang, 'installIos')}</TabsTrigger>
-              <TabsTrigger value="desktop" className="flex-1 gap-1.5"><Monitor className="h-4 w-4" aria-hidden />{homeCopy(lang, 'installDesktop')}</TabsTrigger>
+              <TabsTrigger value="android" className="flex-1 gap-1.5 px-1 text-xs"><Smartphone className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installAndroid')}</TabsTrigger>
+              <TabsTrigger value="ios" className="flex-1 gap-1.5 px-1 text-xs"><Tablet className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installIos')}</TabsTrigger>
+              <TabsTrigger value="desktop" className="flex-1 gap-1.5 px-1 text-xs"><Monitor className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installDesktop')}</TabsTrigger>
             </TabsList>
             {(Object.keys(stepKey) as Platform[]).map((p) => (
               <TabsContent key={p} value={p} className="mt-4">
