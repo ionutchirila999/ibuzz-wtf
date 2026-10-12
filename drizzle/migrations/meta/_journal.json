@@ -36,6 +36,13 @@
       "when": 1791822206514,
       "tag": "0004_enquiry_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791825793102,
+      "tag": "0005_add_product_translations",
+      "breakpoints": true
     }
   ]
 }

@@ -85,6 +85,8 @@ export type Database = {
           created_at: string
           delivery_options: string | null
           description: string | null
+          description_ro: string | null
+          description_th: string | null
           id: string
           images: string[]
           is_demo: boolean
@@ -101,6 +103,8 @@ export type Database = {
           stock: number
           subcategory: string
           title: string
+          title_ro: string | null
+          title_th: string | null
           updated_at: string
         }
         Insert: {
@@ -114,6 +118,8 @@ export type Database = {
           created_at?: string
           delivery_options?: string | null
           description?: string | null
+          description_ro?: string | null
+          description_th?: string | null
           id?: string
           images?: string[]
           is_demo?: boolean
@@ -130,6 +136,8 @@ export type Database = {
           stock?: number
           subcategory: string
           title: string
+          title_ro?: string | null
+          title_th?: string | null
           updated_at?: string
         }
         Update: {
@@ -143,6 +151,8 @@ export type Database = {
           created_at?: string
           delivery_options?: string | null
           description?: string | null
+          description_ro?: string | null
+          description_th?: string | null
           id?: string
           images?: string[]
           is_demo?: boolean
@@ -159,6 +169,8 @@ export type Database = {
           stock?: number
           subcategory?: string
           title?: string
+          title_ro?: string | null
+          title_th?: string | null
           updated_at?: string
         }
         Relationships: []
