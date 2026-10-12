@@ -1,5 +1,7 @@
 ## Tasks
 - [x] Add zoomable product photos for the ZELOTES F-36A gallery — label zoom, wheel zoom, reset, keyboard navigation and mobile fit verified
+- [x] Add previous/next controls to the ZELOTES F-36A gallery main view (dialog already had them)
+- [x] Add concise screen-reader labels to gallery thumbnails (caption-only labels)
 - [ ] Add ZELOTES F-36A DPI and compatibility specifications — waiting for the owner's supporting evidence
 - [x] Verify published Sell/Repair/Digital forms on phone (math + no-math checks) — passed
 - [x] Deep security review — fixed: AI repair helper had no usage limit; added per-visitor limit
