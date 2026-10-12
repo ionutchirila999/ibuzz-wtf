@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Keep homepage copy in the shared three-language dictionary and category actions on the existing shop search routes, so language switching and collection navigation stay consistent.
+- Product detail photos use the shared ProductGallery with Radix focus management and react-zoom-pan-pinch for wheel, touch and drag zoom; gallery control translations stay in the shared gallery dictionary so all catalog photos behave consistently.
 
 - Preserve legacy product category and condition columns when saving; use additive market fields for expanded catalog filters so published clients and existing rows remain compatible.
 - Share public enquiry validation and forms across Repair, Digital and Sell; server handlers store requests and private images before returning success, while owner access remains role-protected.
