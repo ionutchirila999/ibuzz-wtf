@@ -19,21 +19,35 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
     const base = caption ?? `${text("photo")} ${index + 1} / ${images.length}`;
     return `${title} — ${base}`;
   };
+  // Concise screen-reader label for thumbnails: the caption alone identifies
+  // the photo without repeating the product title every time.
+  const thumbLabel = (index: number) =>
+    captions[index] ?? `${text("photo")} ${index + 1} / ${images.length}`;
 
   if (!image) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
   return (
     <Dialog>
       <div className="min-w-0">
-        <DialogTrigger asChild>
-          <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg border bg-muted p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(active)}`}>
-            <img src={image} alt={photoLabel(active)} className="aspect-square w-full object-contain" />
-            <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
-          </Button>
+        <div className="relative">
+          <DialogTrigger asChild>
+            <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg border bg-muted p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(active)}`}>
+              <img src={image} alt={photoLabel(active)} className="aspect-square w-full object-contain" />
+              <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
+            </Button>
           </DialogTrigger>
-          {captions[active] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[active]}</p>}
-          {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1">
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={photoLabel(index)} aria-pressed={index === active} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
+          {images.length > 1 && <>
+            <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
+              <ChevronLeft aria-hidden="true" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => move(1)} title={text("next")} aria-label={text("next")} className="absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
+              <ChevronRight aria-hidden="true" />
+            </Button>
+          </>}
+        </div>
+        {captions[active] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[active]}</p>}
+        {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1" role="group" aria-label={text("photo")}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={thumbLabel(index)} aria-current={index === active} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
