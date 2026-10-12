@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORY_LABEL, SHOP_NAME, SUBCATEGORIES, type Category } from "@/lib/shop";
+import { SHOP_NAME, SUBCATEGORIES, type Category } from "@/lib/shop";
+import { useT } from "@/lib/i18n";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/shop")({
 const ALL = "__all";
 
 function Shop() {
+  const { t, sub } = useT();
   const s = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
@@ -62,7 +64,7 @@ function Shop() {
         {([undefined, "technology", "womens_shoes"] as const).map((c) => (
           <button key={c ?? "all"} onClick={() => set({ category: c, sub: undefined, size: undefined })}
             className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${s["category"] === c ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-            {c ? CATEGORY_LABEL[c] : "All"}
+            {c ? t(`cat.${c}`) : t("shop.all")}
           </button>
         ))}
       </div>
@@ -70,43 +72,43 @@ function Shop() {
       <div className="mb-6 grid gap-2 md:grid-cols-[1fr_auto_auto_auto]">
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search brand, model…" defaultValue={s.q} onChange={(e) => set({ q: e.target.value || undefined })} />
+          <Input className="pl-9" placeholder={t("shop.search")} defaultValue={s.q} onChange={(e) => set({ q: e.target.value || undefined })} />
         </div>
         {subs.length > 0 && (
           <Select value={s.sub ?? ALL} onValueChange={(v) => set({ sub: v === ALL ? undefined : v })}>
-            <SelectTrigger className="md:w-56"><SelectValue placeholder="Type" /></SelectTrigger>
+            <SelectTrigger className="md:w-56"><SelectValue placeholder={t("shop.type")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>All types</SelectItem>
-              {subs.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}
+              <SelectItem value={ALL}>{t("shop.allTypes")}</SelectItem>
+              {subs.map((x) => <SelectItem key={x} value={x}>{sub(x)}</SelectItem>)}
             </SelectContent>
           </Select>
         )}
         <Select value={s.condition ?? ALL} onValueChange={(v) => set({ condition: v === ALL ? undefined : v })}>
-          <SelectTrigger className="md:w-40"><SelectValue placeholder="Condition" /></SelectTrigger>
+          <SelectTrigger className="md:w-40"><SelectValue placeholder={t("shop.condition")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>Any condition</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="pre_owned">Pre-owned</SelectItem>
-            <SelectItem value="refurbished">Refurbished</SelectItem>
+            <SelectItem value={ALL}>{t("shop.anyCond")}</SelectItem>
+            <SelectItem value="new">{t("cond.new")}</SelectItem>
+            <SelectItem value="pre_owned">{t("cond.pre_owned")}</SelectItem>
+            <SelectItem value="refurbished">{t("cond.refurbished")}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={s.sort ?? "newest"} onValueChange={(v) => set({ sort: v === "newest" ? undefined : v })}>
           <SelectTrigger className="md:w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="price_asc">Price: low to high</SelectItem>
-            <SelectItem value="price_desc">Price: high to low</SelectItem>
+            <SelectItem value="newest">{t("shop.newest")}</SelectItem>
+            <SelectItem value="price_asc">{t("shop.priceAsc")}</SelectItem>
+            <SelectItem value="price_desc">{t("shop.priceDesc")}</SelectItem>
           </SelectContent>
         </Select>
         {s["category"] === "womens_shoes" && (
-          <Input className="md:w-32" placeholder="Size e.g. 38" defaultValue={s.size} onChange={(e) => set({ size: e.target.value || undefined })} />
+          <Input className="md:w-32" placeholder={t("shop.size")} defaultValue={s.size} onChange={(e) => set({ size: e.target.value || undefined })} />
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading…</p>
+        <p className="text-muted-foreground">{t("loading")}</p>
       ) : data.length === 0 ? (
-        <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">No items listed here yet. Check back soon or message us.</div>
+        <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">{t("shop.empty")}</div>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {data.map((p) => <ProductCard key={p.id} p={p} />)}
