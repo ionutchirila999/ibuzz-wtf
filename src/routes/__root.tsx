@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
+import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -105,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="th">
       <head>
         <HeadContent />
       </head>

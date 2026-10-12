@@ -53,8 +53,10 @@ export function formatPrice(n: number | null | undefined) {
   return `฿${Number(n ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
-export function whatsappLink(product?: Pick<Product, "title">) {
-  const text = product ? `Hi, I'm interested in: ${product.title}` : "Hi, I have a question";
+export function whatsappLink(product?: Pick<Product, "title">, greeting?: string) {
+  const text = product
+    ? `${greeting ?? "Hi, I'm interested in:"} ${product.title}`
+    : (greeting ?? "Hi, I have a question");
   return `https://wa.me/${SHOP_CONTACT.whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 export function lineLink() {
