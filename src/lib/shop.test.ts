@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcProfit } from "./shop";
+import { calcProfit, lineLink, SHOP_CONTACT } from "./shop";
 
 describe("calcProfit", () => {
   it("subtracts every cost from the selling price", () => {
@@ -16,5 +16,13 @@ describe("calcProfit", () => {
   it("warns when margin is below 15%", () => {
     const r = calcProfit({ sellingPrice: 1000, purchaseCost: 900, repairCost: 0, shipping: 0, platformFees: 0, otherExpenses: 0 });
     expect(r.warning).toMatch(/Thin margin/);
+  });
+});
+
+describe("LINE contact", () => {
+  it("opens a chat with the working ID, not the brand label", () => {
+    expect(lineLink()).toBe("https://line.me/R/ti/p/55wandee");
+    expect(SHOP_CONTACT.lineLabel).toBe("iBuzz.wtf");
+    expect(SHOP_CONTACT.lineId).not.toContain(".");
   });
 });
