@@ -7,7 +7,7 @@ export type Category = "technology" | "womens_shoes";
 export const SHOP_NAME = "Magical Tech and Wandee Market";
 export const SHOP_SHORT_NAME = "Magical Tech";
 // The wording used inside the logo artwork.
-export const LOGO_NAME = "Magic and Wandee";
+export const LOGO_NAME = "M&W";
 export const SHOP_TAGLINE = "Repaired, inspected and resold with care";
 
 // Contact details for enquiry buttons.
