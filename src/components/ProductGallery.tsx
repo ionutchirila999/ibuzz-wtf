@@ -19,6 +19,10 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
     const base = caption ?? `${text("photo")} ${index + 1} / ${images.length}`;
     return `${title} — ${base}`;
   };
+  // Concise screen-reader label for thumbnails: the caption alone identifies
+  // the photo without repeating the product title every time.
+  const thumbLabel = (index: number) =>
+    captions[index] ?? `${text("photo")} ${index + 1} / ${images.length}`;
 
   if (!image) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
