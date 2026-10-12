@@ -1,3 +1,4 @@
+import { SOCIAL_IMAGE } from './shop';
 import type { Lang } from './i18n';
 export const C = {
  tagline: ['ซ่อม สร้าง ซื้อ ขาย', 'Repair. Build. Buy. Sell.', 'Reparăm. Construim. Cumpărăm. Vindem.'],

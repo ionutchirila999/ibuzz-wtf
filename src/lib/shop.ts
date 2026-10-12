@@ -1,3 +1,4 @@
+import socialAsset from "@/assets/ibuzz-social.jpg.asset.json";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Product = Tables<"products">;
@@ -9,6 +10,11 @@ export const SHOP_SHORT_NAME = "iBuzz.wtf";
 // The wording used inside the logo artwork.
 export const LOGO_NAME = "iBuzz.wtf";
 export const SHOP_TAGLINE = "Repair. Build. Buy. Sell.";
+
+// The site's own address. Used for link previews so shared pages point here.
+export const SITE_ORIGIN = "https://ibuzz.wtf";
+// The branded picture shown when a page is shared in chat or on social media.
+export const SOCIAL_IMAGE = `${SITE_ORIGIN}${socialAsset.url}`;
 
 // Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
