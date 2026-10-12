@@ -9,7 +9,7 @@ const nav = [
 ] as const;
 
 // The second wordmark line is the rest of the name after the short form.
-const brandLine2 = SHOP_NAME.slice(SHOP_SHORT_NAME.length).replace(/^\s*and\s+/i, "");
+const brandLine2 = SHOP_NAME.slice(SHOP_SHORT_NAME.length).trim();
 
 export function SiteHeader() {
   return (
