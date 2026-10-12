@@ -18,8 +18,8 @@ export function SiteHeader() {
           <img
             src={logoWordmark}
             alt={LOGO_NAME}
-            width={835}
-            height={333}
+            width={790}
+            height={221}
             className="h-7 w-auto sm:h-9"
           />
         </Link>
@@ -29,7 +29,7 @@ export function SiteHeader() {
               key={n.to}
               to={n.to}
               className={`rounded-md px-1.5 py-1.5 text-muted-foreground hover:text-foreground sm:px-3 ${n.to === "/admin" ? "hidden sm:inline" : ""}`}
-              activeProps={{ className: "text-primary" }}
+              activeProps={{ className: "text-primary-soft" }}
             >
               {t(n.label)}
             </Link>
@@ -52,7 +52,7 @@ export function SiteFooter() {
   const { t } = useT();
   return (
     <footer className="mt-20 border-t py-8 text-center text-xs text-muted-foreground">
-      <img src={logoWordmark} alt={LOGO_NAME} width={835} height={333} loading="lazy" className="mx-auto mb-4 h-8 w-auto" />
+      <img src={logoWordmark} alt={LOGO_NAME} width={790} height={221} loading="lazy" className="mx-auto mb-4 h-8 w-auto" />
       {SHOP_NAME} · {t("tagline")}
     </footer>
   );
