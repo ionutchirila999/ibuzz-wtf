@@ -5,3 +5,5 @@
 - [x] Project knowledge note updated (was manifest-only)
 - [x] Publish so the service worker, offline page, install prompt and new anti-spam checks go live (requested 16:30 UTC)
 - [x] Review Thai and Romanian human-check and cooldown messages for natural wording (user asked 16:26 UTC)
+- [x] Non-math tick-box verification on Sell/Repair/Digital forms
+- [x] Easier-question button gives genuinely simpler sums
