@@ -105,6 +105,7 @@ const SUB: Record<string, [string, string]> = {
   "Boots": ["รองเท้าบูท", "Cizme"],
   "Formal footwear": ["รองเท้าทางการ", "Încălțăminte elegantă"],
   "Smartphones & mobile phones": ["สมาร์ทโฟนและมือถือ", "Smartphone-uri și telefoane"],
+  "Mobile phone accessories": ["อุปกรณ์เสริมโทรศัพท์มือถือ", "Accesorii pentru telefoane"],
   "Digital cameras & lenses": ["กล้องถ่ายรูปและเลนส์", "Aparate foto și obiective"],
   "Tablets & laptops": ["แท็บเล็ตและแล็ปท็อป", "Tablete și laptopuri"],
   "TVs & monitors": ["ทีวีและจอมอนิเตอร์", "Televizoare și monitoare"],
