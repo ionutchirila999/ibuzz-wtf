@@ -1,5 +1,6 @@
 # Roadmap
 
-- [ ] Verify install guide on phone width and in Romanian (desktop/EN verified)
-- [ ] Offline page: branded fallback page shown to installed visitors when they lose connection (service worker via vite-plugin-pwa, guarded registration, never in preview)
-- [ ] Update project knowledge note that previously said "manifest-only, no service worker"
+- [x] Install guide: platform-aware dialog (Android / iPhone / desktop) in the footer, trilingual
+- [x] Offline page: branded `/offline.html` + service worker (vite-plugin-pwa, NetworkFirst navigations, precached fallback), guarded registration, guard tests
+- [x] Project knowledge note updated (was manifest-only)
+- Pending: publish so the service worker, offline page and install prompt go live (live site serves the last published build)
