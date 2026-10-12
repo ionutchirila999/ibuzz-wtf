@@ -14,3 +14,5 @@
 - Preserve legacy product category and condition columns when saving; use additive market fields for expanded catalog filters so published clients and existing rows remain compatible.
 - Share public enquiry validation and forms across Repair, Digital and Sell; server handlers store requests and private images before returning success, while owner access remains role-protected.
 - Keep three-division copy in the shared three-language dictionary modules so navigation and service text switch together.
+
+- Homepage-specific multilingual copy lives in the shared home-copy dictionary; inventory previews reuse ProductCard and the public catalog, never fabricated listings.

@@ -14,9 +14,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DigitalRouteImport } from './routes/digital'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RepairRouteImport } from './routes/repair'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as RepairIndexRouteImport } from './routes/repair.index'
 import { Route as RepairServiceRouteImport } from './routes/repair.$service'
@@ -46,6 +48,11 @@ const PortfolioRoute = PortfolioRouteImport.update({
   path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepairRoute = RepairRouteImport.update({
   id: '/repair',
   path: '/repair',
@@ -59,6 +66,11 @@ const SellRoute = SellRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductIdRoute = ProductIdRouteImport.update({
@@ -83,9 +95,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
   '/repair/$service': typeof RepairServiceRoute
   '/repair/': typeof RepairIndexRoute
@@ -96,8 +110,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
   '/repair/$service': typeof RepairServiceRoute
   '/repair': typeof RepairIndexRoute
@@ -109,9 +125,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
   '/repair/$service': typeof RepairServiceRoute
   '/repair/': typeof RepairIndexRoute
@@ -124,9 +142,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/digital'
     | '/portfolio'
+    | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
+    | '/terms'
     | '/product/$id'
     | '/repair/$service'
     | '/repair/'
@@ -137,8 +157,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/digital'
     | '/portfolio'
+    | '/privacy'
     | '/sell'
     | '/shop'
+    | '/terms'
     | '/product/$id'
     | '/repair/$service'
     | '/repair'
@@ -149,9 +171,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/digital'
     | '/portfolio'
+    | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
+    | '/terms'
     | '/product/$id'
     | '/repair/$service'
     | '/repair/'
@@ -163,9 +187,11 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DigitalRoute: typeof DigitalRoute
   PortfolioRoute: typeof PortfolioRoute
+  PrivacyRoute: typeof PrivacyRoute
   RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
+  TermsRoute: typeof TermsRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -206,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repair': {
       id: '/repair'
       path: '/repair'
@@ -225,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product/$id': {
@@ -270,9 +310,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DigitalRoute: DigitalRoute,
   PortfolioRoute: PortfolioRoute,
+  PrivacyRoute: PrivacyRoute,
   RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
+  TermsRoute: TermsRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport

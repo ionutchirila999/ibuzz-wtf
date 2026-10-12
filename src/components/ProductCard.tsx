@@ -18,13 +18,13 @@ export function ProductCard({ p }: { p: Product }) {
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {p.is_demo && <Badge variant="destructive">{t("card.demo")}</Badge>}
-          {sold && <Badge variant="secondary">{t("card.sold")}</Badge>}
+          {sold ? <Badge variant="secondary">{t("card.sold")}</Badge> : <Badge variant="secondary">{copy(lang,"available")}</Badge>}
         </div>
       </div>
       <div className="space-y-1 p-3">
         <p className="text-xs text-muted-foreground">{p.brand} · {["repaired_tested","untested","for_parts"].includes(p.market_condition) ? copy(lang,p.market_condition as "repaired_tested" | "untested" | "for_parts") : CONDITION_LABEL[p.market_condition] ? t(`cond.${p.market_condition}` as never) : p.market_condition}</p>
         <h3 className="line-clamp-2 text-sm font-semibold">{p.title}</h3>
-        <p className="font-display text-lg font-bold text-primary">
+        <p className="font-display text-lg font-bold text-primary-soft">
           {formatPrice(p.price)} {p.negotiable && <span className="text-xs font-normal text-muted-foreground">{t("card.neg")}</span>}
         </p>
       </div>
