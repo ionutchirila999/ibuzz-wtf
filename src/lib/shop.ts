@@ -20,7 +20,7 @@ export const SOCIAL_IMAGE = `${SITE_ORIGIN}${socialAsset.url}`;
 export const SHOP_CONTACT = {
   whatsappNumber: "66896554965", // 089-6554965 in international format
   lineId: "ibuzz.wtf", // lowercase: LINE IDs can't contain capital letters
-  lineLabel: "iBuzz.wtf", // how the contact is shown on buttons
+  lineLabel: "ibuzz.wtf", // how the contact is shown on buttons — the exact LINE ID
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
