@@ -8,5 +8,5 @@
 - [x] Non-math tick-box verification on Sell/Repair/Digital forms
 - [x] Easier-question button gives genuinely simpler sums
 - [x] Verify keyboard/screen-reader switching of checks
-- [ ] Publish updated forms
+- [x] Publish updated forms
 - [x] Make the logo dot blue
