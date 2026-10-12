@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcProfit, lineLink, SHOP_CONTACT } from "./shop";
+import { calcProfit, lineLink, SHOP_CONTACT, whatsappLink } from "./shop";
 
 describe("calcProfit", () => {
   it("subtracts every cost from the selling price", () => {
@@ -16,6 +16,15 @@ describe("calcProfit", () => {
   it("warns when margin is below 15%", () => {
     const r = calcProfit({ sellingPrice: 1000, purchaseCost: 900, repairCost: 0, shipping: 0, platformFees: 0, otherExpenses: 0 });
     expect(r.warning).toMatch(/Thin margin/);
+  });
+});
+
+describe("WhatsApp contact", () => {
+  it("opens the owner's current number", () => {
+    expect(SHOP_CONTACT.whatsappNumber).toBe("66828977279");
+    expect(whatsappLink().startsWith("https://wa.me/66828977279?text=")).toBe(true);
+    expect(whatsappLink({ title: "iPhone 12" })).toContain("https://wa.me/66828977279?text=");
+    expect(whatsappLink()).not.toContain("66896554965");
   });
 });
 
