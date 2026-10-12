@@ -10,6 +10,8 @@ import { SHOP_NAME } from "@/lib/shop";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: `Owner sign in — ${SHOP_NAME}` },
       { name: "description", content: "Sign in to manage listings and offers." },
       { property: "og:title", content: `Owner sign in — ${SHOP_NAME}` },
