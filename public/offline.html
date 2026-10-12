@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iBuzz.wtf — Offline</title>
+<meta name="theme-color" content="#1F1548" />
+<link rel="icon" href="/favicon.png" />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1F1548;
+    color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+    text-align: center;
+  }
+  .card { max-width: 420px; }
+  .bolt { width: 56px; height: 56px; margin: 0 auto 20px; display: block; }
+  .brand { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.01em; }
+  .brand .dot { color: #A855F7; }
+  .tagline { margin-top: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.55); letter-spacing: 0.12em; text-transform: uppercase; }
+  h1 { margin-top: 28px; font-size: 1.5rem; font-weight: 700; line-height: 1.25; }
+  p.lead { margin: 12px auto 0; font-size: 0.95rem; line-height: 1.6; color: rgba(255,255,255,0.7); max-width: 340px; }
+  button {
+    margin-top: 28px;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: #7C3AED;
+    cursor: pointer;
+  }
+  button:hover { background: #8B5CF6; }
+  .hint { margin-top: 16px; font-size: 0.8rem; color: rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+<main class="card">
+  <svg class="bolt" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M13 2 4.5 13.5h5L10 22l8.5-11.5h-5L13 2Z" fill="#3B82F6" stroke="#3B82F6" stroke-width="1" stroke-linejoin="round"/>
+  </svg>
+  <div class="brand">iBuzz<span class="dot">.wtf</span></div>
+  <div class="tagline">Repair. Build. Buy. Sell.</div>
+  <h1 id="title">You're offline</h1>
+  <p class="lead" id="lead">iBuzz.wtf needs an internet connection. Check yours and try again.</p>
+  <button id="retry">Try again</button>
+  <p class="hint" id="hint">Pages you visited recently may still work offline.</p>
+</main>
+<script>
+  (function () {
+    var lang = (navigator.language || 'en').toLowerCase();
+    var texts = {
+      th: { t: 'คุณออฟไลน์อยู่', l: 'iBuzz.wtf ต้องใช้อินเทอร์เน็ต ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง', b: 'ลองอีกครั้ง', h: 'หน้าที่เปิดดูล่าสุดอาจยังใช้งานได้แม้ไม่มีอินเทอร์เน็ต' },
+      en: { t: "You're offline", l: 'iBuzz.wtf needs an internet connection. Check yours and try again.', b: 'Try again', h: 'Pages you visited recently may still work offline.' },
+      ro: { t: 'Ești offline', l: 'iBuzz.wtf are nevoie de internet. Verifică conexiunea și încearcă din nou.', b: 'Încearcă din nou', h: 'Paginile vizitate recent ar putea funcționa și offline.' }
+    };
+    var t = texts[lang.slice(0, 2)] || texts.en;
+    document.getElementById('title').textContent = t.t;
+    document.getElementById('lead').textContent = t.l;
+    document.getElementById('retry').textContent = t.b;
+    document.getElementById('hint').textContent = t.h;
+    document.documentElement.lang = lang.slice(0, 2);
+    document.getElementById('retry').addEventListener('click', function () { location.reload(); });
+  })();
+</script>
+</body>
+</html>
