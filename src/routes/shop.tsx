@@ -10,11 +10,11 @@ import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string; status?: string; size?: string | undefined };
+type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string | undefined; status?: string | undefined; size?: string | undefined };
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
-    category: (s.category === "footwear" || s.category === "clothing") ? "footwear" : s["category"] === "technology" || s["category"] === "clothing" || s["category"] === "footwear" ? s["category"] : undefined,
+    category: s["category"] === "womens_shoes" ? "footwear" : s["category"] === "technology" || s["category"] === "clothing" || s["category"] === "footwear" ? s["category"] : undefined,
     audience: ["men","women","children"].includes(String(s["audience"])) ? String(s["audience"]) : undefined,
     status: s["status"] === "available" || s["status"] === "sold" ? s["status"] : undefined,
     q: typeof s["q"] === "string" ? s["q"] : undefined,
