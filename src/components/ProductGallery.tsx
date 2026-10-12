@@ -19,7 +19,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
 
   return (
     <Dialog>
-      <div>
+      <div className="min-w-0">
         <DialogTrigger asChild>
           <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg border bg-muted p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(active)}`}>
             <img src={image} alt={photoLabel(active)} className="aspect-square w-full object-contain" />
@@ -38,7 +38,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
           if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
         }}>
-          <div className="flex min-h-14 items-center justify-between gap-2 border-b px-3">
+          <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 border-b px-3">
             <DialogTitle className="min-w-0 truncate text-sm font-semibold">{title}</DialogTitle>
             <DialogClose asChild><Button size="icon" variant="ghost" className="size-11 shrink-0" title={text("close")} aria-label={text("close")}><X /></Button></DialogClose>
           </div>
