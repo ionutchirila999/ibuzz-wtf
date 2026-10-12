@@ -1,7 +1,21 @@
 import { createServerFn } from '@tanstack/react-start';
 import { enquirySchema } from './enquiry-schema';
+import { cooldownDecision, createChallenge, hashVisitor, verifyChallenge } from './form-guard';
+
+export const getHumanCheck = createServerFn({method:'POST'}).handler(async () => createChallenge(process.env['SUPABASE_SERVICE_ROLE_KEY']!));
+
 export const submitEnquiry = createServerFn({method:'POST'}).inputValidator((input: unknown) => enquirySchema.parse(input)).handler(async ({data}) => {
+ const secret = process.env['SUPABASE_SERVICE_ROLE_KEY']!;
+ if (data.website) return {saved:true as const, status:'ok' as const}; // honeypot: silently drop bots
+ if (!(await verifyChallenge(secret, data.checkToken, data.checkAnswer))) return {saved:false as const, status:'human' as const};
+ const {getRequest} = await import('@tanstack/react-start/server');
+ const req = getRequest();
+ const ip = req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+ const visitor = await hashVisitor(secret, ip);
  const {supabaseAdmin} = await import('@/integrations/supabase/client.server');
+ const since = new Date(Date.now() - 3600_000).toISOString();
+ const {data:recent} = await supabaseAdmin.from('enquiry_rate_limits').select('created_at').eq('visitor_hash', visitor).gte('created_at', since);
+ if (cooldownDecision((recent ?? []).map(r => new Date(r.created_at).getTime())) === 'cooldown') return {saved:false as const, status:'cooldown' as const};
  const paths:string[] = [];
  try {
   for(const photo of data.photos) {
@@ -19,6 +33,8 @@ export const submitEnquiry = createServerFn({method:'POST'}).inputValidator((inp
    ? await supabaseAdmin.from('resale_offers').insert({name:data.name,contact:data.contact,category:'technology',item_description:data.description,condition_notes:data.description,device_type:data.service,brand:data.brand,model:data.model,device_condition:data.deviceCondition,asking_price:data.price,photos:paths})
    : await supabaseAdmin.from('service_enquiries').insert({kind:data.kind,name:data.name,contact:data.contact,service:data.service,description:data.description,photos:paths});
   if(result.error) throw result.error;
-  return {saved:true};
+  await supabaseAdmin.from('enquiry_rate_limits').insert({visitor_hash: visitor});
+  await supabaseAdmin.from('enquiry_rate_limits').delete().lt('created_at', new Date(Date.now() - 86400_000).toISOString());
+  return {saved:true as const, status:'ok' as const};
  } catch(error) { if(paths.length) await supabaseAdmin.storage.from('enquiry-photos').remove(paths); throw new Error('Could not save request'); }
 });
