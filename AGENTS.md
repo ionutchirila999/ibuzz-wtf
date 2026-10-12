@@ -16,3 +16,4 @@
 - Keep three-division copy in the shared three-language dictionary modules so navigation and service text switch together.
 
 - Homepage-specific multilingual copy lives in the shared home-copy dictionary; inventory previews reuse ProductCard and the public catalog, never fabricated listings.
+- Brand metadata stays centralised: page titles and sharing tags come from the shared page-head helper, the tab icon is a small brand mark served from `public/`, and the social banner is referenced as an absolute URL from the site's own origin; never add a share image to the root layout, because it would override every page's own preview.

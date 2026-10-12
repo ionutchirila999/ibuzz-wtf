@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ShieldCheck, Truck, RotateCcw, ImageOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CONDITION_LABEL, formatPrice, SHOP_NAME, type Category } from "@/lib/shop";
+import { CONDITION_LABEL, formatPrice, SHOP_NAME, SOCIAL_IMAGE, type Category } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
@@ -14,6 +14,8 @@ export const Route = createFileRoute("/product/$id")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: SOCIAL_IMAGE },
+      { name: "twitter:image", content: SOCIAL_IMAGE },
       { title: `Product details — ${SHOP_NAME}` },
       { name: "description", content: "Photos, condition, price and availability. Enquire on WhatsApp or LINE." },
       { property: "og:title", content: `Product details — ${SHOP_NAME}` },

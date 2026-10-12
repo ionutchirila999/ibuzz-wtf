@@ -4,7 +4,7 @@ import { copy } from "@/lib/service-copy";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SHOP_NAME, SUBCATEGORIES, type Category } from "@/lib/shop";
+import { SHOP_NAME, SOCIAL_IMAGE, SUBCATEGORIES, type Category } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,8 @@ export const Route = createFileRoute("/shop")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: SOCIAL_IMAGE },
+      { name: "twitter:image", content: SOCIAL_IMAGE },
       { title: `Market — ${SHOP_NAME}` },
       { name: "description", content: "Browse electronics, clothing and footwear for men, women and children. Search, filter and enquire." },
       { property: "og:title", content: `Market — ${SHOP_NAME}` },
