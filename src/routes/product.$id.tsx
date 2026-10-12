@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, ShieldCheck, Truck, RotateCcw, ImageOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CONDITION_LABEL, formatPrice, SHOP_NAME, type Category } from "@/lib/shop";
+import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { t, sub } = useT();
+  const { t, sub, lang } = useT();
   const { id } = Route.useParams();
   const [active, setActive] = useState(0);
   const { data: p, isLoading } = useQuery({
@@ -40,8 +41,8 @@ function ProductPage() {
 
   const sold = p.status === "sold" || p.stock <= 0;
   const rows: [string, string | null][] = [
-    [t("p.category"), `${t(`cat.${p.category as Category}`)} · ${sub(p.subcategory)}`],
-    [t("p.brand"), p.brand], [t("p.model"), p.model], [t("shop.condition"), CONDITION_LABEL[p.condition] ? t(`cond.${p.condition}` as never) : p.condition],
+    [t("p.category"), `${t(`cat.${p.market_category as Category}`)} · ${sub(p.subcategory)}`],
+    [t("p.brand"), p.brand], [t("p.model"), p.model], [t("shop.condition"), ["repaired_tested","untested","for_parts"].includes(p.market_condition) ? copy(lang,p.market_condition as "repaired_tested" | "untested" | "for_parts") : CONDITION_LABEL[p.market_condition] ? t(`cond.${p.market_condition}` as never) : p.market_condition],
     [t("p.size"), p.shoe_size ? `${p.shoe_size} ${p.size_system ?? ""}` : null],
     [t("p.color"), p.color], [t("p.material"), p.material],
     [t("p.avail"), sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`],

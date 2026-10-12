@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { ImageOff } from "lucide-react";
 import { CONDITION_LABEL, formatPrice, type Product } from "@/lib/shop";
+import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 
 export function ProductCard({ p }: { p: Product }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const sold = p.status === "sold" || p.stock <= 0;
   return (
     <Link to="/product/$id" params={{ id: p.id }} className="group overflow-hidden rounded-xl border bg-card transition hover:border-primary/60">
@@ -21,7 +22,7 @@ export function ProductCard({ p }: { p: Product }) {
         </div>
       </div>
       <div className="space-y-1 p-3">
-        <p className="text-xs text-muted-foreground">{p.brand} · {CONDITION_LABEL[p.condition] ? t(`cond.${p.condition}` as never) : p.condition}</p>
+        <p className="text-xs text-muted-foreground">{p.brand} · {["repaired_tested","untested","for_parts"].includes(p.market_condition) ? copy(lang,p.market_condition as "repaired_tested" | "untested" | "for_parts") : CONDITION_LABEL[p.market_condition] ? t(`cond.${p.market_condition}` as never) : p.market_condition}</p>
         <h3 className="line-clamp-2 text-sm font-semibold">{p.title}</h3>
         <p className="font-display text-lg font-bold text-primary">
           {formatPrice(p.price)} {p.negotiable && <span className="text-xs font-normal text-muted-foreground">{t("card.neg")}</span>}

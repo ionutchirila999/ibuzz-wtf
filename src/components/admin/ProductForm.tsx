@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SUBCATEGORIES, SIZE_SYSTEMS, calcProfit, formatPrice, type Category, type Product } from "@/lib/shop";
+import { SUBCATEGORIES, SIZE_SYSTEMS, legacyCategory, legacyCondition, calcProfit, formatPrice, type Category, type Product } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ const COSTS = ["purchase_cost", "repair_cost", "shipping_cost", "platform_fees",
 type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 
 const empty: Form = {
-  category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
+  market_category: "technology", market_condition: "pre_owned", audience: "all", category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
   images: [], price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
   color: "", material: "", authenticity_verified: false, authenticity_notes: "", delivery_options: "", return_policy: "",
   is_demo: false, status: "available",
@@ -52,7 +52,7 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
   async function save() {
     if (!f.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
-    const payload = { ...f, shoe_size: f.category === "womens_shoes" ? f.shoe_size : null, size_system: f.category === "womens_shoes" ? f.size_system : null };
+    const payload = { ...f, category: legacyCategory(f.market_category as Category), condition: legacyCondition(f.market_condition), shoe_size: f.market_category !== "technology" ? f.shoe_size : null, size_system: f.market_category !== "technology" ? f.size_system : null };
     const res = product
       ? await supabase.from("products").update({ ...payload, updated_at: new Date().toISOString() }).eq("id", product.id).select().single()
       : await supabase.from("products").insert(payload).select().single();
@@ -65,30 +65,31 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
   }
 
   const profit = calcProfit({ sellingPrice: Number(f.price), purchaseCost: c.purchase_cost, repairCost: c.repair_cost, shipping: c.shipping_cost, platformFees: c.platform_fees, otherExpenses: c.other_expenses });
-  const shoes = f.category === "womens_shoes";
+  const shoes = f.market_category !== "technology";
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Category</Label>
-          <Select value={f.category} onValueChange={(v) => setF((p) => ({ ...p, category: v, subcategory: SUBCATEGORIES[v as Category][0] ?? "" }))}>
+          <Select value={f.market_category} onValueChange={(v) => setF((p) => ({ ...p, market_category: v, subcategory: SUBCATEGORIES[v as Category][0] ?? "" }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value="technology">Technology</SelectItem><SelectItem value="womens_shoes">Women's Shoes</SelectItem></SelectContent>
+            <SelectContent><SelectItem value="technology">Technology</SelectItem><SelectItem value="clothing">Clothing</SelectItem><SelectItem value="footwear">Footwear</SelectItem></SelectContent>
           </Select>
         </div>
         <div><Label>Type</Label>
           <Select value={f.subcategory} onValueChange={(v) => set("subcategory", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{SUBCATEGORIES[f.category as Category].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+            <SelectContent>{SUBCATEGORIES[f.market_category as Category].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
           </Select>
         </div>
       </div>
+      <div><Label>For</Label><Select value={f.audience} onValueChange={v=>set("audience",v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{["all","men","women","children"].map(v=><SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select></div>
       <div><Label>Title</Label><Input value={f.title} onChange={(e) => set("title", e.target.value)} /></div>
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Brand</Label><Input value={f.brand ?? ""} onChange={(e) => set("brand", e.target.value)} /></div>
         <div><Label>Model</Label><Input value={f.model ?? ""} onChange={(e) => set("model", e.target.value)} /></div>
         {shoes && <>
-          <div><Label>Women's size</Label><Input value={f.shoe_size ?? ""} onChange={(e) => set("shoe_size", e.target.value)} /></div>
+          <div><Label>Size</Label><Input value={f.shoe_size ?? ""} onChange={(e) => set("shoe_size", e.target.value)} /></div>
           <div><Label>Sizing system</Label>
             <Select value={f.size_system ?? "EU"} onValueChange={(v) => set("size_system", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -99,9 +100,9 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
         <div><Label>Color</Label><Input value={f.color ?? ""} onChange={(e) => set("color", e.target.value)} /></div>
         <div><Label>Material</Label><Input value={f.material ?? ""} onChange={(e) => set("material", e.target.value)} /></div>
         <div><Label>Condition</Label>
-          <Select value={f.condition} onValueChange={(v) => set("condition", v)}>
+          <Select value={f.market_condition} onValueChange={(v) => set("market_condition", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value="new">New</SelectItem><SelectItem value="pre_owned">Pre-owned</SelectItem><SelectItem value="refurbished">Refurbished</SelectItem></SelectContent>
+            <SelectContent><SelectItem value="new">New</SelectItem><SelectItem value="pre_owned">Pre-owned</SelectItem><SelectItem value="refurbished">Refurbished</SelectItem><SelectItem value="repaired_tested">Repaired & tested</SelectItem><SelectItem value="untested">Untested</SelectItem><SelectItem value="for_parts">For parts</SelectItem></SelectContent>
           </Select>
         </div>
         <div><Label>Stock</Label><Input type="number" min={0} value={f.stock} onChange={(e) => set("stock", Number(e.target.value))} /></div>

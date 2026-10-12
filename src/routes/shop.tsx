@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { copy } from "@/lib/service-copy";
+import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SHOP_NAME, SUBCATEGORIES, type Category } from "@/lib/shop";
@@ -8,11 +10,13 @@ import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; size?: string | undefined };
+type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string; status?: string; size?: string | undefined };
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
-    category: s["category"] === "womens_shoes" || s["category"] === "technology" ? s["category"] : undefined,
+    category: (s.category === "footwear" || s.category === "clothing") ? "footwear" : s["category"] === "technology" || s["category"] === "clothing" || s["category"] === "footwear" ? s["category"] : undefined,
+    audience: ["men","women","children"].includes(String(s["audience"])) ? String(s["audience"]) : undefined,
+    status: s["status"] === "available" || s["status"] === "sold" ? s["status"] : undefined,
     q: typeof s["q"] === "string" ? s["q"] : undefined,
     sub: typeof s["sub"] === "string" ? s["sub"] : undefined,
     condition: typeof s["condition"] === "string" ? s["condition"] : undefined,
@@ -23,10 +27,10 @@ export const Route = createFileRoute("/shop")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: `Shop — ${SHOP_NAME}` },
-      { name: "description", content: "Browse refurbished electronics, parts and women's footwear. Search, filter and enquire." },
-      { property: "og:title", content: `Shop — ${SHOP_NAME}` },
-      { property: "og:description", content: "Browse refurbished electronics, parts and women's footwear." },
+      { title: `Market — ${SHOP_NAME}` },
+      { name: "description", content: "Browse electronics, clothing and footwear for men, women and children. Search, filter and enquire." },
+      { property: "og:title", content: `Market — ${SHOP_NAME}` },
+      { property: "og:description", content: "Browse electronics, clothing and footwear for men, women and children." },
     ],
   }),
   component: Shop,
@@ -35,7 +39,7 @@ export const Route = createFileRoute("/shop")({
 const ALL = "__all";
 
 function Shop() {
-  const { t, sub } = useT();
+  const { t, sub, lang } = useT();
   const s = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
@@ -44,11 +48,13 @@ function Shop() {
     queryKey: ["products", s],
     queryFn: async () => {
       let q = supabase.from("products").select("*").neq("status", "hidden");
-      if (s.category) q = q.eq("category", s.category);
+      if (s.category) q = q.eq("market_category", s.category);
       if (s.sub) q = q.eq("subcategory", s.sub);
-      if (s.condition) q = q.eq("condition", s.condition);
+      if (s.condition) q = q.eq("market_condition", s.condition);
       if (s.size) q = q.eq("shoe_size", s.size);
-      if (s.q) q = q.or(`title.ilike.%${s.q}%,brand.ilike.%${s.q}%,model.ilike.%${s.q}%`);
+      if (s.audience) q = q.eq("audience", s.audience);
+      if (s.status) q = q.eq("status", s.status);
+      if (s.q) q = q.or(`title.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%,brand.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%,model.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%`);
       if (s["sort"] === "price_asc") q = q.order("price", { ascending: true });
       else if (s["sort"] === "price_desc") q = q.order("price", { ascending: false });
       else q = q.order("created_at", { ascending: false });
@@ -62,12 +68,14 @@ function Shop() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="mb-3 text-3xl font-bold">iBuzz.wtf {copy(lang,"market")}</h1>
+      <p className="mb-6 text-sm text-muted-foreground">{copy(lang,"marketLead")}</p>
       <div className="mb-6 flex gap-2 overflow-x-auto">
-        {([undefined, "technology", "womens_shoes"] as const).map((c) => (
-          <button key={c ?? "all"} onClick={() => set({ category: c, sub: undefined, size: undefined })}
+        {([undefined, "technology", "clothing", "footwear"] as const).map((c) => (
+          <Button variant={s.category === c ? "default" : "outline"} key={c ?? "all"} onClick={() => set({ category: c, sub: undefined, size: undefined })}
             className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${s["category"] === c ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
             {c ? t(`cat.${c}`) : t("shop.all")}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -92,6 +100,7 @@ function Shop() {
             <SelectItem value="new">{t("cond.new")}</SelectItem>
             <SelectItem value="pre_owned">{t("cond.pre_owned")}</SelectItem>
             <SelectItem value="refurbished">{t("cond.refurbished")}</SelectItem>
+            {(["repaired_tested","untested","for_parts"] as const).map(c=><SelectItem key={c} value={c}>{copy(lang,c)}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={s.sort ?? "newest"} onValueChange={(v) => set({ sort: v === "newest" ? undefined : v })}>
@@ -102,11 +111,12 @@ function Shop() {
             <SelectItem value="price_desc">{t("shop.priceDesc")}</SelectItem>
           </SelectContent>
         </Select>
-        {s["category"] === "womens_shoes" && (
+        {(s.category === "footwear" || s.category === "clothing") && (
           <Input className="md:w-32" placeholder={t("shop.size")} defaultValue={s.size} onChange={(e) => set({ size: e.target.value || undefined })} />
         )}
       </div>
 
+      <div className="mb-6 flex flex-wrap gap-3"><Select value={s.audience ?? ALL} onValueChange={v=>set({audience:v===ALL?undefined:v})}><SelectTrigger className="w-44"><SelectValue placeholder={copy(lang,"audience")}/></SelectTrigger><SelectContent><SelectItem value={ALL}>{copy(lang,"all")}</SelectItem>{(["men","women","children"] as const).map(v=><SelectItem key={v} value={v}>{copy(lang,v)}</SelectItem>)}</SelectContent></Select><Select value={s.status??ALL} onValueChange={v=>set({status:v===ALL?undefined:v})}><SelectTrigger className="w-44"><SelectValue placeholder={copy(lang,"availability")}/></SelectTrigger><SelectContent><SelectItem value={ALL}>{copy(lang,"all")}</SelectItem><SelectItem value="available">{copy(lang,"available")}</SelectItem><SelectItem value="sold">{copy(lang,"sold")}</SelectItem></SelectContent></Select></div>
       {isLoading ? (
         <p className="text-muted-foreground">{t("loading")}</p>
       ) : data.length === 0 ? (
