@@ -5,15 +5,20 @@ import { ChevronLeft, ChevronRight, ImageOff, RotateCcw, X, ZoomIn, ZoomOut } fr
 import { Button } from "./ui/button";
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
-import { galleryText } from "@/lib/gallery-copy";
+import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
 export function ProductGallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const image = images[active];
+  const captions = images.map((src) => photoCaption(lang, src));
   const move = (direction: number) => setActive((current) => (current + direction + images.length) % images.length);
-  const photoLabel = (index: number) => `${title} — ${text("photo")} ${index + 1} / ${images.length}`;
+  const photoLabel = (index: number) => {
+    const caption = captions[index];
+    const base = caption ?? `${text("photo")} ${index + 1} / ${images.length}`;
+    return `${title} — ${base}`;
+  };
 
   if (!image) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
@@ -25,8 +30,9 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
             <img src={image} alt={photoLabel(active)} className="aspect-square w-full object-contain" />
             <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
           </Button>
-        </DialogTrigger>
-        {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1">
+          </DialogTrigger>
+          {captions[active] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[active]}</p>}
+          {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1">
           {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={photoLabel(index)} aria-pressed={index === active} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
@@ -48,6 +54,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
                 <TransformComponent wrapperClass="!h-full !w-full !touch-none" contentClass="!h-full !w-full">
                   <img src={image} alt={photoLabel(active)} draggable={false} className="h-full w-full select-none object-contain" />
                 </TransformComponent>
+                {captions[active] && <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 max-w-[75%] truncate rounded-md bg-background/85 px-2 py-1 text-xs text-foreground">{captions[active]}</span>}
               </div>
               <div className="flex flex-wrap items-center justify-center gap-1 border-t p-2">
                 <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")}><ChevronLeft /></Button>
