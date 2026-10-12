@@ -25,6 +25,10 @@ const captionBySlug: Partial<Record<string, [string, string, string]>> = {
   "brand-port": ["ช่องเชื่อมต่อและตราสินค้า", "Ports and brand marking", "Conectori și marcă"],
 };
 
+export function galleryText(lang: Lang, key: keyof typeof galleryCopy) {
+  return galleryCopy[key][lang === "th" ? 0 : lang === "en" ? 1 : 2];
+}
+
 export function photoCaption(lang: Lang, src: string): string | null {
   const slug = decodeURIComponent(src).split("?")[0].split("/").pop()?.replace(/\.\w+$/, "").toLowerCase();
   const entry = slug ? captionBySlug[slug] : undefined;
