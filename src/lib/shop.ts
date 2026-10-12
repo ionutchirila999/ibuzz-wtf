@@ -24,6 +24,7 @@ export const CATEGORY_LABEL: Record<Category, string> = {
 export const SUBCATEGORIES: Record<Category, string[]> = {
   technology: [
     "Smartphones & mobile phones",
+    "Digital cameras & lenses",
     "Tablets & laptops",
     "TVs & monitors",
     "Computer components & accessories",

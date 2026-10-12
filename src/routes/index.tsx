@@ -9,9 +9,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: `${SHOP_NAME} — Refurbished Tech & Women's Shoes` },
-      { name: "description", content: "Inspected, repaired electronics and new or pre-owned women's footwear. Enquire on WhatsApp or LINE." },
+      { name: "description", content: "We buy broken smartphones and digital cameras, repair them, and resell inspected tech and women's footwear. Enquire on WhatsApp or LINE." },
       { property: "og:title", content: `${SHOP_NAME} — Refurbished Tech & Women's Shoes` },
-      { property: "og:description", content: "Inspected, repaired electronics and new or pre-owned women's footwear." },
+      { property: "og:description", content: "We buy broken smartphones and digital cameras, repair them, and resell inspected tech and women's footwear." },
     ],
   }),
   component: Home,

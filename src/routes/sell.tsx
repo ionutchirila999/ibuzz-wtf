@@ -14,9 +14,9 @@ export const Route = createFileRoute("/sell")({
   head: () => ({
     meta: [
       { title: `Sell to us — ${SHOP_NAME}` },
-      { name: "description", content: "Offer your used electronics or women's shoes for resale. We'll inspect and reply." },
+      { name: "description", content: "We buy broken smartphones, digital cameras and women's shoes. Tell us what's wrong and we'll reply." },
       { property: "og:title", content: `Sell to us — ${SHOP_NAME}` },
-      { property: "og:description", content: "Offer your used electronics or women's shoes for resale." },
+      { property: "og:description", content: "We buy broken smartphones, digital cameras and women's shoes. Faulty is fine." },
     ],
   }),
   component: Sell,
