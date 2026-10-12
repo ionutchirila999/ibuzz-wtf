@@ -10,3 +10,5 @@
 - [x] Verify keyboard/screen-reader switching of checks
 - [x] Publish updated forms
 - [x] Make the logo dot blue
+- [x] Mobile check of forms
+- [x] Fresh security scan + fixes
