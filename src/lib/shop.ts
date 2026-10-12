@@ -5,8 +5,8 @@ export type Category = "technology" | "womens_shoes";
 
 // Contact details for enquiry buttons. Replace with the real numbers/IDs.
 export const SHOP_CONTACT = {
-  whatsappNumber: "", // international format, digits only, e.g. "66812345678"
-  lineId: "", // e.g. "@techfix"
+  whatsappNumber: "66896554965", // 089-6554965 in international format
+  lineId: "55wandee",
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
