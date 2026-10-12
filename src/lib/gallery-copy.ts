@@ -31,7 +31,9 @@ export function galleryText(lang: Lang, key: keyof typeof galleryCopy) {
 
 export function photoCaption(lang: Lang, src: string): string | null {
   const slug = decodeURIComponent(src).split("?")[0].split("/").pop()?.replace(/\.\w+$/, "").toLowerCase();
-  const entry = slug ? captionBySlug[slug] : undefined;
+  if (!slug) return null;
+  const entry = captionBySlug[slug];
   if (!entry) return null;
-  return entry[lang === "th" ? 0 : lang === "en" ? 1 : 2];
+  const text = lang === "th" ? entry[0] : lang === "en" ? entry[1] : entry[2];
+  return text ?? null;
 }
