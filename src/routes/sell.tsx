@@ -31,7 +31,7 @@ function Sell() {
     const name = String(f.get("name")).trim().slice(0, 100);
     const contact = String(f.get("contact")).trim().slice(0, 150);
     const item = String(f.get("item")).trim().slice(0, 2000);
-    if (!name || !contact || !item) return toast.error("Please fill in name, contact and item.");
+    if (!name || !contact || !item) { toast.error("Please fill in name, contact and item."); return; }
     setSending(true);
     const price = f.get("price") ? Number(f.get("price")) : null;
     const { error } = await supabase.from("resale_offers").insert({
@@ -40,7 +40,7 @@ function Sell() {
       asking_price: price && price > 0 ? price : null,
     });
     setSending(false);
-    if (error) return toast.error("Couldn't send. Please try again.");
+    if (error) { toast.error("Couldn't send. Please try again."); return; }
     setDone(true);
   }
 

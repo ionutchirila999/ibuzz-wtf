@@ -15,7 +15,7 @@ const COSTS = ["purchase_cost", "repair_cost", "shipping_cost", "platform_fees",
 type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 
 const empty: Form = {
-  category: "technology", subcategory: SUBCATEGORIES.technology[0], title: "", brand: "", model: "", description: "",
+  category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
   images: [], price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
   color: "", material: "", authenticity_verified: false, authenticity_notes: "", delivery_options: "", return_policy: "",
   is_demo: false, status: "available",
@@ -50,16 +50,16 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
   }
 
   async function save() {
-    if (!f.title.trim()) return toast.error("Title is required");
+    if (!f.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
     const payload = { ...f, shoe_size: f.category === "womens_shoes" ? f.shoe_size : null, size_system: f.category === "womens_shoes" ? f.size_system : null };
     const res = product
       ? await supabase.from("products").update({ ...payload, updated_at: new Date().toISOString() }).eq("id", product.id).select().single()
       : await supabase.from("products").insert(payload).select().single();
-    if (res.error) { setBusy(false); return toast.error(res.error.message); }
+    if (res.error) { setBusy(false); { toast.error(res.error.message); return; } }
     const { error } = await supabase.from("product_costs").upsert({ product_id: res.data.id, ...c, updated_at: new Date().toISOString() });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Saved");
     onDone();
   }
@@ -71,7 +71,7 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div><Label>Category</Label>
-          <Select value={f.category} onValueChange={(v) => setF((p) => ({ ...p, category: v, subcategory: SUBCATEGORIES[v as Category][0] }))}>
+          <Select value={f.category} onValueChange={(v) => setF((p) => ({ ...p, category: v, subcategory: SUBCATEGORIES[v as Category][0] ?? "" }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent><SelectItem value="technology">Technology</SelectItem><SelectItem value="womens_shoes">Women's Shoes</SelectItem></SelectContent>
           </Select>

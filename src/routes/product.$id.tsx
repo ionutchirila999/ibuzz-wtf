@@ -37,7 +37,7 @@ function ProductPage() {
   const sold = p.status === "sold" || p.stock <= 0;
   const rows: [string, string | null][] = [
     ["Category", `${CATEGORY_LABEL[p.category as Category]} · ${p.subcategory}`],
-    ["Brand", p.brand], ["Model", p.model], ["Condition", CONDITION_LABEL[p.condition]],
+    ["Brand", p.brand], ["Model", p.model], ["Condition", CONDITION_LABEL[p.condition] ?? p.condition],
     ["Size", p.shoe_size ? `${p.shoe_size} ${p.size_system ?? ""}` : null],
     ["Color", p.color], ["Material", p.material],
     ["Availability", sold ? "Sold out" : `${p.stock} in stock`],

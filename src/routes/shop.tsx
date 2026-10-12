@@ -7,16 +7,16 @@ import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ShopSearch = { category?: Category; q?: string; sub?: string; condition?: string; sort?: string; size?: string };
+type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; size?: string | undefined };
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
-    category: s.category === "womens_shoes" || s.category === "technology" ? s.category : undefined,
-    q: typeof s.q === "string" ? s.q : undefined,
-    sub: typeof s.sub === "string" ? s.sub : undefined,
-    condition: typeof s.condition === "string" ? s.condition : undefined,
-    sort: typeof s.sort === "string" ? s.sort : undefined,
-    size: typeof s.size === "string" ? s.size : undefined,
+    category: s["category"] === "womens_shoes" || s["category"] === "technology" ? s["category"] : undefined,
+    q: typeof s["q"] === "string" ? s["q"] : undefined,
+    sub: typeof s["sub"] === "string" ? s["sub"] : undefined,
+    condition: typeof s["condition"] === "string" ? s["condition"] : undefined,
+    sort: typeof s["sort"] === "string" ? s["sort"] : undefined,
+    size: typeof s["size"] === "string" ? s["size"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -45,8 +45,8 @@ function Shop() {
       if (s.condition) q = q.eq("condition", s.condition);
       if (s.size) q = q.eq("shoe_size", s.size);
       if (s.q) q = q.or(`title.ilike.%${s.q}%,brand.ilike.%${s.q}%,model.ilike.%${s.q}%`);
-      if (s.sort === "price_asc") q = q.order("price", { ascending: true });
-      else if (s.sort === "price_desc") q = q.order("price", { ascending: false });
+      if (s["sort"] === "price_asc") q = q.order("price", { ascending: true });
+      else if (s["sort"] === "price_desc") q = q.order("price", { ascending: false });
       else q = q.order("created_at", { ascending: false });
       const { data, error } = await q;
       if (error) throw error;
@@ -61,7 +61,7 @@ function Shop() {
       <div className="mb-6 flex gap-2 overflow-x-auto">
         {([undefined, "technology", "womens_shoes"] as const).map((c) => (
           <button key={c ?? "all"} onClick={() => set({ category: c, sub: undefined, size: undefined })}
-            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${s.category === c ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm ${s["category"] === c ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
             {c ? CATEGORY_LABEL[c] : "All"}
           </button>
         ))}
@@ -98,7 +98,7 @@ function Shop() {
             <SelectItem value="price_desc">Price: high to low</SelectItem>
           </SelectContent>
         </Select>
-        {s.category === "womens_shoes" && (
+        {s["category"] === "womens_shoes" && (
           <Input className="md:w-32" placeholder="Size e.g. 38" defaultValue={s.size} onChange={(e) => set({ size: e.target.value || undefined })} />
         )}
       </div>

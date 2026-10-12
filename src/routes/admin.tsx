@@ -61,13 +61,13 @@ function Dashboard() {
 
   async function markSold(p: Product) {
     const { error } = await supabase.from("products").update({ status: "sold", stock: 0 }).eq("id", p.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   }
   async function remove(p: Product) {
     if (!confirm(`Delete "${p.title}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   }
   async function setOffer(id: string, status: string) {
