@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useT } from '@/lib/i18n';
 import { copy, repairServices, digitalServices } from '@/lib/service-copy';
 import { enquirySchema, type EnquiryInput } from '@/lib/enquiry-schema';
+import { ContactButtons } from '@/components/ContactButtons';
 import { getHumanCheck, submitEnquiry } from '@/lib/enquiries.functions';
 export function EnquiryForm({kind,service}:{kind:'repair'|'digital'|'sell';service?:string}) {
  const {lang} = useT(); const c = (key:Parameters<typeof copy>[1]) => copy(lang,key);
@@ -39,7 +40,7 @@ export function EnquiryForm({kind,service}:{kind:'repair'|'digital'|'sell';servi
   <div><Label htmlFor={`${kind}-photos`}>{c('photos')}</Label><Input id={`${kind}-photos`} type="file" multiple accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>upload(e.target.files)}/><div className="mt-2 flex flex-wrap gap-2">{photos.map((p,i)=><div className="relative" key={i}><img src={`data:${p.mime};base64,${p.data}`} alt={`${c('photos')} ${i+1}`} className="h-20 w-20 rounded-md object-cover"/><Button type="button" size="icon" variant="outline" aria-label={`Remove photo ${i+1}`} className="absolute right-0 top-0 h-6 w-6" onClick={()=>setPhotos(photos.filter((_,n)=>n!==i))}><X className="h-3 w-3"/></Button></div>)}</div></div>
   <div><Label htmlFor={`${kind}-name`}>{c('name')}</Label><Input id={`${kind}-name`} name="name" required maxLength={100}/></div><div><Label htmlFor={`${kind}-contact`}>{c('contact')}</Label><Input id={`${kind}-contact`} name="contact" required maxLength={150}/></div>
    <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden"><label htmlFor={`${kind}-website`}>Website</label><input id={`${kind}-website`} name="website" tabIndex={-1} autoComplete="off"/></div>
-   <div><Label htmlFor={`${kind}-check`}>{c('humanCheck')} <span className="font-semibold text-foreground">{check?`${check.question} = ?`:'…'}</span></Label><Input id={`${kind}-check`} name="checkAnswer" inputMode="numeric" required maxLength={3} value={answer} onChange={e=>setAnswer(e.target.value)} className="mt-1 w-28"/></div>
+   <div><Label htmlFor={`${kind}-check`}>{c('humanCheck')} <span className="font-semibold text-foreground"><span aria-live="polite">{check?`${check.question} = ?`:'…'}</span></span></Label><Input id={`${kind}-check`} name="checkAnswer" inputMode="numeric" required maxLength={3} value={answer} onChange={e=>setAnswer(e.target.value)} aria-describedby={`${kind}-check-help`} className="mt-1 w-28"/><div className="mt-2 space-y-2"><p id={`${kind}-check-help`} className="text-sm text-muted-foreground">{c('humanHelp')}</p><Button type="button" variant="outline" size="sm" onClick={()=>{setAnswer('');setError('');loadCheck();}}>{c('humanNew')}</Button><ContactButtons/></div></div>
    {error&&<p role="alert" className="text-destructive">{error}</p>}<Button type="submit" variant="glow" size="lg" className="w-full" disabled={busy||!check}>{c(busy?'sending':'send')}</Button>
  </form>;
 }
