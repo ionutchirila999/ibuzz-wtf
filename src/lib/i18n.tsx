@@ -13,7 +13,7 @@ const D = {
   "nav.shop": ["ร้านค้า", "Shop", "Magazin"],
   "nav.sell": ["ขายให้เรา", "Sell to us", "Vinde-ne"],
   "nav.owner": ["เจ้าของร้าน", "Owner", "Proprietar"],
-  tagline: ["ซ่อม ตรวจสอบ และขายต่ออย่างใส่ใจ", "Repaired, inspected and resold with care", "Reparate, verificate și revândute cu grijă"],
+  tagline: ["ซ่อม โซลูชันดิจิทัล และตลาด — สินค้าเทคโนโลยีและรองเท้าผู้หญิง ตรวจสอบและขายต่ออย่างใส่ใจ", "Repair, Digital Solutions & Market — Technology products and women's footwear, inspected and resold with care.", "Reparații, soluții digitale și piață — produse tehnologice și încălțăminte de damă, verificate și revândute cu grijă."],
   "home.kicker": ["ซื้อ · ซ่อม · ขายต่อ", "BUY · REPAIR · RESELL", "CUMPĂRĂM · REPARĂM · REVINDEM"],
   "home.title": ["ซื้ออย่างคุ้มค่า ซ่อมอย่างมืออาชีพ ขายต่ออย่างมั่นใจ", "Buy Smart. Repair Better. Resell with Confidence.", "Cumpără inteligent. Repară mai bine. Revinde cu încredere."],
   "home.lead": [
