@@ -94,6 +94,16 @@ const D = {
 export type TKey = keyof typeof D;
 
 const SUB: Record<string, [string, string]> = {
+  "Tops": ["เสื้อ", "Bluze și tricouri"],
+  "Trousers & shorts": ["กางเกงขายาวและขาสั้น", "Pantaloni și pantaloni scurți"],
+  "Dresses & skirts": ["เดรสและกระโปรง", "Rochii și fuste"],
+  "Outerwear": ["เสื้อคลุม", "Îmbrăcăminte exterioară"],
+  "Sportswear": ["ชุดกีฬา", "Îmbrăcăminte sport"],
+  "Sneakers": ["รองเท้าผ้าใบ", "Sneakers"],
+  "Sports shoes": ["รองเท้ากีฬา", "Pantofi sport"],
+  "Sandals": ["รองเท้าแตะ", "Sandale"],
+  "Boots": ["รองเท้าบูท", "Cizme"],
+  "Formal footwear": ["รองเท้าทางการ", "Încălțăminte elegantă"],
   "Smartphones & mobile phones": ["สมาร์ทโฟนและมือถือ", "Smartphone-uri și telefoane"],
   "Digital cameras & lenses": ["กล้องถ่ายรูปและเลนส์", "Aparate foto și obiective"],
   "Tablets & laptops": ["แท็บเล็ตและแล็ปท็อป", "Tablete și laptopuri"],
