@@ -20,7 +20,7 @@ describe('swRegistrationDecision', () => {
   });
 
   it('refuses Lovable preview hosts and their subdomains', () => {
-    expect(swRegistrationDecision({ prod: true, hostname: 'id-preview--87e5aaf2-a377-43e2-8150-f3b0d061c68b.lovable.app', insideIframe: false, swParam: null })).toBe('register');
+    expect(swRegistrationDecision({ prod: true, hostname: 'id-preview--87e5aaf2-a377-43e2-8150-f3b0d061c68b.lovable.app', insideIframe: false, swParam: null })).toBe('refuse');
     expect(swRegistrationDecision({ prod: true, hostname: 'ibuzz-wtf.lovable.app', insideIframe: false, swParam: null })).toBe('register');
     for (const hostname of ['id-preview--abc.lovableproject.com', 'preview--x.lovableproject.com', 'lovableproject.com', 'sub.lovableproject.com', 'lovableproject-dev.com', 'beta.lovable.dev', 'sub.beta.lovable.dev']) {
       expect(swRegistrationDecision({ prod: true, hostname, insideIframe: false, swParam: null })).toBe('refuse');
