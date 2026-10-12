@@ -19,7 +19,7 @@ export const SOCIAL_IMAGE = `${SITE_ORIGIN}${socialAsset.url}`;
 // Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
   whatsappNumber: "66896554965", // 089-6554965 in international format
-  lineId: "55wandee", // the ID LINE actually opens a chat with
+  lineId: "ibuzz.wtf", // lowercase: LINE IDs can't contain capital letters
   lineLabel: "iBuzz.wtf", // how the contact is shown on buttons
 };
 
