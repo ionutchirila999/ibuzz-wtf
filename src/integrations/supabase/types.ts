@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      enquiry_rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          visitor_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          visitor_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          visitor_hash?: string
+        }
+        Relationships: []
+      }
       product_costs: {
         Row: {
           fault_notes: string | null
