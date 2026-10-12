@@ -69,6 +69,8 @@ export type Database = {
           id: string
           images: string[]
           is_demo: boolean
+          market_category: string
+          market_condition: string
           material: string | null
           model: string | null
           negotiable: boolean
@@ -95,6 +97,8 @@ export type Database = {
           id?: string
           images?: string[]
           is_demo?: boolean
+          market_category?: string
+          market_condition?: string
           material?: string | null
           model?: string | null
           negotiable?: boolean
@@ -121,6 +125,8 @@ export type Database = {
           id?: string
           images?: string[]
           is_demo?: boolean
+          market_category?: string
+          market_condition?: string
           material?: string | null
           model?: string | null
           negotiable?: boolean
@@ -139,35 +145,86 @@ export type Database = {
       resale_offers: {
         Row: {
           asking_price: number | null
+          brand: string | null
           category: string
           condition_notes: string | null
           contact: string
           created_at: string
+          device_condition: string | null
+          device_type: string | null
           id: string
           item_description: string
+          model: string | null
           name: string
+          photos: string[]
           status: string
         }
         Insert: {
           asking_price?: number | null
+          brand?: string | null
           category: string
           condition_notes?: string | null
           contact: string
           created_at?: string
+          device_condition?: string | null
+          device_type?: string | null
           id?: string
           item_description: string
+          model?: string | null
           name: string
+          photos?: string[]
           status?: string
         }
         Update: {
           asking_price?: number | null
+          brand?: string | null
           category?: string
           condition_notes?: string | null
           contact?: string
           created_at?: string
+          device_condition?: string | null
+          device_type?: string | null
           id?: string
           item_description?: string
+          model?: string | null
           name?: string
+          photos?: string[]
+          status?: string
+        }
+        Relationships: []
+      }
+      service_enquiries: {
+        Row: {
+          contact: string
+          created_at: string
+          description: string
+          id: string
+          kind: string
+          name: string
+          photos: string[]
+          service: string
+          status: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          description: string
+          id?: string
+          kind: string
+          name: string
+          photos?: string[]
+          service: string
+          status?: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          description?: string
+          id?: string
+          kind?: string
+          name?: string
+          photos?: string[]
+          service?: string
           status?: string
         }
         Relationships: []
