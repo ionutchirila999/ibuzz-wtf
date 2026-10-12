@@ -22,7 +22,7 @@ describe("calcProfit", () => {
 describe("LINE contact", () => {
   it("links to the lowercase ID while showing the brand label", () => {
     expect(lineLink()).toBe("https://line.me/R/ti/p/ibuzz.wtf");
-    expect(SHOP_CONTACT.lineLabel).toBe("iBuzz.wtf");
+    expect(SHOP_CONTACT.lineLabel).toBe("ibuzz.wtf");
     expect(SHOP_CONTACT.lineId).toBe("ibuzz.wtf");
     expect(SHOP_CONTACT.lineId).toBe(SHOP_CONTACT.lineId.toLowerCase());
   });
