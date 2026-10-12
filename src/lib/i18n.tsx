@@ -21,7 +21,7 @@ const D = {
     "Quality-tested technology, professionally repaired and ready for a second life. Discover beautiful women’s shoes, from brand-new styles to carefully selected pre-owned pairs—all in one place.",
     "Tehnologie testată, reparată profesional și pregătită pentru o a doua viață. Descoperă pantofi de damă frumoși, de la modele noi la perechi second-hand atent selecționate — toate într-un singur loc.",
   ],
-  "home.exploreTech": ["เลือกชมเทคโนโลยี", "Explore Technology", "Explorează tehnologia"],
+  "home.exploreTech": ["เลือกซื้อเทคโนโลยี", "Shop Technology", "Cumpără tehnologie"],
   "home.shopShoes": ["เลือกซื้อรองเท้าผู้หญิง", "Shop Women's Shoes", "Cumpără pantofi de damă"],
   "home.f1t": ["ตรวจสอบโดยช่าง", "Technician inspected", "Verificat de tehnician"],
   "home.f1d": ["พบปัญหาและซ่อมก่อนลงขายทุกชิ้น", "Faults found and repaired before anything is listed.", "Defectele sunt găsite și reparate înainte de listare."],
