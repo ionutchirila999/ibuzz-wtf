@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SHOP_NAME } from "@/lib/shop";
 
 export const Route = createFileRoute("/sell")({
   head: () => ({
     meta: [
-      { title: "Sell to us — TechFix Marketplace" },
+      { title: `Sell to us — ${SHOP_NAME}` },
       { name: "description", content: "Offer your used electronics or women's shoes for resale. We'll inspect and reply." },
-      { property: "og:title", content: "Sell to us — TechFix Marketplace" },
+      { property: "og:title", content: `Sell to us — ${SHOP_NAME}` },
       { property: "og:description", content: "Offer your used electronics or women's shoes for resale." },
     ],
   }),

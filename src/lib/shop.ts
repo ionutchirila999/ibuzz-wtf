@@ -3,7 +3,12 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Product = Tables<"products">;
 export type Category = "technology" | "womens_shoes";
 
-// Contact details for enquiry buttons. Replace with the real numbers/IDs.
+// The shop's name. Used in the header, footer and every page title.
+export const SHOP_NAME = "Magical Tech and Wandee Market";
+export const SHOP_SHORT_NAME = "Magical Tech";
+export const SHOP_TAGLINE = "Repaired, inspected and resold with care";
+
+// Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
   whatsappNumber: "66896554965", // 089-6554965 in international format
   lineId: "55wandee",
