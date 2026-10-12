@@ -23,6 +23,7 @@ function Home() {
     <div>
       <section className="relative overflow-hidden">
         <img src={hero} alt="Refurbished phone, laptop and women's sneakers" width={1536} height={864} className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <div className="hero-aura absolute inset-0" />
         <div className="hero-fade absolute inset-0" />
         <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-28 md:pt-44">
           <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">{t("home.kicker")}</p>
