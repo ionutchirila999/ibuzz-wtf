@@ -8,6 +8,7 @@ import { copy } from '@/lib/service-copy';
 import { homeCopy } from '@/lib/home-copy';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { InstallGuide } from '@/components/InstallGuide';
 const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/shop',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/sell',label:'nav.sell'}] as const;
 export function SiteHeader(){const {t,lang,setLang}=useT();const [open,setOpen]=useState(false);const label=(n:typeof nav[number])=>n.label==='nav.sell'?t(n.label):copy(lang,n.label);return <header className="sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur-xl"><div className="mx-auto grid h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-8 lg:flex lg:justify-between">
  <Link to="/" aria-label={SHOP_NAME} className="min-w-0 shrink-0"><img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} className="h-auto w-28 sm:w-36"/></Link>
