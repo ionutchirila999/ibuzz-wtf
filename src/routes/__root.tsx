@@ -85,6 +85,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: SHOP_NAME },
       { name: "description", content: "Repair. Build. Buy. Sell. Electronics repair, digital development and Market." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: SHOP_NAME },
       { name: "twitter:card", content: "summary_large_image" },
 
     ],

@@ -23,4 +23,4 @@ export type CopyKey = keyof typeof C;
 export function copy(lang: Lang, key: CopyKey) { return C[key][lang === 'th' ? 0 : lang === 'en' ? 1 : 2]; }
 export const repairServices: CopyKey[] = ['phones','cameras','screens','computers','electronics','scooters'];
 export const digitalServices: CopyKey[] = ['websites','stores','apps','mobile','integrations','maintenance'];
-export function pageHead(title: string, description: string) { return { meta: [{title: `${title} — iBuzz.wtf`}, {name:'description',content:description}, {property:'og:title',content:`${title} — iBuzz.wtf`}, {property:'og:description',content:description}, {property:'og:type',content:'website'}, {name:'twitter:card',content:'summary_large_image'}] }; }
+export function pageHead(title: string, description: string) { return { meta: [{title: `${title} — iBuzz.wtf`}, {name:'description',content:description}, {property:'og:title',content:`${title} — iBuzz.wtf`}, {property:'og:description',content:description}, {property:'og:type',content:'website'}, {property:'og:image',content:SOCIAL_IMAGE}, {name:'twitter:card',content:'summary_large_image'}, {name:'twitter:image',content:SOCIAL_IMAGE}] }; }
