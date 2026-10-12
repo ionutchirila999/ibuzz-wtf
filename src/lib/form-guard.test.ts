@@ -29,3 +29,13 @@ describe('non-math confirmation check', () => {
     expect(await verifyChallenge('s', 'c.' + Math.floor(now/1000) + '.bad', 'confirm', now + 5000)).toBe(false);
   });
 });
+
+describe('easier question', () => {
+  it('only produces sums of 1-3 plus 1', async () => {
+    for (let i = 0; i < 50; i++) {
+      const { question } = await createChallenge('s', Date.now(), true);
+      const [a, b] = question.split(' + ').map(Number);
+      expect(b).toBe(1); expect(a).toBeGreaterThanOrEqual(1); expect(a).toBeLessThanOrEqual(3);
+    }
+  });
+});

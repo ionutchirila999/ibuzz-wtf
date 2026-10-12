@@ -11,8 +11,9 @@ async function hmac(secret: string, msg: string) {
   return Array.from(sig, b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function createChallenge(secret: string, now = Date.now()) {
-  const a = 1 + Math.floor(Math.random() * 9), b = 1 + Math.floor(Math.random() * 9);
+/** easy=true gives very simple sums: 1-3 plus 1 (answers 2-4). */
+export async function createChallenge(secret: string, now = Date.now(), easy = false) {
+  const a = 1 + Math.floor(Math.random() * (easy ? 3 : 9)), b = easy ? 1 : 1 + Math.floor(Math.random() * 9);
   const issued = Math.floor(now / 1000);
   const sig = await hmac(secret, `${a + b}.${issued}`);
   return { question: `${a} + ${b}`, token: `${issued}.${sig}` };
