@@ -33,7 +33,7 @@ export function SiteHeader() {
             <Link
               key={n.to}
               to={n.to}
-              className="rounded-md px-1.5 py-1.5 text-muted-foreground hover:text-foreground sm:px-3"
+              className={`rounded-md px-1.5 py-1.5 text-muted-foreground hover:text-foreground sm:px-3 ${n.to === "/admin" ? "hidden sm:inline" : ""}`}
               activeProps={{ className: "text-primary" }}
             >
               {t(n.label)}
