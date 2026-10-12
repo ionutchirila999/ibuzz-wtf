@@ -20,9 +20,10 @@ describe("calcProfit", () => {
 });
 
 describe("LINE contact", () => {
-  it("opens a chat with the working ID, not the brand label", () => {
-    expect(lineLink()).toBe("https://line.me/R/ti/p/55wandee");
+  it("links to the lowercase ID while showing the brand label", () => {
+    expect(lineLink()).toBe("https://line.me/R/ti/p/ibuzz.wtf");
     expect(SHOP_CONTACT.lineLabel).toBe("iBuzz.wtf");
-    expect(SHOP_CONTACT.lineId).not.toContain(".");
+    expect(SHOP_CONTACT.lineId).toBe("ibuzz.wtf");
+    expect(SHOP_CONTACT.lineId).toBe(SHOP_CONTACT.lineId.toLowerCase());
   });
 });
