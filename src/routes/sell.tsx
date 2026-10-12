@@ -13,6 +13,8 @@ import { SHOP_NAME } from "@/lib/shop";
 export const Route = createFileRoute("/sell")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: `Sell to us — ${SHOP_NAME}` },
       { name: "description", content: "We buy broken smartphones, digital cameras and women's shoes. Tell us what's wrong and we'll reply." },
       { property: "og:title", content: `Sell to us — ${SHOP_NAME}` },

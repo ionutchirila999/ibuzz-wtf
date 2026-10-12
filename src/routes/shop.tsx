@@ -21,6 +21,8 @@ export const Route = createFileRoute("/shop")({
   }),
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: `Shop — ${SHOP_NAME}` },
       { name: "description", content: "Browse refurbished electronics, parts and women's footwear. Search, filter and enquire." },
       { property: "og:title", content: `Shop — ${SHOP_NAME}` },

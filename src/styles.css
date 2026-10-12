@@ -84,11 +84,15 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; }
 }
 
 @utility hero-fade {
   background: linear-gradient(180deg, transparent 0%, var(--background) 92%);
+}
+
+.home-hero-shade {
+  background: linear-gradient(180deg, var(--background) 0%, var(--background) 47%, color-mix(in oklab, var(--background) 92%, transparent) 60%, transparent 82%, var(--background) 100%);
 }
 
 @utility hero-aura {

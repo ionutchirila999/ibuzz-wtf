@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: `Product details — ${SHOP_NAME}` },
       { name: "description", content: "Photos, condition, price and availability. Enquire on WhatsApp or LINE." },
       { property: "og:title", content: `Product details — ${SHOP_NAME}` },

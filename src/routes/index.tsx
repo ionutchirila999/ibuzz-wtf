@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Cpu, Footprints, Wrench, ShieldCheck, Tag } from "lucide-react";
+import { ArrowUpRight, Cpu, Footprints, Wrench, ShieldCheck, Tag } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n";
@@ -12,6 +12,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "We buy broken smartphones and digital cameras, repair them, and resell inspected tech and women's footwear. Enquire on WhatsApp or LINE." },
       { property: "og:title", content: `${SHOP_NAME} — Refurbished Tech & Women's Shoes` },
       { property: "og:description", content: "We buy broken smartphones and digital cameras, repair them, and resell inspected tech and women's footwear." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
@@ -21,17 +23,16 @@ function Home() {
   const { t } = useT();
   return (
     <div>
-      <section className="relative overflow-hidden">
-        <img src={hero} alt="Refurbished phone, laptop and women's sneakers" width={1536} height={864} className="absolute inset-0 h-full w-full object-cover opacity-60" />
-        <div className="hero-aura absolute inset-0" />
-        <div className="hero-fade absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-28 md:pt-44">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">{t("home.kicker")}</p>
-          <h1 className="max-w-2xl text-4xl font-bold md:text-6xl">{t("home.title")}</h1>
-          <p className="mt-4 max-w-lg text-muted-foreground">{t("home.lead")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild variant="glow" size="lg"><Link to="/shop" search={{ category: "technology" }}><Cpu /> {t("cat.technology")}</Link></Button>
-            <Button asChild variant="secondary" size="lg"><Link to="/shop" search={{ category: "womens_shoes" }}><Footprints /> {t("cat.womens_shoes")}</Link></Button>
+      <section className="home-hero relative isolate overflow-hidden bg-background" aria-labelledby="home-headline">
+        <img src={hero} alt="Refurbished smartphone and laptop alongside women's sneakers" width={1536} height={864} fetchPriority="high" className="absolute inset-x-0 bottom-0 h-64 w-full object-cover object-center sm:h-96 md:h-[440px]" />
+        <div className="home-hero-shade absolute inset-0" />
+        <div className="relative mx-auto max-w-6xl px-5 pb-48 pt-8 text-center sm:px-8 sm:pb-64 sm:pt-12 md:pb-72 md:pt-16">
+          <p className="mb-4 text-xs font-bold text-primary-soft sm:text-sm">{t("home.kicker")}</p>
+          <h1 id="home-headline" className="mx-auto max-w-[850px] text-balance text-[32px] font-bold leading-[1.16] sm:text-5xl md:text-[56px]">{t("home.title")}</h1>
+          <p className="mx-auto mt-5 max-w-[720px] text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base sm:leading-7">{t("home.lead")}</p>
+          <div className="mx-auto mt-6 grid max-w-xl grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2">
+            <Button asChild variant="glow" size="lg" className="h-auto min-h-12 w-full whitespace-normal px-4 py-3 text-sm sm:text-base"><Link to="/shop" search={{ category: "technology" }}><Cpu aria-hidden="true" /><span className="min-w-0">{t("home.exploreTech")}</span><ArrowUpRight aria-hidden="true" className="ml-auto" /></Link></Button>
+            <Button asChild variant="secondary" size="lg" className="h-auto min-h-12 w-full whitespace-normal px-4 py-3 text-sm sm:text-base"><Link to="/shop" search={{ category: "womens_shoes" }}><Footprints aria-hidden="true" /><span className="min-w-0">{t("home.shopShoes")}</span><ArrowUpRight aria-hidden="true" className="ml-auto" /></Link></Button>
           </div>
         </div>
       </section>

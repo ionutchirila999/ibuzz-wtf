@@ -17,6 +17,8 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: `Owner dashboard — ${SHOP_NAME}` },
       { name: "description", content: "Manage listings, resale offers and profit." },
       { property: "og:title", content: `Owner dashboard — ${SHOP_NAME}` },
