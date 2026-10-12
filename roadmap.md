@@ -7,3 +7,6 @@
 - [x] Review Thai and Romanian human-check and cooldown messages for natural wording (user asked 16:26 UTC)
 - [x] Non-math tick-box verification on Sell/Repair/Digital forms
 - [x] Easier-question button gives genuinely simpler sums
+- [x] Verify keyboard/screen-reader switching of checks
+- [ ] Publish updated forms
+- [x] Make the logo dot blue
