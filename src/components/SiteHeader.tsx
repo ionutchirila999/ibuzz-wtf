@@ -18,9 +18,9 @@ export function SiteHeader() {
           <img
             src={logoWordmark}
             alt={LOGO_NAME}
-            width={1085}
-            height={164}
-            className="h-5 w-auto sm:h-7"
+            width={835}
+            height={333}
+            className="h-7 w-auto sm:h-9"
           />
         </Link>
         <nav className="flex shrink-0 gap-0 text-[11px] sm:text-sm">
@@ -52,7 +52,7 @@ export function SiteFooter() {
   const { t } = useT();
   return (
     <footer className="mt-20 border-t py-8 text-center text-xs text-muted-foreground">
-      <img src={logoWordmark} alt={LOGO_NAME} width={1085} height={164} loading="lazy" className="mx-auto mb-4 h-6 w-auto" />
+      <img src={logoWordmark} alt={LOGO_NAME} width={835} height={333} loading="lazy" className="mx-auto mb-4 h-8 w-auto" />
       {SHOP_NAME} · {t("tagline")}
     </footer>
   );
