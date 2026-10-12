@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep homepage copy in the shared three-language dictionary and category actions on the existing shop search routes, so language switching and collection navigation stay consistent.
