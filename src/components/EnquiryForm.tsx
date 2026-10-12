@@ -9,7 +9,7 @@ import { useT } from '@/lib/i18n';
 import { copy, repairServices, digitalServices } from '@/lib/service-copy';
 import { enquirySchema, type EnquiryInput } from '@/lib/enquiry-schema';
 import { submitEnquiry } from '@/lib/enquiries.functions';
-export function EnquiryForm({kind}:{kind:'repair'|'digital'|'sell'}) {
+export function EnquiryForm({kind,service}:{kind:'repair'|'digital'|'sell';service?:string}) {
  const {lang} = useT(); const c = (key:Parameters<typeof copy>[1]) => copy(lang,key);
  const send = useServerFn(submitEnquiry); const [busy,setBusy] = useState(false); const [done,setDone] = useState(false); const [error,setError] = useState(''); const [photos,setPhotos] = useState<EnquiryInput['photos']>([]);
  async function upload(files:FileList|null) {
@@ -29,7 +29,7 @@ export function EnquiryForm({kind}:{kind:'repair'|'digital'|'sell'}) {
  if(done)return <div role="status" className="py-12 text-center"><CheckCircle2 className="mx-auto h-10 w-10 text-success"/><h2 className="mt-4 text-2xl font-bold">{c('done')}</h2><p className="mt-3 text-muted-foreground">{c('doneDetail')}</p>{kind==='sell'&&<p className="mt-3 text-sm text-muted-foreground">{c('assessment')}</p>}</div>;
  const services=kind==='digital'?digitalServices:repairServices;
  return <form onSubmit={submit} className="space-y-5">
-  <div><Label htmlFor={`${kind}-service`}>{c(kind==='sell'?'device':'service')}</Label><select id={`${kind}-service`} name="service" className="mt-1 h-11 w-full rounded-md border border-input bg-background px-3 text-sm">{services.map(s=><option key={s} value={copy('en',s)}>{c(s)}</option>)}</select></div>
+   <div><Label htmlFor={`${kind}-service`}>{c(kind==='sell'?'device':'service')}</Label><select id={`${kind}-service`} name="service" defaultValue={service} className="mt-1 h-11 w-full rounded-md border border-input bg-background px-3 text-sm">{services.map(s=><option key={s} value={copy('en',s)}>{c(s)}</option>)}</select></div>
   {kind==='sell'&&<><div className="grid grid-cols-2 gap-3"><div><Label htmlFor="brand">{c('brand')}</Label><Input id="brand" name="brand" required maxLength={100}/></div><div><Label htmlFor="model">{c('model')}</Label><Input id="model" name="model" required maxLength={100}/></div></div><div><Label htmlFor="deviceCondition">{c('condition')}</Label><select id="deviceCondition" name="deviceCondition" className="mt-1 h-11 w-full rounded-md border border-input bg-background px-3"><option value="broken">{c('faulty')}</option><option value="working">{c('working')}</option></select></div></>}
   <div><Label htmlFor={`${kind}-description`}>{c('details')}</Label><Textarea id={`${kind}-description`} name="description" required maxLength={2000} rows={5}/></div>
   {kind==='sell'&&<div><Label htmlFor="price">{c('price')}</Label><Input id="price" name="price" type="number" min={0} step="0.01"/></div>}
