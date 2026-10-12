@@ -57,6 +57,7 @@ export type Database = {
       }
       products: {
         Row: {
+          audience: string
           authenticity_notes: string | null
           authenticity_verified: boolean
           brand: string | null
@@ -85,6 +86,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          audience?: string
           authenticity_notes?: string | null
           authenticity_verified?: boolean
           brand?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          audience?: string
           authenticity_notes?: string | null
           authenticity_verified?: boolean
           brand?: string | null

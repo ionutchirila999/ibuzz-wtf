@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN audience text NOT NULL DEFAULT 'all' CHECK (audience IN ('all','men','women','children'));
+UPDATE public.products SET audience = 'women' WHERE category = 'womens_shoes';

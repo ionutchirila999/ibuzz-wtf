@@ -1,3 +1,4 @@
+import { copy } from "./service-copy";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type Lang = "th" | "en" | "ro";
@@ -10,7 +11,7 @@ export const DEFAULT_LANG: Lang = "th";
 
 // [Thai, English, Romanian]
 const D = {
-  "nav.shop": ["ร้านค้า", "Shop", "Magazin"],
+  "nav.shop": ["ตลาด", "Market", "Magazin"],
   "nav.sell": ["ขายให้เรา", "Sell to us", "Vinde-ne"],
   "nav.owner": ["เจ้าของร้าน", "Owner", "Proprietar"],
   tagline: ["ซ่อม โซลูชันดิจิทัล และตลาด — สินค้าเทคโนโลยีและรองเท้าผู้หญิง ตรวจสอบและขายต่ออย่างใส่ใจ", "Repair, Digital Solutions & Market — Technology products and women's footwear, inspected and resold with care.", "Reparații, soluții digitale și piață — produse tehnologice și încălțăminte de damă, verificate și revândute cu grijă."],
@@ -34,6 +35,8 @@ const D = {
   "home.ctaD": ["โทรศัพท์ แล็ปท็อป แท็บเล็ต ทีวี อุปกรณ์เกมมิ่ง หรือสกูตเตอร์ไฟฟ้ามือสอง — ส่งรายละเอียดมาให้เรา สมาร์ตโฟนและกล้องดิจิทัลที่เสียก็ขายได้", "Used phones, laptops, tablets, TVs, gaming devices or electric scooters — send us an offer. Broken smartphones and digital cameras are welcome too.", "Telefoane, laptopuri, tablete, televizoare, dispozitive de gaming sau trotinete electrice second-hand — trimite-ne o ofertă. Acceptăm și smartphone-uri și aparate foto digitale defecte."],
   "home.ctaB": ["เสนอขายสินค้า", "Offer an item", "Oferă un produs"],
   "cat.technology": ["เทคโนโลยี", "Technology", "Tehnologie"],
+  "cat.clothing": ["เสื้อผ้า", "Clothing", "Îmbrăcăminte"],
+  "cat.footwear": ["รองเท้า", "Footwear", "Încălțăminte"],
   "cat.womens_shoes": ["รองเท้าผู้หญิง", "Women's Shoes", "Pantofi de damă"],
   "cond.new": ["ใหม่", "New", "Nou"],
   "cond.pre_owned": ["มือสอง", "Pre-owned", "Second-hand"],
@@ -122,7 +125,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   const setLang = (l: Lang) => { setLangState(l); localStorage.setItem("lang", l); };
-  const t = (k: TKey) => D[k][idx[lang]] ?? D[k][1];
+  const t = (k: TKey) => k === "tagline" ? copy(lang, "tagline") : D[k][idx[lang]] ?? D[k][1];
   const sub = (s: string) => (lang === "en" ? s : (SUB[s]?.[lang === "th" ? 0 : 1] ?? s));
   return <I18nCtx.Provider value={{ lang, setLang, t, sub }}>{children}</I18nCtx.Provider>;
 }

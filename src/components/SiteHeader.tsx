@@ -2,10 +2,14 @@ import { Link } from "@tanstack/react-router";
 import logoWordmark from "@/assets/logo.png";
 import { LOGO_NAME, SHOP_NAME } from "@/lib/shop";
 import { LANGS, useT } from "@/lib/i18n";
+import { copy } from "@/lib/service-copy";
 import { Button } from "@/components/ui/button";
 
 const nav = [
-  { to: "/shop", label: "nav.shop" },
+  { to: "/repair", label: "repair" },
+  { to: "/digital", label: "digital" },
+  { to: "/shop", label: "market" },
+  { to: "/portfolio", label: "portfolio" },
   { to: "/sell", label: "nav.sell" },
   { to: "/admin", label: "nav.owner" },
 ] as const;
@@ -24,7 +28,7 @@ export function SiteHeader() {
             className="h-6 w-auto sm:h-8"
           />
         </Link>
-        <nav className="col-span-2 row-start-2 flex min-w-0 justify-center gap-4 text-xs sm:order-none sm:gap-0 sm:text-sm">
+        <nav className="col-span-2 row-start-2 flex min-w-0 justify-center flex-wrap gap-1 text-xs sm:order-none sm:gap-0 sm:text-sm">
           {nav.map((n) => (
             <Link
               key={n.to}
@@ -32,7 +36,7 @@ export function SiteHeader() {
               className={`rounded-md px-1.5 py-1.5 text-muted-foreground hover:text-foreground sm:px-3 ${n.to === "/admin" ? "hidden sm:inline" : ""}`}
               activeProps={{ className: "text-primary-soft" }}
             >
-              {t(n.label)}
+              {n.label === "nav.sell" || n.label === "nav.owner" ? t(n.label) : copy(lang,n.label)}
             </Link>
           ))}
         </nav>
