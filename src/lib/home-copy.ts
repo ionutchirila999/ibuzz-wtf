@@ -18,6 +18,7 @@ const H = {
  empty: ['ยังไม่มีสินค้าที่พร้อมจำหน่าย กลับมาดูอีกครั้ง หรือติดต่อเราเกี่ยวกับสินค้าที่คุณกำลังหา', 'No available listings right now. Check back soon, or ask us about what you’re looking for.', 'Nu sunt produse disponibile momentan. Revino curând sau întreabă-ne despre ce cauți.'],
  unavailable: ['ไม่สามารถโหลดสินค้าได้ในขณะนี้ ลองเปิดตลาดอีกครั้ง', 'Products could not load right now. Try opening the Market.', 'Produsele nu s-au încărcat. Încearcă să deschizi magazinul.'],
  electronics: ['อิเล็กทรอนิกส์', 'Electronics', 'Electronice'], cameras: ['กล้อง', 'Cameras', 'Camere'], computers: ['คอมพิวเตอร์และอุปกรณ์', 'Computers & accessories', 'Calculatoare și accesorii'], clothing: ['เสื้อผ้า', 'Clothing', 'Îmbrăcăminte'], footwear: ['รองเท้า', 'Shoes & footwear', 'Încălțăminte'],
+ approach: ['แนวทางของ iBuzz.wtf', 'THE iBuzz.wtf APPROACH', 'ABORDAREA iBuzz.wtf'],
  trust: ['ทักษะที่ใช้ได้จริง โซลูชันที่ตอบโจทย์', 'Practical Skills. Real Solutions.', 'Competențe practice. Soluții reale.'],
  diagnostics: ['วิเคราะห์ปัญหาและซ่อมอย่างเป็นระบบ', 'Technical diagnostics and repair.', 'Diagnosticare tehnică și reparații.'],
  honest: ['ระบุสภาพสินค้าอย่างตรงไปตรงมา', 'Honest product condition descriptions.', 'Descrieri sincere ale stării produselor.'],
