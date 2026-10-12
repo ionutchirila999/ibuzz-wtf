@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { ArrowLeft, ShieldCheck, Truck, RotateCcw, ImageOff } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CONDITION_LABEL, formatPrice, SHOP_NAME, SOCIAL_IMAGE, type Category } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
 import { Badge } from "@/components/ui/badge";
+import { ProductGallery } from "@/components/ProductGallery";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -28,7 +28,6 @@ export const Route = createFileRoute("/product/$id")({
 function ProductPage() {
   const { t, sub, lang } = useT();
   const { id } = Route.useParams();
-  const [active, setActive] = useState(0);
   const { data: p, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
@@ -54,20 +53,7 @@ function ProductPage() {
     <div className="mx-auto max-w-6xl px-4 py-6">
       <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
       <div className="grid gap-8 md:grid-cols-2">
-        <div>
-          <div className="aspect-square overflow-hidden rounded-xl border bg-muted">
-            {p.images[active] ? <img src={p.images[active]} alt={p.title} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-muted-foreground"><ImageOff /></div>}
-          </div>
-          {p.images.length > 1 && (
-            <div className="mt-2 flex gap-2 overflow-x-auto">
-              {p.images.map((src, i) => (
-                <button key={src} onClick={() => setActive(i)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 ${i === active ? "border-primary" : "border-transparent"}`}>
-                  <img src={src} alt="" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery key={p.id} images={p.images} title={p.title} />
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
