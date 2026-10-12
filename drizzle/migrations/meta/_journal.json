@@ -15,6 +15,20 @@
       "when": 1791795308958,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791816065184,
+      "tag": "0002_expand_ibuzz_services_market",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791816173449,
+      "tag": "0003_market_audience_filter",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/use-admin";
 import { CATEGORY_LABEL, formatPrice, SHOP_NAME, type Category, type Product } from "@/lib/shop";
 import { ProductForm } from "@/components/admin/ProductForm";
+import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +99,7 @@ function Dashboard() {
         <TabsList>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
+          <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
           <TabsTrigger value="calc">Profit calculator</TabsTrigger>
         </TabsList>
 
@@ -109,7 +111,7 @@ function Dashboard() {
               <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">{p.images[0] && <img src={p.images[0]} alt="" className="h-full w-full object-cover" />}</div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{p.title}</p>
-                <p className="text-xs text-muted-foreground">{CATEGORY_LABEL[p.category as Category]} · {formatPrice(p.price)} · stock {p.stock}</p>
+                <p className="text-xs text-muted-foreground">{CATEGORY_LABEL[p.market_category as Category]} · {formatPrice(p.price)} · stock {p.stock}</p>
                 <div className="mt-1 flex gap-1">
                   <Badge variant={p.status === "available" ? "default" : "secondary"}>{p.status}</Badge>
                   {p.is_demo && <Badge variant="destructive">demo</Badge>}
@@ -141,6 +143,7 @@ function Dashboard() {
           ))}
         </TabsContent>
 
+        <TabsContent value="enquiries"><OwnerEnquiries/></TabsContent>
         <TabsContent value="calc" className="mt-4"><ProfitCalculator /></TabsContent>
       </Tabs>
 

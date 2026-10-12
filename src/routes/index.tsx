@@ -1,65 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Cpu, Footprints, Wrench, ShoppingBag, Tag } from "lucide-react";
+import { ArrowUpRight, Wrench, Code2, ShoppingBag, Tag } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n";
-import { SHOP_NAME } from "@/lib/shop";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: `${SHOP_NAME} — Buy · Repair · Resell` },
-      { name: "description", content: "Buy smart, repair better, and resell with confidence. Shop inspected technology and women's shoes, or offer your pre-owned electronics to iBuzz.wtf." },
-      { property: "og:title", content: `${SHOP_NAME} — Buy · Repair · Resell` },
-      { property: "og:description", content: "We buy pre-owned electronics, professionally repair and test devices, and resell quality technology alongside curated women's shoes." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Home,
-});
-
-function Home() {
-  const { t } = useT();
-  return (
-    <div>
-      <section className="home-hero relative isolate overflow-hidden bg-background" aria-labelledby="home-headline">
-        <img src={hero} alt="Refurbished smartphone and laptop alongside women's sneakers" width={1536} height={864} fetchPriority="high" className="absolute inset-x-0 bottom-0 h-64 w-full object-cover object-center sm:h-96 md:h-[440px]" />
-        <div className="home-hero-shade absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl px-5 pb-32 pt-8 text-center sm:px-8 sm:pb-44 sm:pt-12 md:pb-48 md:pt-16">
-          <p className="mb-4 text-xs font-bold text-primary-soft sm:text-sm">{t("home.kicker")}</p>
-          <h1 id="home-headline" className="mx-auto max-w-[850px] text-balance text-[32px] font-bold leading-[1.16] sm:text-5xl md:text-[56px]">{t("home.title")}</h1>
-          <p className="mx-auto mt-5 max-w-[720px] text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base sm:leading-7">{t("home.lead")}</p>
-          <div className="mx-auto mt-6 grid max-w-xl grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2">
-            <Button asChild variant="glow" size="lg" className="h-auto min-h-12 w-full whitespace-normal px-4 py-3 text-sm sm:text-base"><Link to="/shop" search={{ category: "technology" }}><Cpu aria-hidden="true" /><span className="min-w-0">{t("home.exploreTech")}</span><ArrowUpRight aria-hidden="true" className="ml-auto" /></Link></Button>
-            <Button asChild variant="secondary" size="lg" className="h-auto min-h-12 w-full whitespace-normal px-4 py-3 text-sm sm:text-base"><Link to="/shop" search={{ category: "womens_shoes" }}><Footprints aria-hidden="true" /><span className="min-w-0">{t("home.shopShoes")}</span><ArrowUpRight aria-hidden="true" className="ml-auto" /></Link></Button>
-          </div>
-          <Button asChild variant="outline" className="mt-4 h-auto min-h-11 max-w-full whitespace-normal px-5 py-2.5 text-sm"><Link to="/sell"><Tag aria-hidden="true" /><span>{t("home.sellDevice")}</span><ArrowUpRight aria-hidden="true" /></Link></Button>
-        </div>
-      </section>
-
-      <section aria-label={t("home.kicker")} className="mx-auto grid max-w-6xl gap-6 border-y px-5 py-7 sm:px-8 md:grid-cols-3 md:gap-8">
-        {[
-          { icon: ShoppingBag, t: t("home.f1t"), d: t("home.f1d") },
-          { icon: Wrench, t: t("home.f2t"), d: t("home.f2d") },
-          { icon: Tag, t: t("home.f3t"), d: t("home.f3d") },
-        ].map(({ icon: I, t: title, d }) => (
-          <div key={title} className="min-w-0">
-            <div className="mb-2 flex items-center gap-3"><I aria-hidden="true" className="h-5 w-5 shrink-0 text-primary-soft" /><h2 className="text-base font-semibold">{title}</h2></div>
-            <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="mx-auto mt-12 max-w-6xl px-4">
-        <div className="flex flex-col items-start justify-between gap-5 border-b pb-8 md:flex-row md:items-center">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold">{t("home.ctaT")}</h2>
-            <p className="text-sm text-muted-foreground">{t("home.ctaD")}</p>
-          </div>
-          <Button asChild variant="glow" className="h-auto min-h-11 shrink-0 whitespace-normal py-3"><Link to="/sell"><Tag aria-hidden="true" />{t("home.sellDevice")}<ArrowUpRight aria-hidden="true" /></Link></Button>
-        </div>
-      </section>
-    </div>
-  );
-}
+import { copy, pageHead } from "@/lib/service-copy";
+export const Route = createFileRoute("/")({head:()=>pageHead('Repair. Build. Buy. Sell.','Electronics repairs, broken device offers, digital development and a unified electronics, clothing and footwear market.'),component:Home});
+function Home(){const {lang}=useT();const c=(k:Parameters<typeof copy>[1])=>copy(lang,k);return <div>
+<section className="home-hero relative isolate overflow-hidden bg-background"><img src={hero} alt="Smartphone, laptop and sneakers" width={1536} height={864} fetchPriority="high" className="absolute inset-x-0 bottom-0 h-72 w-full object-cover object-center sm:h-96"/><div className="home-hero-shade absolute inset-0"/><div className="relative mx-auto max-w-6xl px-5 pb-32 pt-10 sm:px-8 sm:pb-40 sm:pt-16"><p className="mb-4 text-sm font-bold text-primary-soft">iBuzz.wtf — {c('tagline')}</p><h1 className="max-w-4xl text-balance text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">{c('headline')}</h1><p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-muted-foreground">{c('lead')}</p><div className="mt-7 grid max-w-lg gap-3 sm:grid-cols-2"><Button asChild variant="glow" size="lg" className="h-auto min-h-12 whitespace-normal"><Link to="/repair"><Wrench/>{c('book')}<ArrowUpRight/></Link></Button><Button asChild variant="secondary" size="lg" className="h-auto min-h-12 whitespace-normal"><Link to="/shop"><ShoppingBag/>{c('shop')}<ArrowUpRight/></Link></Button></div><Button asChild variant="outline" className="mt-3 h-auto min-h-11 whitespace-normal"><Link to="/sell"><Tag/>{c('sell')}<ArrowUpRight/></Link></Button></div></section>
+<section className="mx-auto grid max-w-6xl gap-4 px-5 py-8 sm:px-8 md:grid-cols-3">{([{kind:'repair',icon:Wrench,title:'fix',lead:'repairLead',to:'/repair'},{kind:'digital',icon:Code2,title:'build',lead:'digitalLead',to:'/digital'},{kind:'market',icon:ShoppingBag,title:'trade',lead:'marketLead',to:'/shop'}] as const).map(({kind,icon:Icon,title,lead,to})=><Link to={to} key={kind} className="group flex min-w-0 flex-col rounded-lg border bg-card p-6 transition-colors hover:border-primary"><div className="mb-6 flex items-center justify-between"><Icon className="h-7 w-7 text-azure"/><ArrowUpRight className="h-5 w-5 text-primary-soft"/></div><p className="text-xs font-bold uppercase text-primary-soft">{c(kind)}</p><h2 className="mt-2 text-2xl font-bold">{c(title)}</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">{c(lead)}</p></Link>)}</section>
+<section className="mx-auto max-w-6xl px-5 py-10 sm:px-8"><h2 className="text-3xl font-bold">{c('workflow')}</h2><ol className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 md:grid-cols-3">{(['step1','step2','step3','step4','step5','step6'] as const).map((k,i)=><li key={k} className="flex gap-4 border-t pt-4"><span className="font-display text-2xl text-azure">0{i+1}</span><p className="pt-1 text-sm leading-6 text-muted-foreground">{c(k)}</p></li>)}</ol></section>
+<section className="border-y bg-card/30"><div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-10 sm:px-8 md:flex-row md:items-center"><div><h2 className="text-2xl font-bold">{c('broken')}</h2><p className="mt-3 max-w-xl text-sm text-muted-foreground">{c('assessment')}</p></div><Button asChild variant="glow"><Link to="/sell">{c('sell')}<ArrowUpRight/></Link></Button></div></section>
+<section className="mx-auto max-w-6xl px-5 py-12 sm:px-8"><div className="flex flex-wrap items-center justify-between gap-4"><h2 className="text-3xl font-bold">{c('portfolio')}</h2><Button asChild variant="outline"><Link to="/portfolio">{c('portfolio')}<ArrowUpRight/></Link></Button></div><p className="mt-4 text-muted-foreground">{c('portfolioEmpty')}</p><Button asChild variant="link" className="mt-3 px-0"><Link to="/digital">{c('quote')}<ArrowUpRight/></Link></Button></section></div>}

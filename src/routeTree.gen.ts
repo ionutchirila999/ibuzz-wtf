@@ -12,9 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DigitalRouteImport } from './routes/digital'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as RepairRouteImport } from './routes/repair'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as RepairIndexRouteImport } from './routes/repair.index'
+import { Route as RepairServiceRouteImport } from './routes/repair.$service'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,6 +34,21 @@ const AdminRoute = AdminRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigitalRoute = DigitalRouteImport.update({
+  id: '/digital',
+  path: '/digital',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepairRoute = RepairRouteImport.update({
+  id: '/repair',
+  path: '/repair',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellRoute = SellRouteImport.update({
@@ -46,44 +66,104 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepairIndexRoute = RepairIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RepairRoute,
+} as any)
+const RepairServiceRoute = RepairServiceRouteImport.update({
+  id: '/$service',
+  path: '/$service',
+  getParentRoute: () => RepairRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/digital': typeof DigitalRoute
+  '/portfolio': typeof PortfolioRoute
+  '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
+  '/repair/$service': typeof RepairServiceRoute
+  '/repair/': typeof RepairIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/digital': typeof DigitalRoute
+  '/portfolio': typeof PortfolioRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
+  '/repair/$service': typeof RepairServiceRoute
+  '/repair': typeof RepairIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/digital': typeof DigitalRoute
+  '/portfolio': typeof PortfolioRoute
+  '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
+  '/repair/$service': typeof RepairServiceRoute
+  '/repair/': typeof RepairIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/auth' | '/sell' | '/shop' | '/product/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/digital'
+    | '/portfolio'
+    | '/repair'
+    | '/sell'
+    | '/shop'
+    | '/product/$id'
+    | '/repair/$service'
+    | '/repair/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/auth' | '/sell' | '/shop' | '/product/$id'
-  id: '__root__' | '/' | '/admin' | '/auth' | '/sell' | '/shop' | '/product/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/digital'
+    | '/portfolio'
+    | '/sell'
+    | '/shop'
+    | '/product/$id'
+    | '/repair/$service'
+    | '/repair'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/digital'
+    | '/portfolio'
+    | '/repair'
+    | '/sell'
+    | '/shop'
+    | '/product/$id'
+    | '/repair/$service'
+    | '/repair/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
+  DigitalRoute: typeof DigitalRoute
+  PortfolioRoute: typeof PortfolioRoute
+  RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -112,6 +192,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/digital': {
+      id: '/digital'
+      path: '/digital'
+      fullPath: '/digital'
+      preLoaderRoute: typeof DigitalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repair': {
+      id: '/repair'
+      path: '/repair'
+      fullPath: '/repair'
+      preLoaderRoute: typeof RepairRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -133,13 +234,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repair/': {
+      id: '/repair/'
+      path: '/'
+      fullPath: '/repair/'
+      preLoaderRoute: typeof RepairIndexRouteImport
+      parentRoute: typeof RepairRoute
+    }
+    '/repair/$service': {
+      id: '/repair/$service'
+      path: '/$service'
+      fullPath: '/repair/$service'
+      preLoaderRoute: typeof RepairServiceRouteImport
+      parentRoute: typeof RepairRoute
+    }
   }
 }
+
+interface RepairRouteChildren {
+  RepairServiceRoute: typeof RepairServiceRoute
+  RepairIndexRoute: typeof RepairIndexRoute
+}
+
+const RepairRouteChildren: RepairRouteChildren = {
+  RepairServiceRoute: RepairServiceRoute,
+  RepairIndexRoute: RepairIndexRoute,
+}
+
+const RepairRouteWithChildren =
+  RepairRoute._addFileChildren(RepairRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
+  DigitalRoute: DigitalRoute,
+  PortfolioRoute: PortfolioRoute,
+  RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
   ProductIdRoute: ProductIdRoute,

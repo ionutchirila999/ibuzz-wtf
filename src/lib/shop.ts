@@ -1,14 +1,14 @@
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Product = Tables<"products">;
-export type Category = "technology" | "womens_shoes";
+export type Category = "technology" | "clothing" | "footwear";
 
 // The shop's name. Used in the header, footer and every page title.
 export const SHOP_NAME = "iBuzz.wtf";
 export const SHOP_SHORT_NAME = "iBuzz.wtf";
 // The wording used inside the logo artwork.
 export const LOGO_NAME = "iBuzz.wtf";
-export const SHOP_TAGLINE = "Repair, Digital Solutions & Market — Technology products and women's footwear, inspected and resold with care.";
+export const SHOP_TAGLINE = "Repair. Build. Buy. Sell.";
 
 // Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
@@ -18,7 +18,8 @@ export const SHOP_CONTACT = {
 
 export const CATEGORY_LABEL: Record<Category, string> = {
   technology: "Technology",
-  womens_shoes: "Women's Shoes",
+  clothing: "Clothing",
+  footwear: "Footwear",
 };
 
 export const SUBCATEGORIES: Record<Category, string[]> = {
@@ -33,7 +34,8 @@ export const SUBCATEGORIES: Record<Category, string[]> = {
     "Used & refurbished electronics",
     "Repair parts & technical accessories",
   ],
-  womens_shoes: [
+  clothing: ["Tops", "Trousers & shorts", "Dresses & skirts", "Outerwear", "Sportswear"],
+  footwear: ["Sneakers", "Sports shoes", "Sandals", "Boots", "Formal footwear",
     "Women's sneakers",
     "Women's casual shoes",
     "Women's sports & running shoes",
@@ -50,6 +52,9 @@ export const CONDITION_LABEL: Record<string, string> = {
   new: "New",
   pre_owned: "Pre-owned",
   refurbished: "Refurbished",
+  repaired_tested: "Repaired & tested",
+  untested: "Untested",
+  for_parts: "For parts",
 };
 
 export function formatPrice(n: number | null | undefined) {
@@ -87,3 +92,7 @@ export function calcProfit(c: CostInput) {
     warning = `Thin margin (under ${MIN_HEALTHY_MARGIN}%). Unlikely to be worth the risk.`;
   return { totalCosts, netProfit, margin, warning };
 }
+
+export const MARKET_CATEGORIES: Category[] = ["technology", "clothing", "footwear"];
+export function legacyCategory(category: Category) { return category === "footwear" ? "womens_shoes" : "technology"; }
+export function legacyCondition(condition: string) { return condition === "new" ? "new" : condition === "refurbished" || condition === "repaired_tested" ? "refurbished" : "pre_owned"; }

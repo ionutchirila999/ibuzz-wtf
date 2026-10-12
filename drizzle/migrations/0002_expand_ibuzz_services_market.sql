@@ -1,0 +1,13 @@
+ALTER TABLE public.products ADD COLUMN market_category text NOT NULL DEFAULT 'technology', ADD COLUMN market_condition text NOT NULL DEFAULT 'pre_owned';
+UPDATE public.products SET market_category = CASE WHEN category = 'womens_shoes' THEN 'footwear' ELSE 'technology' END, market_condition = condition;
+ALTER TABLE public.products ADD CONSTRAINT products_market_category_valid CHECK (market_category IN ('technology','clothing','footwear')), ADD CONSTRAINT products_market_condition_valid CHECK (market_condition IN ('new','pre_owned','refurbished','repaired_tested','untested','for_parts'));
+COMMENT ON COLUMN public.products.category IS 'Legacy category retained for backwards compatibility; new catalog uses market_category.';
+COMMENT ON COLUMN public.products.condition IS 'Legacy condition retained for backwards compatibility; new catalog uses market_condition.';
+ALTER TABLE public.resale_offers ADD COLUMN device_type text, ADD COLUMN brand text, ADD COLUMN model text, ADD COLUMN device_condition text, ADD COLUMN photos text[] NOT NULL DEFAULT '{}';
+CREATE TABLE public.service_enquiries (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), kind text NOT NULL CHECK (kind IN ('repair','digital')), name text NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100), contact text NOT NULL CHECK (char_length(contact) BETWEEN 1 AND 150), service text NOT NULL CHECK (char_length(service) BETWEEN 1 AND 200), description text NOT NULL CHECK (char_length(description) BETWEEN 1 AND 2000), photos text[] NOT NULL DEFAULT '{}', status text NOT NULL DEFAULT 'new' CHECK (status IN ('new','contacted','closed')), created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT, UPDATE, DELETE ON public.service_enquiries TO authenticated;
+GRANT ALL ON public.service_enquiries TO service_role;
+ALTER TABLE public.service_enquiries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Owner manages service enquiries" ON public.service_enquiries FOR ALL TO authenticated USING (public.has_role(auth.uid(),'admin')) WITH CHECK (public.has_role(auth.uid(),'admin'));
+CREATE POLICY "Owner reads enquiry photos" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'enquiry-photos' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY "Owner deletes enquiry photos" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'enquiry-photos' AND public.has_role(auth.uid(),'admin'));
