@@ -1,6 +1,6 @@
 # Roadmap
 
-- Homepage premium redesign — compact mobile menu, balanced hero, service cards, buying section, actual-inventory preview, trust section and compact footer.
+- Completed: premium homepage redesign with compact mobile menu, service cards, buying section, real-inventory preview, trust section and footer. Public navigation checked at phone, tablet and desktop sizes in all three languages.
 
 - Publish the shop online — waiting for the user's go-ahead
 - Thai and Romanian copy review by a native speaker — needs a reviewer, including the new "we buy broken smartphones and digital cameras" wording
