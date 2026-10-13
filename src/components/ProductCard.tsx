@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ImageOff } from "lucide-react";
-import { CONDITION_LABEL, formatPrice, type Product } from "@/lib/shop";
+import { CONDITION_LABEL, formatPrice, localizedTitle, type Product } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
