@@ -101,6 +101,15 @@ export function calcProfit(c: CostInput) {
   return { totalCosts, netProfit, margin, warning };
 }
 
+export type Lang = "th" | "en" | "ro";
+// Product name/description in the visitor's language, falling back to English.
+export function localizedTitle(p: Product, lang: Lang) {
+  return (lang === "th" ? p.title_th : lang === "ro" ? p.title_ro : null) || p.title;
+}
+export function localizedDescription(p: Product, lang: Lang) {
+  return (lang === "th" ? p.description_th : lang === "ro" ? p.description_ro : null) || p.description;
+}
+
 export const MARKET_CATEGORIES: Category[] = ["technology", "clothing", "footwear"];
 export function legacyCategory(category: Category) { return category === "footwear" ? "womens_shoes" : "technology"; }
 export function legacyCondition(condition: string) { return condition === "new" ? "new" : condition === "refurbished" || condition === "repaired_tested" ? "refurbished" : "pre_owned"; }

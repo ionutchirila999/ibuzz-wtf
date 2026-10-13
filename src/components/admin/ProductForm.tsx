@@ -17,6 +17,7 @@ type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 const empty: Form = {
   market_category: "technology", market_condition: "pre_owned", audience: "all", category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
   images: [], price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
+  title_th: "", title_ro: "", description_th: "", description_ro: "",
   color: "", material: "", authenticity_verified: false, authenticity_notes: "", delivery_options: "", return_policy: "",
   is_demo: false, status: "available",
 };
@@ -110,6 +111,12 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
         <label className="flex items-end gap-2 pb-2 text-sm"><Switch checked={f.negotiable} onCheckedChange={(v) => set("negotiable", v)} /> Negotiable</label>
       </div>
       <div><Label>Description</Label><Textarea value={f.description ?? ""} onChange={(e) => set("description", e.target.value)} /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label>Title (Thai)</Label><Input value={f.title_th ?? ""} onChange={(e) => set("title_th", e.target.value)} /></div>
+        <div><Label>Title (Romanian)</Label><Input value={f.title_ro ?? ""} onChange={(e) => set("title_ro", e.target.value)} /></div>
+      </div>
+      <div><Label>Description (Thai)</Label><Textarea value={f.description_th ?? ""} onChange={(e) => set("description_th", e.target.value)} /></div>
+      <div><Label>Description (Romanian)</Label><Textarea value={f.description_ro ?? ""} onChange={(e) => set("description_ro", e.target.value)} /></div>
 
       <div>
         <Label>Photos</Label>
