@@ -118,6 +118,20 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
       </div>
       <div><Label>Description (Thai)</Label><Textarea value={f.description_th ?? ""} onChange={(e) => set("description_th", e.target.value)} /></div>
       <div><Label>Description (Romanian)</Label><Textarea value={f.description_ro ?? ""} onChange={(e) => set("description_ro", e.target.value)} /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label>Thai review status</Label>
+          <Select value={f.translation_status_th} onValueChange={(v) => set("translation_status_th", v)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="needs_review">Needs native-speaker review</SelectItem><SelectItem value="reviewed">Reviewed</SelectItem></SelectContent>
+          </Select>
+        </div>
+        <div><Label>Romanian review status</Label>
+          <Select value={f.translation_status_ro} onValueChange={(v) => set("translation_status_ro", v)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="needs_review">Needs native-speaker review</SelectItem><SelectItem value="reviewed">Reviewed</SelectItem></SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <div>
         <Label>Photos</Label>
