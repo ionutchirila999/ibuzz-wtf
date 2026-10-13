@@ -105,6 +105,8 @@ export type Database = {
           title: string
           title_ro: string | null
           title_th: string | null
+          translation_status_ro: string
+          translation_status_th: string
           updated_at: string
         }
         Insert: {
@@ -138,6 +140,8 @@ export type Database = {
           title: string
           title_ro?: string | null
           title_th?: string | null
+          translation_status_ro?: string
+          translation_status_th?: string
           updated_at?: string
         }
         Update: {
@@ -171,6 +175,8 @@ export type Database = {
           title?: string
           title_ro?: string | null
           title_th?: string | null
+          translation_status_ro?: string
+          translation_status_th?: string
           updated_at?: string
         }
         Relationships: []

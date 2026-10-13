@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN translation_status_th text NOT NULL DEFAULT 'needs_review'; ALTER TABLE public.products ADD COLUMN translation_status_ro text NOT NULL DEFAULT 'needs_review';
