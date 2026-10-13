@@ -43,6 +43,13 @@
       "when": 1791825793102,
       "tag": "0005_add_product_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791858164942,
+      "tag": "0006_add_translation_review_status",
+      "breakpoints": true
     }
   ]
 }
