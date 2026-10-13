@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CONDITION_LABEL, formatPrice, SHOP_NAME, SOCIAL_IMAGE, type Category } from "@/lib/shop";
+import { CONDITION_LABEL, formatPrice, localizedDescription, localizedTitle, SHOP_NAME, SOCIAL_IMAGE, type Category } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
