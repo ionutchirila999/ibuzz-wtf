@@ -53,13 +53,13 @@ function ProductPage() {
     <div className="mx-auto max-w-6xl px-4 py-6">
       <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
       <div className="grid gap-8 md:grid-cols-2">
-        <ProductGallery key={p.id} images={p.images} title={p.title} />
+        <ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} />
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
             {sold && <Badge variant="secondary">{t("card.sold")}</Badge>}
           </div>
-          <h1 className="text-3xl font-bold">{p.title}</h1>
+          <h1 className="text-3xl font-bold">{localizedTitle(p, lang)}</h1>
           <p className="font-display text-3xl font-bold text-primary">
             {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
           </p>
@@ -69,7 +69,7 @@ function ProductPage() {
               <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted-foreground">{k}</dt><dd className="text-right">{v}</dd></div>
             ))}
           </dl>
-          {p.description && <p className="whitespace-pre-line text-sm text-muted-foreground">{p.description}</p>}
+          {p.description && <p className="whitespace-pre-line text-sm text-muted-foreground">{localizedDescription(p, lang)}</p>}
           <div className="space-y-3 text-sm">
             {p.authenticity_verified && (
               <div className="flex gap-2"><ShieldCheck className="h-5 w-5 shrink-0 text-success" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>
