@@ -26,9 +26,9 @@ export function EnquiryForm({kind,service}:{kind:'repair'|'digital'|'sell';servi
  }
   async function submit(e:React.FormEvent<HTMLFormElement>) {
    e.preventDefault();setError(''); const f=new FormData(e.currentTarget);
-   const parsed=enquirySchema.safeParse({kind,name:f.get('name'),contact:f.get('contact'),service:f.get('service'),description:f.get('description'),brand:f.get('brand')??'',model:f.get('model')??'',deviceCondition:f.get('deviceCondition')??'broken',price:f.get('price')?Number(f.get('price')):null,photos,checkToken:alt?alt.token:check?.token??'',checkAnswer:alt?'confirm':String(f.get('checkAnswer')??''),website:String(f.get('website')??'')});
-   if(!parsed.success){setError(c('error'));return;}setBusy(true);
-   try {const res=await send({data:parsed.data});if(res.saved)setDone(true);else{setError(c(res.status==='cooldown'?'cooldown':'humanWrong'));if(res.status==='human'){setAnswer('');setAlt(null);loadCheck();}}}catch{setError(c('error'));}finally{setBusy(false);}
+    const parsed=enquirySchema.safeParse({kind,name:f.get('name'),contact:f.get('contact'),service:f.get('service'),description:f.get('description'),brand:f.get('brand')??'',model:f.get('model')??'',deviceCondition:f.get('deviceCondition')??'broken',price:f.get('price')?Number(f.get('price')):null,photos,checkToken:alt?altToken?.token??'':check?.token??'',checkAnswer:alt?'confirm':String(f.get('checkAnswer')??''),website:String(f.get('website')??'')});
+    if(!parsed.success){setError(c('error'));return;}setBusy(true);
+    try {const res=await send({data:parsed.data});if(res.saved)setDone(true);else{setError(c(res.status==='cooldown'?'cooldown':'humanWrong'));if(res.status==='human'){setAnswer('');setAlt(false);loadCheck();fetchConfirm().then(setAltToken).catch(()=>{});}}}catch{setError(c('error'));}finally{setBusy(false);}
   }
  if(done)return <div role="status" className="py-12 text-center"><CheckCircle2 className="mx-auto h-10 w-10 text-success"/><h2 className="mt-4 text-2xl font-bold">{c('done')}</h2><p className="mt-3 text-muted-foreground">{c('doneDetail')}</p>{kind==='sell'&&<p className="mt-3 text-sm text-muted-foreground">{c('assessment')}</p>}</div>;
  const services=kind==='digital'?digitalServices:repairServices;
