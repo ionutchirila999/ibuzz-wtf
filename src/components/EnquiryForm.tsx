@@ -13,9 +13,9 @@ import { getConfirmCheck, getHumanCheck, submitEnquiry } from '@/lib/enquiries.f
 export function EnquiryForm({kind,service}:{kind:'repair'|'digital'|'sell';service?:string}) {
  const {lang} = useT(); const c = (key:Parameters<typeof copy>[1]) => copy(lang,key);
   const send = useServerFn(submitEnquiry); const [busy,setBusy] = useState(false); const [done,setDone] = useState(false); const [error,setError] = useState(''); const [photos,setPhotos] = useState<EnquiryInput['photos']>([]);
-  const fetchCheck = useServerFn(getHumanCheck); const [check,setCheck] = useState<{question:string;token:string}|null>(null); const [answer,setAnswer] = useState(''); const fetchConfirm = useServerFn(getConfirmCheck); const [alt,setAlt] = useState<{token:string}|null>(null);
+  const fetchCheck = useServerFn(getHumanCheck); const [check,setCheck] = useState<{question:string;token:string}|null>(null); const [answer,setAnswer] = useState(''); const fetchConfirm = useServerFn(getConfirmCheck); const [altToken,setAltToken] = useState<{token:string}|null>(null); const [alt,setAlt] = useState(false);
   const loadCheck = (easy=false) => { fetchCheck({data:{easy}}).then(setCheck).catch(()=>setError(c('error'))); };
-  useEffect(() => { loadCheck(); }, []);
+  useEffect(() => { loadCheck(); fetchConfirm().then(setAltToken).catch(()=>{}); }, []);
  async function upload(files:FileList|null) {
   if(!files)return; setError(''); setBusy(true);
   try { const next = [...photos]; for(const file of Array.from(files)) {
