@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { X, Upload } from "lucide-react";
+import { ImageManager } from "./ImageManager";
 import { supabase } from "@/integrations/supabase/client";
 import { SUBCATEGORIES, SIZE_SYSTEMS, legacyCategory, legacyCondition, calcProfit, formatPrice, type Category, type Product } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
@@ -35,21 +35,6 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
       if (data) setC({ ...data, fault_notes: data.fault_notes ?? "" });
     });
   }, [product]);
-
-  async function upload(files: FileList | null) {
-    if (!files) return;
-    setBusy(true);
-    const urls: string[] = [];
-    for (const file of Array.from(files)) {
-      const path = `${crypto.randomUUID()}-${file.name.replace(/[^a-z0-9.]/gi, "_")}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file);
-      if (error) { toast.error(error.message); continue; }
-      const { data } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-      if (data) urls.push(data.signedUrl);
-    }
-    set("images", [...f.images, ...urls]);
-    setBusy(false);
-  }
 
   async function save() {
     if (!f.title.trim()) { toast.error("Title is required"); return; }
@@ -135,17 +120,7 @@ export function ProductForm({ product, onDone }: { product: Product | null; onDo
 
       <div>
         <Label>Photos</Label>
-        <div className="mt-1 flex flex-wrap gap-2">
-          {f.images.map((src) => (
-            <div key={src} className="relative h-20 w-20 overflow-hidden rounded-md border">
-              <img src={src} alt="" className="h-full w-full object-cover" />
-              <button onClick={() => set("images", f.images.filter((x) => x !== src))} className="absolute right-0.5 top-0.5 rounded-full bg-background/80 p-0.5"><X className="h-3 w-3" /></button>
-            </div>
-          ))}
-          <label className="grid h-20 w-20 cursor-pointer place-items-center rounded-md border border-dashed text-muted-foreground">
-            <Upload className="h-5 w-5" /><input type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-          </label>
-        </div>
+        <ImageManager images={f.images} onChange={(v) => set("images", v)} onBusy={setBusy} />
       </div>
 
       <label className="flex items-center gap-2 text-sm"><Switch checked={f.authenticity_verified} onCheckedChange={(v) => set("authenticity_verified", v)} /> Authenticity verified by me</label>
