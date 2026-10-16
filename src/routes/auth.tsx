@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,19 @@ export const Route = createFileRoute("/auth")({
 });
 
 function Auth() {
+  const [ownerExists, setOwnerExists] = useState<boolean | null>(null);
   const [mode, setMode] = useState<"in" | "up">("in");
   const [busy, setBusy] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.rpc("owner_exists").then(({ data }) => {
+      const exists = data !== false;
+      setOwnerExists(exists);
+      if (!exists) setMode("up");
+    });
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,23 +51,36 @@ function Auth() {
       const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
       setBusy(false);
       if (error) { toast.error(error.message); return; }
-      toast.success("Check your email to confirm your account.");
+      setSentTo(email);
       setMode("in");
     }
   }
 
+  const setup = ownerExists === false;
+
   return (
     <div className="mx-auto max-w-sm px-4 py-20">
-      <h1 className="text-2xl font-bold">{mode === "in" ? "Owner sign in" : "Create owner account"}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">The first account created becomes the shop owner.</p>
+      <h1 className="text-2xl font-bold">{mode === "up" ? "Set up owner account" : "Owner sign in"}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {setup
+          ? "No owner yet. The first account to confirm its email becomes the shop owner automatically."
+          : "Owner area for managing listings and enquiries."}
+      </p>
+      {sentTo && (
+        <p role="status" className="mt-4 rounded-lg border bg-card p-3 text-sm">
+          Check {sentTo} and tap the confirmation link. You'll land in the owner dashboard with full access.
+        </p>
+      )}
       <form onSubmit={submit} className="mt-6 space-y-4">
-        <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required /></div>
-        <div><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" minLength={6} required /></div>
-        <Button type="submit" variant="glow" className="w-full" disabled={busy}>{mode === "in" ? "Sign in" : "Create account"}</Button>
+        <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" autoComplete="email" required /></div>
+        <div><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" autoComplete={mode === "up" ? "new-password" : "current-password"} minLength={8} required /></div>
+        <Button type="submit" variant="glow" className="w-full" disabled={busy || ownerExists === null}>{mode === "in" ? "Sign in" : "Create owner account"}</Button>
       </form>
-      <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-4 text-sm text-primary">
-        {mode === "in" ? "No account yet? Create one" : "Have an account? Sign in"}
-      </button>
+      {setup && (
+        <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-4 text-sm text-primary">
+          {mode === "in" ? "Create the owner account" : "Already created it? Sign in"}
+        </button>
+      )}
     </div>
   );
 }
