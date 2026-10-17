@@ -76,7 +76,7 @@ export function whatsappLink(product?: Pick<Product, "title">, greeting?: string
   return `https://wa.me/${SHOP_CONTACT.whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 export function lineLink() {
-  return `https://line.me/R/ti/p/${encodeURIComponent(SHOP_CONTACT.lineId)}`;
+  return "https://line.me/ti/p/CcGd-nkSXZ";
 }
 
 export interface CostInput {
