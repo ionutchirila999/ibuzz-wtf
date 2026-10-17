@@ -11,7 +11,7 @@ export function ContactButtons({ product }: { product?: Product }) {
         <a href={whatsappLink(product, product ? t("wa.product") : t("wa.general"))} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>
       </Button>
       <Button asChild variant="line" size="lg" disabled={!SHOP_CONTACT.lineId} className="justify-center gap-1.5 px-3 text-sm">
-        <a href={lineLink()} target="_blank" rel="noreferrer"><MessageCircle /> LINE · {SHOP_CONTACT.lineLabel}</a>
+        <a href="https://line.me/ti/p/CcGd-nkSXZ" target="_blank" rel="noreferrer"><MessageCircle /> LINE · {SHOP_CONTACT.lineLabel}</a>
       </Button>
     </div>
   );
