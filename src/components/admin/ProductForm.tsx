@@ -23,8 +23,12 @@ const empty: Form = {
   is_demo: false, status: "available",
 };
 
-export function ProductForm({ product, onDone }: { product: Product | null; onDone: () => void }) {
-  const [f, setF] = useState<Form>(product ? { ...product } : empty);
+export function ProductForm({ product, onDone }: { product: (Product & { product_costs?: unknown }) | null; onDone: () => void }) {
+  const [f, setF] = useState<Form>(() => {
+    if (!product) return empty;
+    const { product_costs: _drop, ...rest } = product;
+    return { ...rest };
+  });
   const [c, setC] = useState<Costs>({ purchase_cost: 0, repair_cost: 0, shipping_cost: 0, platform_fees: 0, other_expenses: 0, fault_notes: "" });
   const [busy, setBusy] = useState(false);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((p) => ({ ...p, [k]: v }));
