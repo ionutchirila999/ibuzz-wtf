@@ -47,9 +47,14 @@ function Dashboard() {
   const products = useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*, product_costs(*)").order("created_at", { ascending: false });
+      const [{ data, error }, { data: costs, error: cErr }] = await Promise.all([
+        supabase.from("products").select("*").order("created_at", { ascending: false }),
+        supabase.from("product_costs").select("*"),
+      ]);
       if (error) throw error;
-      return data;
+      if (cErr) throw cErr;
+      const byId = new Map((costs ?? []).map((c) => [c.product_id, c]));
+      return (data ?? []).map((p) => ({ ...p, product_costs: byId.get(p.id) ?? null }));
     },
   });
   const offers = useQuery({
