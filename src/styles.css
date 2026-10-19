@@ -117,8 +117,8 @@
   inset: 0;
   z-index: 0;
   background:
-    linear-gradient(100deg, color-mix(in oklab, var(--background) 93%, transparent) 0%, color-mix(in oklab, var(--background) 82%, transparent) 45%, color-mix(in oklab, var(--background) 66%, transparent) 100%),
-    linear-gradient(180deg, color-mix(in oklab, var(--background) 78%, transparent) 0%, color-mix(in oklab, var(--background) 62%, transparent) 45%, var(--background) 100%);
+    linear-gradient(100deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 42%, transparent) 45%, color-mix(in oklab, var(--background) 25%, transparent) 100%),
+    linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 35%, transparent) 45%, var(--background) 100%);
 }
 .premium-hero > * { position: relative; z-index: 1; }
 .hero-heading { font-size: 2rem; line-height: 1.18; }
