@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Ban, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CONDITION_LABEL, formatPrice, localizedDescription, localizedTitle, SHOP_NAME, SOCIAL_IMAGE, type Category } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/ProductGallery";
 
 export const Route = createFileRoute("/product/$id")({
@@ -63,7 +64,9 @@ function ProductPage() {
           <p className="font-display text-3xl font-bold text-primary">
             {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
           </p>
-          {!sold && <ContactButtons product={p} />}
+          {sold && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4"><div className="flex items-center gap-2 text-warning"><Ban className="h-5 w-5 shrink-0" /><p className="font-display text-base font-bold">{t("p.soldOut")}</p></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{t("p.soldNotice")}</p></div>}
+          <ContactButtons product={p} disabled={sold} />
+          {sold && <Button asChild variant="outline" size="lg" className="w-full justify-center gap-1.5 px-3 text-sm"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="h-4 w-4" /></Link></Button>}
           <dl className="divide-y rounded-xl border bg-card text-sm">
             {rows.filter(([, v]) => v).map(([k, v]) => (
               <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted-foreground">{k}</dt><dd className="text-right">{v}</dd></div>
