@@ -58,7 +58,7 @@ function ProductPage() {
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
-            {sold && <Badge variant="secondary">{t("card.sold")}</Badge>}
+            {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
           </div>
           <h1 className="text-3xl font-bold">{localizedTitle(p, lang)}</h1>
           <p className="font-display text-3xl font-bold text-primary">

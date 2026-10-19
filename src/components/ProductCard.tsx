@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ImageOff } from "lucide-react";
+import { Ban, ImageOff } from "lucide-react";
 import { CONDITION_LABEL, formatPrice, localizedTitle, type Product } from "@/lib/shop";
 import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
@@ -18,7 +18,7 @@ export function ProductCard({ p }: { p: Product }) {
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {p.is_demo && <Badge variant="destructive">{t("card.demo")}</Badge>}
-          {sold ? <Badge variant="secondary">{t("card.sold")}</Badge> : <Badge variant="secondary">{copy(lang,"available")}</Badge>}
+          {sold ? <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge> : <Badge variant="secondary">{copy(lang,"available")}</Badge>}
         </div>
       </div>
       <div className="space-y-1 p-3">
