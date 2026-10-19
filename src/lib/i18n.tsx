@@ -68,6 +68,8 @@ const D = {
   "p.material": ["วัสดุ", "Material", "Material"],
   "p.avail": ["สถานะสินค้า", "Availability", "Disponibilitate"],
   "p.soldOut": ["ขายหมดแล้ว", "Sold out", "Stoc epuizat"],
+  "p.soldNotice": ["สินค้านี้ขายไปแล้ว จึงสั่งซื้อหรือติดต่อซื้อไม่ได้ กรุณาดูสินค้าอื่นในตลาด", "This item has been sold, so it can't be ordered or enquired about. Please browse the Market for other items.", "Acest articol a fost vândut, deci nu poate fi comandat sau cerut. Explorează piața pentru alte produse."],
+  "p.soldBrowse": ["ดูสินค้าอื่นในตลาด", "Browse other items", "Vezi alte produse"],
   "p.inStock": ["ชิ้นในสต็อก", "in stock", "în stoc"],
   "p.auth": ["ยืนยันของแท้แล้ว", "Authenticity verified", "Autenticitate verificată"],
   "sell.title": ["ขายสินค้าของคุณให้เรา", "Sell your item to us", "Vinde-ne produsul tău"],
