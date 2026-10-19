@@ -118,7 +118,9 @@ function Shop() {
         )}
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-3"><Select value={s.audience ?? ALL} onValueChange={v=>set({audience:v===ALL?undefined:v})}><SelectTrigger className="w-44"><SelectValue placeholder={copy(lang,"audience")}/></SelectTrigger><SelectContent><SelectItem value={ALL}>{copy(lang,"all")}</SelectItem>{(["men","women","children"] as const).map(v=><SelectItem key={v} value={v}>{copy(lang,v)}</SelectItem>)}</SelectContent></Select><Select value={s.status??ALL} onValueChange={v=>set({status:v===ALL?undefined:v})}><SelectTrigger className="w-44"><SelectValue placeholder={copy(lang,"availability")}/></SelectTrigger><SelectContent><SelectItem value={ALL}>{copy(lang,"all")}</SelectItem><SelectItem value="available">{copy(lang,"available")}</SelectItem><SelectItem value="sold">{copy(lang,"sold")}</SelectItem></SelectContent></Select></div>
+      <div className="mb-6 flex flex-wrap items-center gap-3"><Select value={s.audience ?? ALL} onValueChange={v=>set({audience:v===ALL?undefined:v})}><SelectTrigger className="w-44"><SelectValue placeholder={copy(lang,"audience")}/></SelectTrigger><SelectContent><SelectItem value={ALL}>{copy(lang,"all")}</SelectItem>{(["men","women","children"] as const).map(v=><SelectItem key={v} value={v}>{copy(lang,v)}</SelectItem>)}</SelectContent></Select>
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={copy(lang,"availability")}><span className="text-sm text-muted-foreground">{copy(lang,"availability")}</span>{([undefined,"available","sold"] as const).map(v=><Button key={v??"all"} variant={s.status===v?"default":"outline"} onClick={()=>set({status:v})} className={`rounded-full px-4 py-1.5 text-sm ${s.status===v?"border-primary bg-primary text-primary-foreground":"text-muted-foreground"}`}>{v?copy(lang,v):copy(lang,"all")}</Button>)}</div>
+      </div>
       {isLoading ? (
         <p className="text-muted-foreground">{t("loading")}</p>
       ) : data.length === 0 ? (
