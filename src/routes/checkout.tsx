@@ -107,10 +107,34 @@ function Checkout() {
   const shareQr = async () => {
     const url = new URL("/promptpay-qr.jpg", window.location.origin).href;
     try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("QR image unavailable");
+      const blob = await response.blob();
+      const file = new File([blob], "iBuzz-PromptPay-QR.jpg", { type: blob.type || "image/jpeg" });
+
+      // On supported mobile browsers, open the native share sheet with the QR image.
+      if (typeof navigator.share === "function") {
+        if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: c.qr, text: c.qr, files: [file] });
+          setQrMessage(c.qrShared);
+          return;
+        }
+        await navigator.share({ title: c.qr, text: c.qr, url });
+        setQrMessage(c.qrShared);
+        return;
+      }
+
+      // Desktop fallback: copy the direct QR link, which can be pasted into any app.
       await navigator.clipboard.writeText(url);
       setQrMessage(c.qrShareFallback);
-    } catch {
-      setQrMessage(c.qrShareFallback);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(url);
+        setQrMessage(c.qrShareFallback);
+      } catch {
+        setQrMessage(c.qrShareFallback);
+      }
     }
   };
   const openLine = () => { void copyOrder(); window.open(lineLink(), "_blank", "noopener,noreferrer"); };
