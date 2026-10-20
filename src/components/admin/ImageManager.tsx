@@ -8,7 +8,7 @@ import { moveItem, validateImageFile } from "@/lib/product-images";
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
-async function store(file: Blob, name: string): Promise<string> {
+export async function store(file: Blob, name: string): Promise<string> {
   const path = `${crypto.randomUUID()}-${name.replace(/[^a-z0-9.]/gi, "_")}`;
   const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type || "image/jpeg" });
   if (error) throw error;

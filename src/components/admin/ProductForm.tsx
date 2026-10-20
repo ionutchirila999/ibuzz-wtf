@@ -1,3 +1,5 @@
+import { makeShareImage } from "@/lib/share-image";
+import { store } from "./ImageManager";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ImageManager } from "./ImageManager";
@@ -43,7 +45,13 @@ export function ProductForm({ product, onDone }: { product: (Product & { product
   async function save() {
     if (!f.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
-    const payload = { ...f, category: legacyCategory(f.market_category as Category), condition: legacyCondition(f.market_condition), shoe_size: f.market_category !== "technology" ? f.shoe_size : null, size_system: f.market_category !== "technology" ? f.size_system : null };
+    let share_image: string | null = (product as { share_image?: string | null } | undefined)?.share_image ?? null;
+    const main = f.images[0];
+    if (!main) share_image = null;
+    else if (!share_image || main !== product?.images?.[0]) {
+      try { share_image = await store(await makeShareImage(main), "share.jpg"); } catch { /* preview falls back to the site banner */ }
+    }
+    const payload = { ...f, share_image, category: legacyCategory(f.market_category as Category), condition: legacyCondition(f.market_condition), shoe_size: f.market_category !== "technology" ? f.shoe_size : null, size_system: f.market_category !== "technology" ? f.size_system : null };
     const res = product
       ? await supabase.from("products").update({ ...payload, updated_at: new Date().toISOString() }).eq("id", product.id).select().single()
       : await supabase.from("products").insert(payload).select().single();
