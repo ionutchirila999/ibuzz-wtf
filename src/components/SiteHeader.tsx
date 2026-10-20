@@ -11,9 +11,13 @@ import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from 
 import { InstallGuide } from '@/components/InstallGuide';
 const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/shop',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/sell',label:'nav.sell'}] as const;
 
-function BrandSocialIcon({ brand }: { brand: 'whatsapp' | 'line' }) {
-  if (brand === 'whatsapp') return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0"><circle cx="12" cy="12" r="11" fill="#25D366"/><path fill="#fff" d="M7.2 5.7c-.3-.2-.7-.2-.9.1-.4.4-1.1 1.3-1.1 2.8 0 1.7 1.2 3.4 1.4 3.6.2.2 2.3 3.7 5.8 5.1 2.9 1.2 3.5 1 4.1.9.6-.1 1.9-.8 2.2-1.6.3-.8.3-1.5.2-1.7-.1-.2-.3-.3-.7-.5l-2.4-1.1c-.3-.1-.5-.2-.7.2-.2.3-.9 1.1-1.1 1.3-.2.2-.4.3-.7.1-.4-.2-1.5-.5-2.8-1.7-1-.9-1.7-2-1.9-2.4-.2-.4 0-.5.2-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.2-.5-.5-.5-.8-.5Z"/></svg>;
-  return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0"><rect x="1" y="1" width="22" height="22" rx="5" fill="#06C755"/><path d="M5 10.8c0-3.2 3.1-5.8 7-5.8s7 2.6 7 5.8-3.1 5.8-7 5.8c-.7 0-1.4-.1-2.1-.3l-3.1 1 .8-2.5C6 13.8 5 12.4 5 10.8Z" fill="#fff"/><text x="12" y="12.2" textAnchor="middle" fontSize="4.2" fontWeight="800" fill="#06C755">LINE</text></svg>;
+function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' | 'whatsapp' | 'line' }) {
+  const common = "h-8 w-8 shrink-0";
+  if (brand === 'facebook') return <svg aria-hidden="true" viewBox="0 0 40 40" className={common}><circle cx="20" cy="20" r="20" fill="#1877F2"/><path fill="#fff" d="M22.7 35V21.8h4.4l.7-5.1h-5.1v-3.3c0-1.5.4-2.5 2.6-2.5H28V6.3c-.5-.1-2.1-.2-4-.2-4 0-6.8 2.4-6.8 7v3.6h-4.5v5.1h4.5V35h5.5Z"/></svg>;
+  if (brand === 'tiktok') return <svg aria-hidden="true" viewBox="0 0 40 40" className={common}><path fill="#25F4EE" d="M23 4h6c.3 4.7 2.9 7.6 7 8v6.2c-2.8.1-5.2-.8-7-2.3v11.2c0 6.6-4.4 10.8-10.8 10.8C12.3 37.9 8 33.7 8 28c0-6.1 5.1-10.7 11.3-10.2v6.4c-2.8-.8-5.3.9-5.3 3.7 0 2.2 1.5 3.8 3.7 3.8 2.5 0 4-1.8 4-4.6V4Z"/><path fill="#FE2C55" d="M25.5 4h3.6c.3 4.7 2.9 7.6 7 8v3.4c-4.8-.5-8.6-3.5-10.6-7.5V4ZM20.4 17.8v3.8c-2.8-.8-5.3.9-5.3 3.7 0 .8.2 1.5.6 2.1-2.8.3-4.7-1.5-4.7-4 0-3.6 4.1-6.2 9.4-5.6Z"/><path fill="#fff" d="M25.5 4h2.2c.3 4.7 2.9 7.6 7 8v3.2c-3.4-.3-6.6-2.1-9.2-5.1v17c0 6.6-4.4 10.8-10.8 10.8-2.7 0-5-1-6.7-2.7 1.5 1 3.2 1.5 5.1 1.5 6.4 0 10.8-4.2 10.8-10.8V4Z"/></svg>;
+  if (brand === 'youtube') return <svg aria-hidden="true" viewBox="0 0 40 40" className={common}><rect x="1" y="6" width="38" height="28" rx="8" fill="#FF0000"/><path d="M17 13.5 28 20l-11 6.5v-13Z" fill="#fff"/></svg>;
+  if (brand === 'whatsapp') return <svg aria-hidden="true" viewBox="0 0 40 40" className={common}><circle cx="20" cy="20" r="19" fill="#25D366" stroke="#fff" strokeWidth="1.5"/><path fill="#fff" d="M11.2 8.7c-.8-.4-1.8-.2-2.4.6-1.1 1.3-2.4 3.3-2.2 5.9.3 4.2 4.4 9.5 8.5 12.7 4.1 3.2 8.8 5.2 12.1 4.4 2.4-.6 4.2-2.2 4.6-3.7.3-1-.1-1.5-.8-1.9l-4.5-2.1c-.8-.4-1.3-.2-1.8.5l-1.7 2.1c-.4.5-.9.5-1.5.2-2.1-.9-4.2-2.3-5.9-4.1-1.4-1.5-2.3-3.1-2.7-4.1-.2-.5 0-.9.4-1.3l1.5-1.7c.4-.5.5-1 .2-1.6l-2-4.8c-.3-.6-.7-.9-1.2-1.1Z"/></svg>;
+  return <svg aria-hidden="true" viewBox="0 0 40 40" className={common}><rect x="1" y="1" width="38" height="38" rx="10" fill="#06C755"/><path d="M7 18.5C7 12.8 12.8 8 20 8s13 4.8 13 10.5S27.2 29 20 29c-1.5 0-3-.2-4.3-.6l-5.8 2 1.6-4.7C8.7 23.8 7 21.3 7 18.5Z" fill="#fff"/><text x="20" y="21" textAnchor="middle" fontSize="7" fontWeight="800" fill="#06C755">LINE</text></svg>;
 }
 export function SiteHeader(){const {t,lang,setLang}=useT();const [open,setOpen]=useState(false);const label=(n:typeof nav[number])=>n.label==='nav.sell'?t(n.label):n.label==='checkout'?(lang==='th'?'ชำระเงิน':lang==='ro'?'Comandă':'Checkout'):copy(lang,n.label);return <header className="sticky top-0 z-40 border-b border-border/30 bg-background/95 backdrop-blur-xl"><div className="mx-auto grid h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-8 lg:flex lg:justify-between">
  <Link to="/" aria-label={SHOP_NAME} className="min-w-0 shrink-0"><img src={logoWordmark} alt={LOGO_NAME} width={1356} height={286} className="h-auto w-28 sm:w-36"/></Link>
@@ -23,9 +27,9 @@ export function SiteHeader(){const {t,lang,setLang}=useT();const [open,setOpen]=
 export function SiteFooter(){
   const {t,lang}=useT();
   const socialLinks=[
-    {label:'Facebook',handle:'ibuzz.wtf',href:'https://www.facebook.com/ibuzz.wtf',icon:<Facebook className="h-8 w-8 text-[#1877F2]" />,iconBox:'bg-[#1877F2]/10'},
-    {label:'TikTok',handle:'@ibuzz.wtf',href:'https://www.tiktok.com/@ibuzz.wtf',icon:<Music2 className="h-8 w-8 text-foreground" />,iconBox:'bg-foreground/5'},
-    {label:'YouTube',handle:'@iBuzz-wtf',href:'https://www.youtube.com/@iBuzz-wtf',icon:<Youtube className="h-8 w-8 text-[#FF0000]" />,iconBox:'bg-[#FF0000]/10'},
+    {label:'Facebook',handle:'ibuzz.wtf',href:'https://www.facebook.com/ibuzz.wtf',icon:<BrandSocialIcon brand="facebook" />,iconBox:'bg-[#1877F2]/10'},
+    {label:'TikTok',handle:'@ibuzz.wtf',href:'https://www.tiktok.com/@ibuzz.wtf',icon:<BrandSocialIcon brand="tiktok" />,iconBox:'bg-foreground/5'},
+    {label:'YouTube',handle:'@iBuzz-wtf',href:'https://www.youtube.com/@iBuzz-wtf',icon:<BrandSocialIcon brand="youtube" />,iconBox:'bg-[#FF0000]/10'},
     {label:'WhatsApp',handle:'+66 82 897 7279',href:whatsappLink(),icon:<BrandSocialIcon brand="whatsapp" />,iconBox:'bg-[#25D366]/10'},
     {label:'LINE',handle:SHOP_CONTACT.lineLabel,href:lineLink(),icon:<BrandSocialIcon brand="line" />,iconBox:'bg-[#06C755]/10'},
   ];
