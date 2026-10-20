@@ -28,9 +28,11 @@ create index if not exists order_items_order_id_idx on public.order_items(order_
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 grant select on public.orders, public.order_items to authenticated;
+grant update (status, payment_status, tracking_number, tracking_url, customer_note, updated_at) on public.orders to authenticated;
 grant all on public.orders, public.order_items to service_role;
 create policy "customers read own orders" on public.orders for select to authenticated using (auth.uid() = user_id);
 create policy "admins read all orders" on public.orders for select to authenticated using (public.has_role(auth.uid(), 'admin'));
+create policy "admins update orders" on public.orders for update to authenticated using (public.has_role(auth.uid(), 'admin')) with check (public.has_role(auth.uid(), 'admin'));
 create policy "customers read own order items" on public.order_items for select to authenticated using (exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid()));
 create policy "admins read all order items" on public.order_items for select to authenticated using (public.has_role(auth.uid(), 'admin'));
 
