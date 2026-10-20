@@ -4,7 +4,7 @@ import { copy } from "@/lib/service-copy";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SHOP_NAME, SOCIAL_IMAGE, SUBCATEGORIES, type Category } from "@/lib/shop";
+import { SHOP_NAME, SOCIAL_IMAGE, SUBCATEGORIES, productSearchConditions, type Category } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -56,9 +56,10 @@ function Shop() {
       if (s.size) q = q.eq("shoe_size", s.size);
       if (s.audience) q = q.eq("audience", s.audience);
       if (s.status) q = q.eq("status", s.status);
-      // Match the product name in the visitor's language too, keeping Thai/Romanian tone marks.
-      const term = s.q ? s.q.replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100) : "";
-      if (term) q = q.or(["title", "title_th", "title_ro", "brand", "model"].map((f) => `${f}.ilike.%${term}%`).join(","));
+      // Match names, brands and model numbers in Thai, English and Romanian.
+      // The availability filter above is applied separately, so it stays active.
+      const search = productSearchConditions(s.q);
+      if (search) q = q.or(search);
       if (s["sort"] === "price_asc") q = q.order("price", { ascending: true });
       else if (s["sort"] === "price_desc") q = q.order("price", { ascending: false });
       else q = q.order("created_at", { ascending: false });
