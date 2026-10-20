@@ -78,7 +78,7 @@ function Account() {
     await loadOrders();
   }
 
-  async function signInWithProvider(provider: 'google' | 'apple') {
+  async function signInWithProvider(provider: 'google') {
     setBusy(true); setError(''); setNotice('');
     const lovableAuth = createLovableAuth();
     const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + '/account' });
@@ -108,9 +108,9 @@ function Account() {
   if (sessionLoading) return <main className="mx-auto max-w-5xl px-5 py-16"><p className="text-muted-foreground">{w.loading}</p></main>;
   return <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
     <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="section-eyebrow">iBuzz.wtf</p><h1 className="section-heading mt-3">{w.title}</h1><p className="mt-3 text-sm text-muted-foreground">{w.lead}</p></div>{userEmail && <Button variant="outline" onClick={() => void signOut()}><LogOut className="mr-2 h-4 w-4"/>{w.signOut}</Button>}</div>
-    {!userEmail ? <section className="mx-auto mt-8 max-w-md rounded-xl border border-border/50 bg-card/40 p-5 sm:p-7">
+    {!userEmail ? <section className="auth-panel mx-auto mt-8 max-w-md rounded-3xl border border-border/60 bg-card/50 p-5 sm:p-8">
       <div className="mb-5 flex gap-2"><Button variant={mode==='in'?'default':'outline'} className="flex-1" onClick={() => {setMode('in');setError('');setNotice('');}}>{w.signIn}</Button><Button variant={mode==='up'?'default':'outline'} className="flex-1" onClick={() => {setMode('up');setError('');setNotice('');}}>{w.signUp}</Button></div>
-      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2"><Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => void signInWithProvider('google')}>Continue with Google</Button><Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => void signInWithProvider('apple')}>Continue with Apple</Button></div>
+      <div className="mb-5 grid grid-cols-1 gap-2"><Button type="button" variant="outline" className="auth-social-button w-full" disabled={busy} onClick={() => void signInWithProvider('google')}><span className="google-mark" aria-hidden="true">G</span>Continue with Google</Button></div>
       <div className="mb-4 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /><span>or use email</span><span className="h-px flex-1 bg-border" /></div>
       <form onSubmit={submit} className="space-y-4"><div className="space-y-2"><Label htmlFor="account-email">{w.email}</Label><Input id="account-email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} required/></div><div className="space-y-2"><Label htmlFor="account-password">{w.password}</Label><Input id="account-password" type="password" autoComplete={mode==='up'?'new-password':'current-password'} minLength={8} value={password} onChange={e=>setPassword(e.target.value)} required/></div><Button className="w-full" variant="glow" type="submit" disabled={busy}>{busy ? w.loading : mode==='up'?w.create:w.signIn}</Button></form>
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}{notice && <p role="status" className="mt-4 text-sm text-muted-foreground">{notice}</p>}
