@@ -33,5 +33,47 @@
 <div class="actions"><a class="button primary" href="/promptpay-qr.svg" download="iBuzz-PromptPay-QR.svg">View / Save QR</a><a class="button" href="/checkout">Back to checkout</a></div>
 <p class="warning">Static QR code. Enter the amount yourself and verify the recipient in your banking app.</p>
 </main>
+
+<script>
+(() => {
+  const lang = new URLSearchParams(location.search).get("lang");
+  const copy = {
+    th: {
+      brand: "iBuzz.wtf · คิวอาร์โค้ด PromptPay อย่างเป็นทางการ",
+      title: "คิวอาร์โค้ด PromptPay",
+      note: "เปิดแอปธนาคารไทยแล้วสแกนคิวอาร์โค้ดนี้ ตรวจสอบชื่อผู้รับก่อนชำระเงิน",
+      save: "ดู / บันทึก QR",
+      back: "กลับไปหน้าชำระเงิน",
+      warning: "คิวอาร์โค้ดแบบคงที่ กรุณากรอกจำนวนเงินเองและตรวจสอบชื่อผู้รับในแอปธนาคาร"
+    },
+    ro: {
+      brand: "iBuzz.wtf · Cod QR PromptPay oficial",
+      title: "Cod QR PromptPay",
+      note: "Deschide aplicația bancară din Thailanda și scanează acest cod QR. Verifică beneficiarul înainte de plată.",
+      save: "Vezi / Salvează QR",
+      back: "Înapoi la plată",
+      warning: "Cod QR static. Introdu suma manual și verifică beneficiarul în aplicația bancară."
+    },
+    en: {
+      brand: "iBuzz.wtf · Official PromptPay QR",
+      title: "PromptPay QR",
+      note: "Open your Thai banking app and scan this QR code. Confirm the recipient details before paying.",
+      save: "View / Save QR",
+      back: "Back to checkout",
+      warning: "Static QR code. Enter the amount yourself and verify the recipient in your banking app."
+    }
+  };
+  const language = copy[lang] ? lang : "en";
+  const c = copy[language];
+  document.documentElement.lang = language;
+  document.querySelector(".brand").textContent = c.brand;
+  document.querySelector("#title").textContent = c.title;
+  document.querySelector(".note").textContent = c.note;
+  document.querySelector(".primary").textContent = c.save;
+  document.querySelector(".actions .button:not(.primary)").textContent = c.back;
+  document.querySelector(".warning").textContent = c.warning;
+  document.title = language === "th" ? "iBuzz.wtf — คิวอาร์โค้ด PromptPay" : language === "ro" ? "iBuzz.wtf — Cod QR PromptPay" : "iBuzz.wtf — Official PromptPay QR";
+})();
+</script>
 </body>
 </html>
