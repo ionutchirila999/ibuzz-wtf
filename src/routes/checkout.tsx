@@ -166,9 +166,9 @@ function Checkout() {
     const caption = c.qr;
     const targets: Record<typeof platform, string> = {
       facebook: "https://www.facebook.com/",
-      whatsapp: "https://web.whatsapp.com/",
-      line: "https://line.me/",
-      telegram: "https://web.telegram.org/",
+      whatsapp: "https://web.whatsapp.com/send?text=" + encodeURIComponent(caption),
+      line: "https://line.me/R/msg/text/?" + encodeURIComponent(caption),
+      telegram: "https://t.me/share/url?url=&text=" + encodeURIComponent(caption),
       x: "https://x.com/compose/post?text=" + encodeURIComponent(caption),
     };
     // Start copying the PNG while the click still has browser user activation.
