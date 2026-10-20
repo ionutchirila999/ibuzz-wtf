@@ -32,8 +32,8 @@ export const Route = createFileRoute("/product/$id")({staticData: { sitemap: tru
     const desc = p
       ? `${sold ? "Sold out. " : ""}${raw.replace(/\s+/g, " ").trim().slice(0, 140)}${raw.length > 140 ? "…" : ""} Enquire on WhatsApp or LINE.`.trim()
       : "Photos, condition, price and availability. Enquire on WhatsApp or LINE.";
-    const first = p?.images?.[0];
-    const image = typeof first === "string" && first.startsWith("https://") ? first : SOCIAL_IMAGE;
+    // Only the small share copy is used — full photos are too large for WhatsApp previews.
+    const image = p?.share_image?.startsWith("https://") ? p.share_image : SOCIAL_IMAGE;
     const url = `https://ibuzz.wtf/product/${params.id}`;
     return {
       meta: [
@@ -46,6 +46,7 @@ export const Route = createFileRoute("/product/$id")({staticData: { sitemap: tru
         { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:image", content: image },
+        ...(image !== SOCIAL_IMAGE ? [{ property: "og:image:width", content: "1200" }, { property: "og:image:height", content: "630" }, { property: "og:image:type", content: "image/jpeg" }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
     };
