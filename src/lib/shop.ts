@@ -76,7 +76,7 @@ export function whatsappLink(product?: Pick<Product, "title">, greeting?: string
   return `https://wa.me/${SHOP_CONTACT.whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 export function lineLink() {
-  return "https://line.me/ti/p/CcGd-nkSXZ";
+  return "https://line.me/R/ti/p/ibuzz.wtf";
 }
 
 export interface CostInput {
@@ -113,3 +113,28 @@ export function localizedDescription(p: Product, lang: Lang) {
 export const MARKET_CATEGORIES: Category[] = ["technology", "clothing", "footwear"];
 export function legacyCategory(category: Category) { return category === "footwear" ? "womens_shoes" : "technology"; }
 export function legacyCondition(condition: string) { return condition === "new" ? "new" : condition === "refurbished" || condition === "repaired_tested" ? "refurbished" : "pre_owned"; }
+
+// The Market search box matches product names in all three languages, the brand
+// and model columns, and the localized descriptions — where brand names and
+// model numbers also appear inside the Thai and Romanian wording.
+const SEARCH_FIELDS = ["title", "title_th", "title_ro", "brand", "model", "description", "description_th", "description_ro"];
+
+// Builds the database "or" conditions for a search term. Returns undefined when
+// there is nothing to search for, so other filters (like availability) are left
+// exactly as they are.
+export function productSearchConditions(raw: string | undefined): string | undefined {
+  const term = String(raw ?? "").normalize("NFC").replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100);
+  if (!term.trim()) return undefined;
+  const exact = `%${term.replace(/_/g, "")}%`;
+  // Model numbers are often typed without the hyphen or spacing used on the
+  // label (F36A for F-36A), so also let any separator stand for anything.
+  const loose = `%${term.replace(/[-._ ]+/g, "%")}%`;
+  const patterns = exact === loose ? [exact] : [exact, loose];
+  // A short code mixing letters and digits (F36A, JX500) reads as a model
+  // number, so anything may sit between its characters.
+  const code = term.replace(/[-._ ]+/g, "");
+  if (!/\s/.test(term) && /\d/.test(code) && /[^\d]/.test(code) && code.length <= 12) {
+    patterns.push(`%${[...code].join("%")}%`);
+  }
+  return SEARCH_FIELDS.flatMap((f) => patterns.map((p) => `${f}.ilike.${p}`)).join(",");
+}

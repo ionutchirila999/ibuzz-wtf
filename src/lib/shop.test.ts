@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcProfit, lineLink, SHOP_CONTACT, whatsappLink } from "./shop";
+import { calcProfit, lineLink, productSearchConditions, SHOP_CONTACT, whatsappLink } from "./shop";
 
 describe("calcProfit", () => {
   it("subtracts every cost from the selling price", () => {
@@ -34,5 +34,38 @@ describe("LINE contact", () => {
     expect(SHOP_CONTACT.lineLabel).toBe("ibuzz.wtf");
     expect(SHOP_CONTACT.lineId).toBe("ibuzz.wtf");
     expect(SHOP_CONTACT.lineId).toBe(SHOP_CONTACT.lineId.toLowerCase());
+  });
+});
+
+describe("Market search matching", () => {
+  it("searches names, brands and model numbers in Thai, English and Romanian", () => {
+    const f = productSearchConditions("xiaomi")!;
+    for (const field of ["title", "title_th", "title_ro", "brand", "model", "description", "description_th", "description_ro"]) {
+      expect(f).toContain(`${field}.ilike.%xiaomi%`);
+    }
+  });
+  it("keeps Thai tone marks and Romanian diacritics in the typed term", () => {
+    expect(productSearchConditions("เมาส์")!).toContain("%เมาส์%");
+    expect(productSearchConditions("baterie externă")!).toContain("%baterie externă%");
+  });
+  it("also finds model numbers typed without the label's hyphen", () => {
+    const f = productSearchConditions("F-36A")!;
+    expect(f).toContain("model.ilike.%F-36A%");
+    expect(f).toContain("model.ilike.%F%36A%");
+  });
+  it("drops characters that would break the database filter", () => {
+    const f = productSearchConditions("Fujifilm, (JX500)")!;
+    expect(f).toContain(".ilike.%Fujifilm%JX500%");
+    expect(f).not.toContain("Fujifilm,");
+    expect(f).not.toContain("(");
+  });
+  it("asks for nothing when the search box is empty", () => {
+    expect(productSearchConditions(undefined)).toBeUndefined();
+    expect(productSearchConditions("   ")).toBeUndefined();
+    expect(productSearchConditions("%%%")).toBeUndefined();
+  });
+  it("still searches a term the address bar turned into a number", () => {
+    expect(productSearchConditions(10000 as unknown as string)).toContain("description.ilike.%10000%");
+    expect(productSearchConditions(10000 as unknown as string)).not.toContain("%1%0%0%0%0%");
   });
 });
