@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { InstallGuide } from '@/components/InstallGuide';
 const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/shop',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/account',label:'account'},{to:'/sell',label:'nav.sell'}] as const;
-function navigationLabel(n: typeof nav[number], lang: Lang, t: (key: string) => string) { return n.label === 'nav.sell' ? t(n.label) : copy(lang, n.label); }
+function navigationLabel(n: typeof nav[number], lang: Lang, t: ReturnType<typeof useT>['t']) { return n.label === 'nav.sell' ? t(n.label) : copy(lang, n.label); }
 
 function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' | 'whatsapp' | 'line' }) {
   const size = "h-4 w-4 shrink-0";

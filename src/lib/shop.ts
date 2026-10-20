@@ -103,7 +103,7 @@ export function calcProfit(c: CostInput) {
 
 export type Lang = "th" | "en" | "ro";
 // Product name/description in the visitor's language, falling back to English.
-export function localizedTitle(p: Product, lang: Lang) {
+export function localizedTitle(p: Pick<Product, "title" | "title_th" | "title_ro">, lang: Lang) {
   return (lang === "th" ? p.title_th : lang === "ro" ? p.title_ro : null) || p.title;
 }
 export function localizedDescription(p: Product, lang: Lang) {

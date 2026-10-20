@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, lineLink } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
+import { pageHead } from "@/lib/service-copy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +70,11 @@ const COPY = {
   },
 } as const;
 
-export const Route = createFileRoute("/checkout")({ component: Checkout });
+export const Route = createFileRoute("/checkout")({
+  staticData: { sitemap: "exclude-subtree" },
+  head: () => pageHead("Checkout", "Review your iBuzz.wtf Market order and pay with PromptPay before sending your payment slip through LINE."),
+  component: Checkout,
+});
 
 function Checkout() {
   const { lang } = useT();
@@ -230,7 +235,7 @@ function Checkout() {
           p_items: items.map(item => ({ id: item.id, quantity: item.quantity })),
         });
         if (error) throw error;
-        orderNumber = data?.order_number as string | undefined;
+        orderNumber = typeof data?.order_number === "string" ? data.order_number : null;
         if (!orderNumber) throw new Error("Order number was not returned");
         setCreatedOrderNumber(orderNumber);
         localStorage.removeItem(KEY);
