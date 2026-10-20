@@ -2,20 +2,43 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowUpRight, ArrowRight, Wrench, Code2, ShoppingBag, ScanLine, ClipboardCheck, Monitor, FileCheck2, Smartphone, Camera } from 'lucide-react';
 import hero from '@/assets/ibuzz-studio.jpg';
 import heroAlt from '@/assets/hero.jpg';
-import social from '@/assets/ibuzz-social.jpg.asset.json';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// Background slideshow for the hero: existing uploaded photos only, fading every 5s.
-const SLIDES = [hero, heroAlt, social.url];
+// Hero background carousel using existing photos only. Slide 2 keeps the current
+// background because no separate repair photo has been uploaded.
+const SLIDES = [
+  { src: hero },
+  { src: hero, to: '/repair' as const, label: { th: 'ซ่อมและรีเฟอร์บิชอุปกรณ์อิเล็กทรอนิกส์', en: 'Electronics repair & refurbishment', ro: 'Reparații și recondiționare electronice' } },
+  { src: heroAlt, to: '/shop' as const, label: { th: 'อิเล็กทรอนิกส์ กล้อง เสื้อผ้า และรองเท้า', en: 'Electronics, cameras, clothing & shoes', ro: 'Electronice, camere, haine și încălțăminte' } },
+];
+const DOT = { th: 'สไลด์', en: 'Slide', ro: 'Slide' };
 function HeroSlides() {
+  const { lang } = useT();
   const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => setI((n) => (n + 1) % SLIDES.length), 5000);
-    return () => window.clearInterval(id);
+    const section = ref.current?.parentElement;
+    const stop = () => setPaused(true);
+    section?.addEventListener('pointerdown', stop);
+    section?.addEventListener('focusin', stop);
+    return () => { section?.removeEventListener('pointerdown', stop); section?.removeEventListener('focusin', stop); };
   }, []);
-  return <div className="hero-slides" aria-hidden="true">{SLIDES.map((src, n) => <div key={src} className="hero-slide" style={{ backgroundImage: `url("${src}")`, opacity: n === i ? 1 : 0 }} />)}</div>;
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => setI((n) => (n + 1) % SLIDES.length), 6000);
+    return () => window.clearInterval(id);
+  }, [paused]);
+  const cur = SLIDES[i];
+  return <>
+    <div ref={ref} className="hero-slides" aria-hidden="true">{SLIDES.map((sl, n) => <div key={n} className="hero-slide" style={{ backgroundImage: `url("${sl.src}")`, opacity: n === i ? 1 : 0 }} />)}</div>
+    <div className="hero-dots mx-auto flex max-w-6xl items-center gap-3 px-5 pb-4 sm:px-8">
+      <div className="flex gap-1.5">{SLIDES.map((_, n) => <button key={n} type="button" aria-label={`${DOT[lang]} ${n + 1}`} aria-current={n === i} onClick={() => { setPaused(true); setI(n); }} className={`h-1.5 rounded-full transition-all ${n === i ? 'w-5 bg-primary' : 'w-1.5 bg-muted-foreground/50'}`} />)}</div>
+      {cur.to && cur.label && <Link to={cur.to} className="truncate text-xs text-primary-soft hover:underline">{cur.label[lang]} →</Link>}
+    </div>
+  </>;
 }
+
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { copy, pageHead } from '@/lib/service-copy';
