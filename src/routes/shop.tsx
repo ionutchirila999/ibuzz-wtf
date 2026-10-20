@@ -65,31 +65,40 @@ function Shop() {
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
   const { data = [], isLoading, isError } = useQuery({
-    // Language changes affect card text, not the database result set.
     queryKey: ["products", s],
     staleTime: 30_000,
     retry: 1,
     placeholderData: (previousData) => previousData,
     queryFn: async () => {
-      // Fetch only fields needed for filtering, sorting, and the product cards.
-      // Avoid transferring internal/admin-only product fields to public visitors.
-      let q = supabase.from("products").select("*").neq("status", "hidden");
-      if (s.category) q = q.eq("market_category", s.category);
-      if (s.sub) q = q.eq("subcategory", s.sub);
-      if (s.condition) q = q.eq("market_condition", s.condition);
-      if (s.size) q = q.eq("shoe_size", s.size);
-      if (s.audience) q = q.eq("audience", s.audience);
-      if (s.status) q = q.eq("status", s.status);
-      // Match names, brands and model numbers in Thai, English and Romanian.
-      // The availability filter above is applied separately, so it stays active.
-      const search = productSearchConditions(s.q);
-      if (search) q = q.or(search);
-      if (s["sort"] === "price_asc") q = q.order("price", { ascending: true });
-      else if (s["sort"] === "price_desc") q = q.order("price", { ascending: false });
-      else q = q.order("created_at", { ascending: false });
-      const { data, error } = await q;
+      // Fetch the public product list with the simplest possible PostgREST query.
+      // The database's public-read policy already excludes hidden products.
+      // Apply storefront filters in the browser so one unsupported filter/order
+      // cannot make the entire Market appear broken.
+      const { data: rows, error } = await supabase.from("products").select("*");
       if (error) throw error;
-      return data;
+
+      const term = String(s.q ?? "").normalize("NFC").trim().toLocaleLowerCase();
+      const filtered = (rows ?? []).filter((p) => {
+        if (s.category && p.market_category !== s.category) return false;
+        if (s.sub && p.subcategory !== s.sub) return false;
+        if (s.condition && p.market_condition !== s.condition) return false;
+        if (s.size && String(p.shoe_size ?? "") !== s.size) return false;
+        if (s.audience && p.audience !== s.audience) return false;
+        if (s.status && p.status !== s.status) return false;
+        if (term) {
+          const searchable = [p.title, p.title_th, p.title_ro, p.brand, p.model,
+            p.description, p.description_th, p.description_ro]
+            .filter(Boolean).join(" ").normalize("NFC").toLocaleLowerCase();
+          if (!searchable.includes(term)) return false;
+        }
+        return true;
+      });
+
+      return filtered.sort((a, b) => {
+        if (s.sort === "price_asc") return Number(a.price) - Number(b.price);
+        if (s.sort === "price_desc") return Number(b.price) - Number(a.price);
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
     },
   });
 
