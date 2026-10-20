@@ -8,6 +8,7 @@ import { useAdmin } from "@/hooks/use-admin";
 import { CATEGORY_LABEL, formatPrice, SHOP_NAME, type Category, type Product } from "@/lib/shop";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
+import { OwnerOrders } from "@/components/admin/OwnerOrders";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -103,6 +104,7 @@ function Dashboard() {
       <Tabs defaultValue="listings">
         <TabsList>
           <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
           <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
           <TabsTrigger value="calc">Profit calculator</TabsTrigger>
@@ -128,6 +130,8 @@ function Dashboard() {
             </div>
           ))}
         </TabsContent>
+
+        <TabsContent value="orders"><OwnerOrders /></TabsContent>
 
         <TabsContent value="offers" className="mt-4 space-y-2">
           {(offers.data ?? []).length === 0 && <p className="py-8 text-center text-muted-foreground">No resale offers yet.</p>}
