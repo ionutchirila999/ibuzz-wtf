@@ -149,6 +149,18 @@ function Checkout() {
   };
   const shareQr = async () => {
     const url = new URL("/promptpay-qr.svg", window.location.origin).href;
+    // Desktop browsers (including Windows) often have no installed share targets.
+    // Copy the QR link instead of opening an empty system share panel.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (!isMobile) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setQrMessage(c.qrShareFallback);
+      } catch {
+        window.prompt(c.qrShareFallback, url);
+      }
+      return;
+    }
     try {
       const file = await makeQrPng();
       if (typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
@@ -164,7 +176,7 @@ function Checkout() {
         await navigator.clipboard.writeText(url);
         setQrMessage(c.qrShareFallback);
       } catch {
-        setQrMessage(c.qrShareFallback);
+        window.prompt(c.qrShareFallback, url);
       }
     }
   };
