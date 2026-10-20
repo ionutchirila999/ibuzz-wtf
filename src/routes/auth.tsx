@@ -26,6 +26,8 @@ export const Route = createFileRoute("/auth")({staticData: { sitemap: "exclude-s
 function Auth() {
   const [ownerExists, setOwnerExists] = useState<boolean | null>(null);
   const [mode, setMode] = useState<"in" | "up">("in");
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -43,6 +45,13 @@ function Auth() {
     const f = new FormData(e.currentTarget);
     const email = String(f.get("email")), password = String(f.get("password"));
     setBusy(true);
+    if (resetMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth?resetPassword=1` });
+      setBusy(false);
+      if (error) { toast.error("Could not send the reset email. Please try again."); return; }
+      setResetSent(true);
+      return;
+    }
     if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
@@ -73,27 +82,30 @@ function Auth() {
 
   return (
     <main className="auth-page relative isolate mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl items-center justify-center overflow-hidden px-4 py-12 sm:px-6 sm:py-16"><div className="auth-orb auth-orb-one" aria-hidden="true" /><div className="auth-orb auth-orb-two" aria-hidden="true" /><div className="auth-panel relative z-10 w-full max-w-md rounded-3xl border p-6 sm:p-9">
-      <h1 className="auth-title text-3xl font-bold tracking-tight sm:text-4xl">{mode === "up" ? "Set up owner account" : "Owner sign in"}</h1>
+      <h1 className="auth-title text-3xl font-bold tracking-tight sm:text-4xl">{resetMode ? "Reset your password" : mode === "up" ? "Set up owner account" : "Owner sign in"}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {setup
           ? "No owner yet. The first account to confirm its email becomes the shop owner automatically."
           : "Owner area for managing listings and enquiries."}
       </p>
+      {resetSent && <p role="status" className="mt-4 rounded-lg border bg-card p-3 text-sm">If an account exists for that email, a password reset link has been sent.</p>}
       {sentTo && (
         <p role="status" className="mt-4 rounded-lg border bg-card p-3 text-sm">
           Check {sentTo} and tap the confirmation link. You'll land in the owner dashboard with full access.
         </p>
       )}
-      <div className="mt-7 grid grid-cols-1 gap-2">
+      <div className={`mt-7 grid grid-cols-1 gap-2 ${resetMode ? "hidden" : ""}`}>
         <Button type="button" variant="outline" className="w-full" disabled={busy || ownerExists === null} onClick={() => void signInWithProvider("google")}>Continue with Google</Button>
       </div>
-      <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /><span>or use email</span><span className="h-px flex-1 bg-border" /></div>
+      <div className={`my-4 flex items-center gap-3 text-xs text-muted-foreground ${resetMode ? "hidden" : ""}`}><span className="h-px flex-1 bg-border" /><span>or use email</span><span className="h-px flex-1 bg-border" /></div>
       <form onSubmit={submit} className="space-y-4">
         <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" autoComplete="email" required /></div>
-        <div><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" autoComplete={mode === "up" ? "new-password" : "current-password"} minLength={8} required /></div>
-        <Button type="submit" variant="glow" className="w-full" disabled={busy || ownerExists === null}>{mode === "in" ? "Sign in" : "Create owner account"}</Button>
+        {!resetMode && <div><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" autoComplete={mode === "up" ? "new-password" : "current-password"} minLength={8} required /></div>}
+        <Button type="submit" variant="glow" className="w-full" disabled={busy || ownerExists === null}>{resetMode ? "Send reset link" : mode === "in" ? "Sign in" : "Create owner account"}</Button>
       </form>
-      {setup && (
+      {mode === "in" && !resetMode && <button type="button" onClick={() => { setResetMode(true); setResetSent(false); }} className="mt-4 text-sm text-primary underline underline-offset-4">Forgot password?</button>}
+      {resetMode && <button type="button" onClick={() => { setResetMode(false); setResetSent(false); }} className="mt-4 text-sm text-primary underline underline-offset-4">Back to sign in</button>}
+      {setup && !resetMode && (
         <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-4 text-sm text-primary">
           {mode === "in" ? "Create the owner account" : "Already created it? Sign in"}
         </button>
