@@ -12,6 +12,7 @@ import { PRODUCT_SHARE, shareLang } from "@/lib/share-meta";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ProductGallery } from "@/components/ProductGallery";
+import { ShoppingCart } from "lucide-react";
 
 const productQuery = (id: string) => ({
   queryKey: ["product", id],
@@ -96,6 +97,18 @@ function ProductPage() {
             {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
           </p>
           {sold && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4"><div className="flex items-center gap-2 text-warning"><Ban className="h-5 w-5 shrink-0" /><p className="font-display text-base font-bold">{t("p.soldOut")}</p></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{t("p.soldNotice")}</p></div>}
+          {!sold && !p.negotiable && <Button size="lg" className="w-full justify-center gap-2" onClick={() => {
+            try {
+              const key = "ibuzz-cart-v1";
+              const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
+              const found = current.find((item) => item.id === p.id);
+              const next = found
+                ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
+                : [...current, { id: p.id, quantity: 1 }];
+              localStorage.setItem(key, JSON.stringify(next));
+              void navigate({ to: "/checkout" });
+            } catch { void navigate({ to: "/checkout" }); }
+          }}><ShoppingCart className="h-4 w-4" /> Add to cart & checkout</Button>}
           <ContactButtons product={p} disabled={sold} />
           {sold && <Button asChild variant="outline" size="lg" className="w-full justify-center gap-1.5 px-3 text-sm"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="h-4 w-4" /></Link></Button>}
           <dl className="divide-y rounded-xl border bg-card text-sm">
