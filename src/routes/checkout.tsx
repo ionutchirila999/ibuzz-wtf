@@ -173,9 +173,13 @@ function Checkout() {
       telegram: "https://web.telegram.org/",
       x: "https://x.com/compose/post?text=" + encodeURIComponent(caption),
     };
-    // Download the PNG; public social share URLs cannot attach an image file automatically.
+    // Open synchronously from the click so browsers do not block the new tab.
+    const socialWindow = window.open("about:blank", "_blank");
     await downloadQr();
-    window.open(targets[platform], "_blank", "noopener,noreferrer");
+    if (socialWindow) {
+      socialWindow.opener = null;
+      socialWindow.location.href = targets[platform];
+    }
     setShareOpen(false);
   };
   const shareQr = async () => {
