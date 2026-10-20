@@ -1,15 +1,16 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowUpRight, ArrowRight, Wrench, Code2, ShoppingBag, ScanLine, ClipboardCheck, Monitor, FileCheck2, Smartphone, Camera } from 'lucide-react';
 import hero from '@/assets/ibuzz-studio.jpg';
-import heroAlt from '@/assets/hero.jpg';
+import repairHero from '@/assets/repair-hero.png.asset.json';
+import marketHero from '@/assets/market-hero.png.asset.json';
 import { useEffect, useRef, useState } from 'react';
 
-// Hero background carousel using existing photos only. Slide 2 keeps the current
-// background because no separate repair photo has been uploaded.
+// Hero background carousel. Slide 1: current studio photo; slide 2 links to the
+// Repair page; slide 3 links to the Market.
 const SLIDES = [
   { src: hero },
-  { src: hero, to: '/repair' as const, label: { th: 'ซ่อมและรีเฟอร์บิชอุปกรณ์อิเล็กทรอนิกส์', en: 'Electronics repair & refurbishment', ro: 'Reparații și recondiționare electronice' } },
-  { src: heroAlt, to: '/shop' as const, label: { th: 'อิเล็กทรอนิกส์ กล้อง เสื้อผ้า และรองเท้า', en: 'Electronics, cameras, clothing & shoes', ro: 'Electronice, camere, haine și încălțăminte' } },
+  { src: repairHero.url, to: '/repair' as const, label: { th: 'ซ่อมและรีเฟอร์บิชอุปกรณ์อิเล็กทรอนิกส์', en: 'Electronics repair & refurbishment', ro: 'Reparații și recondiționare electronice' } },
+  { src: marketHero.url, to: '/shop' as const, label: { th: 'อิเล็กทรอนิกส์ กล้อง เสื้อผ้า และรองเท้า', en: 'Electronics, cameras, clothing & shoes', ro: 'Electronice, camere, haine și încălțăminte' } },
 ];
 const DOT = { th: 'สไลด์', en: 'Slide', ro: 'Slide' };
 function HeroSlides() {
