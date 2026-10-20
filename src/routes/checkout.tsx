@@ -81,6 +81,7 @@ function Checkout() {
   const [copied, setCopied] = useState(false);
   const [qrMessage, setQrMessage] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     const items = readCart();
@@ -148,19 +149,12 @@ function Checkout() {
     }
   };
   const shareQr = async () => {
-    const url = new URL("/promptpay-qr.svg", window.location.origin).href;
-    // Desktop browsers (including Windows) often have no installed share targets.
-    // Copy the QR link instead of opening an empty system share panel.
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (!isMobile) {
-      try {
-        await navigator.clipboard.writeText(url);
-        setQrMessage(c.qrShareFallback);
-      } catch {
-        window.prompt(c.qrShareFallback, url);
-      }
+      setShareOpen(true);
       return;
     }
+    const url = new URL("/promptpay-qr.svg", window.location.origin).href;
     try {
       const file = await makeQrPng();
       if (typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
@@ -168,16 +162,20 @@ function Checkout() {
         setQrMessage(c.qrShared);
         return;
       }
-      await navigator.clipboard.writeText(url);
-      setQrMessage(c.qrShareFallback);
+      setShareOpen(true);
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      try {
-        await navigator.clipboard.writeText(url);
-        setQrMessage(c.qrShareFallback);
-      } catch {
-        window.prompt(c.qrShareFallback, url);
-      }
+      setShareOpen(true);
+    }
+  };
+  const copyQrLink = async () => {
+    const url = new URL("/promptpay-qr.svg", window.location.origin).href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setQrMessage(c.qrShareFallback);
+      setShareOpen(false);
+    } catch {
+      window.prompt(c.qrShareFallback, url);
     }
   };
   const openLine = () => { void copyOrder(); window.open(lineLink(), "_blank", "noopener,noreferrer"); };
@@ -187,7 +185,7 @@ function Checkout() {
     {loading ? <p>{c.loading}</p> : !items.length ? <div className="rounded-xl border p-6 text-center"><ShoppingBag className="mx-auto mb-3 h-8 w-8"/><p className="font-semibold">{c.empty}</p><Button asChild className="mt-4"><Link to="/shop" search={{ lang }}>{c.browse}</Link></Button></div> : <>
       <section className="space-y-3">{items.map(p => <div key={p.id} className="space-y-3 rounded-xl border border-border/70 p-3 sm:flex sm:items-center sm:gap-3 sm:space-y-0 sm:p-4"><div className="min-w-0 sm:flex-1"><p className="break-words font-medium leading-snug">{p.displayTitle}</p><p className="mt-1 text-sm text-muted-foreground">{formatPrice(p.price)} {c.each} · {p.stock} {c.stock}</p></div><div className="flex items-center justify-between gap-3 sm:justify-end"><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={c.decrease} onClick={() => updateQty(p.id, p.quantity - 1)}><Minus className="h-4 w-4"/></Button><span className="w-5 text-center tabular-nums">{p.quantity}</span><Button size="icon" variant="outline" aria-label={c.increase} disabled={p.quantity >= p.stock} onClick={() => updateQty(p.id, p.quantity + 1)}><Plus className="h-4 w-4"/></Button><Button size="icon" variant="ghost" aria-label={c.remove} onClick={() => updateQty(p.id, 0)}><Trash2 className="h-4 w-4"/></Button></div><strong className="shrink-0 text-right">{formatPrice(Number(p.price) * p.quantity)}</strong></div></div>)}</section>
       <section className="rounded-xl border border-border/70 p-4 sm:p-5"><div className="flex items-start justify-between gap-3 text-base font-bold sm:text-lg"><span>{c.total}</span><span className="shrink-0 text-right tabular-nums">{formatPrice(total)} THB</span></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.totalNote}</p></section>
-      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.pay}</h2><button type="button" onClick={() => setQrOpen(true)} aria-label={c.qr} className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-xl border bg-white p-2 transition hover:ring-2 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-[300px] sm:p-3"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></button><Dialog open={qrOpen} onOpenChange={setQrOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-4 sm:p-6"><DialogTitle>{c.qr}</DialogTitle><div className="relative mx-auto aspect-square w-full max-w-[min(72vw,320px)] overflow-hidden rounded-lg border bg-white"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></div><Button type="button" className="w-full" onClick={() => setQrOpen(false)}>{lang === "th" ? "กลับไปชำระเงิน" : lang === "ro" ? "Înapoi la plată" : "Back to checkout"}</Button></DialogContent></Dialog><div className="mx-auto grid w-full max-w-[280px] grid-cols-2 gap-2 sm:max-w-sm"><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void downloadQr()}><Download className="mr-1.5 h-4 w-4 shrink-0"/>{c.saveQr}</Button><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void shareQr()}><Share2 className="mr-1.5 h-4 w-4 shrink-0"/>{c.shareQr}</Button></div>{qrMessage && <p role="status" className="text-center text-xs text-muted-foreground">{qrMessage}</p>}<p className="text-sm leading-relaxed">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="rounded-lg bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-700 dark:text-amber-300">{c.warning}</p></section>
+      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.pay}</h2><button type="button" onClick={() => setQrOpen(true)} aria-label={c.qr} className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-xl border bg-white p-2 transition hover:ring-2 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-[300px] sm:p-3"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></button><Dialog open={qrOpen} onOpenChange={setQrOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-4 sm:p-6"><DialogTitle>{c.qr}</DialogTitle><div className="relative mx-auto aspect-square w-full max-w-[min(72vw,320px)] overflow-hidden rounded-lg border bg-white"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></div><Button type="button" className="w-full" onClick={() => setQrOpen(false)}>{lang === "th" ? "กลับไปชำระเงิน" : lang === "ro" ? "Înapoi la plată" : "Back to checkout"}</Button></DialogContent></Dialog><Dialog open={shareOpen} onOpenChange={setShareOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-5"><DialogTitle>{lang === "th" ? "แชร์ QR PromptPay" : lang === "ro" ? "Partajează QR PromptPay" : "Share PromptPay QR"}</DialogTitle><p className="text-sm text-muted-foreground">{lang === "th" ? "เลือกแอปที่ต้องการแชร์ลิงก์ QR" : lang === "ro" ? "Alege aplicația pentru a partaja linkul codului QR" : "Choose an app to share the QR link."}</p><div className="grid grid-cols-2 gap-3"><a className="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(new URL("/promptpay-qr.svg", window.location.origin).href)}`} target="_blank" rel="noreferrer">Facebook</a><a className="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent" href={`https://wa.me/?text=${encodeURIComponent(c.qr + " " + new URL("/promptpay-qr.svg", window.location.origin).href)}`} target="_blank" rel="noreferrer">WhatsApp</a><a className="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent" href={`https://line.me/R/msg/text/?${encodeURIComponent(c.qr + " " + new URL("/promptpay-qr.svg", window.location.origin).href)}`} target="_blank" rel="noreferrer">LINE</a><a className="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent" href={`https://t.me/share/url?url=${encodeURIComponent(new URL("/promptpay-qr.svg", window.location.origin).href)}&text=${encodeURIComponent(c.qr)}`} target="_blank" rel="noreferrer">Telegram</a><a className="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(c.qr)}&url=${encodeURIComponent(new URL("/promptpay-qr.svg", window.location.origin).href)}`} target="_blank" rel="noreferrer">X</a><Button type="button" variant="outline" className="min-h-12" onClick={() => void copyQrLink()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอกลิงก์" : lang === "ro" ? "Copiază linkul" : "Copy link"}</Button></div></DialogContent></Dialog><div className="mx-auto grid w-full max-w-[280px] grid-cols-2 gap-2 sm:max-w-sm"><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void downloadQr()}><Download className="mr-1.5 h-4 w-4 shrink-0"/>{c.saveQr}</Button><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void shareQr()}><Share2 className="mr-1.5 h-4 w-4 shrink-0"/>{c.shareQr}</Button></div>{qrMessage && <p role="status" className="text-center text-xs text-muted-foreground">{qrMessage}</p>}<p className="text-sm leading-relaxed">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="rounded-lg bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-700 dark:text-amber-300">{c.warning}</p></section>
       <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Button className="min-h-11 whitespace-normal" variant="outline" disabled={!name.trim() || !contact.trim()} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4 shrink-0"/>{copied ? c.copied : c.copy}</Button><Button className="min-h-11 whitespace-normal" disabled={!name.trim() || !contact.trim()} onClick={openLine}>{c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
     </>}
     <p className="text-xs text-muted-foreground">{c.pending}</p>
