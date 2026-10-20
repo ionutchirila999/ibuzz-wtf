@@ -56,7 +56,9 @@ function Shop() {
       if (s.size) q = q.eq("shoe_size", s.size);
       if (s.audience) q = q.eq("audience", s.audience);
       if (s.status) q = q.eq("status", s.status);
-      if (s.q) q = q.or(`title.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%,brand.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%,model.ilike.%${s.q.replace(/[^\p{L}\p{N} ._-]/gu, "").slice(0,100)}%`);
+      // Match the product name in the visitor's language too, keeping Thai/Romanian tone marks.
+      const term = s.q ? s.q.replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100) : "";
+      if (term) q = q.or(["title", "title_th", "title_ro", "brand", "model"].map((f) => `${f}.ilike.%${term}%`).join(","));
       if (s["sort"] === "price_asc") q = q.order("price", { ascending: true });
       else if (s["sort"] === "price_desc") q = q.order("price", { ascending: false });
       else q = q.order("created_at", { ascending: false });
