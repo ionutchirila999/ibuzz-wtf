@@ -171,20 +171,29 @@ function Checkout() {
       telegram: "https://web.telegram.org/",
       x: "https://x.com/compose/post?text=" + encodeURIComponent(caption),
     };
-    // Open the chosen social website directly on click. Never leave a blank tab
-    // waiting for clipboard/image conversion to finish.
+    // Start copying the PNG while the click still has browser user activation.
+    // Social websites do not expose a public API for attaching local image files.
+    let clipboardTask: Promise<void> | undefined;
+    try {
+      if (navigator.clipboard && typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
+        const pngPromise = makeQrPng().then(file => file);
+        clipboardTask = navigator.clipboard.write([new ClipboardItem({ "image/png": pngPromise })]);
+      }
+    } catch {
+      clipboardTask = undefined;
+    }
+    // Navigate directly to the selected browser website, never through Windows Share.
     window.open(targets[platform], "_blank", "noopener,noreferrer");
     setShareOpen(false);
+    if (!clipboardTask) {
+      setQrMessage(lang === "th" ? "เบราว์เซอร์นี้คัดลอกรูปอัตโนมัติไม่ได้ กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Browserul nu poate copia automat imaginea. Folosește descărcarea PNG." : "This browser cannot copy the image automatically. Use Download PNG.");
+      return;
+    }
     try {
-      if (!navigator.clipboard || typeof ClipboardItem === "undefined" || typeof navigator.clipboard.write !== "function") {
-        setQrMessage(lang === "th" ? "เปิดโซเชียลแล้ว หากต้องการแนบรูป ให้ดาวน์โหลด PNG ก่อน" : lang === "ro" ? "Rețeaua socială a fost deschisă. Descarcă PNG pentru a atașa imaginea." : "Social site opened. Download the PNG if you need to attach the image.");
-        return;
-      }
-      const pngPromise = makeQrPng().then(file => file);
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": pngPromise })]);
+      await clipboardTask;
       setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในโพสต์หรือแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
     } catch {
-      setQrMessage(lang === "th" ? "เปิดโซเชียลแล้ว แต่คัดลอกรูปอัตโนมัติไม่สำเร็จ" : lang === "ro" ? "Rețeaua socială s-a deschis, dar copierea automată a imaginii a eșuat." : "Social site opened, but automatic image copying failed.");
+      setQrMessage(lang === "th" ? "เปิดโซเชียลแล้ว แต่เบราว์เซอร์ปฏิเสธการคัดลอกรูป" : lang === "ro" ? "Rețeaua socială s-a deschis, dar browserul a refuzat copierea imaginii." : "Social site opened, but the browser denied image clipboard access. Use Download PNG.");
     }
   };
   const shareQr = async () => {
