@@ -75,7 +75,7 @@ function Account() {
   }
 
   async function signOut() { await supabase.auth.signOut(); setUserEmail(null); setOrders([]); }
-  const label = (value: string) => (w as Record<string, string>)[value] ?? value.replaceAll('_', ' ');
+  const label = (value: string) => (w as unknown as Record<string, string>)[value] ?? value.replaceAll('_', ' ');
   const money = (value: number) => new Intl.NumberFormat(lang === 'th' ? 'th-TH' : lang === 'ro' ? 'ro-RO' : 'en-US', { style: 'currency', currency: 'THB', maximumFractionDigits: 2 }).format(Number(value));
 
   if (sessionLoading) return <main className="mx-auto max-w-5xl px-5 py-16"><p className="text-muted-foreground">{w.loading}</p></main>;
