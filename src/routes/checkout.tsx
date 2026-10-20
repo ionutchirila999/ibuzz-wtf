@@ -155,7 +155,7 @@ function Checkout() {
         setQrMessage(lang === "th" ? "เบราว์เซอร์นี้ไม่รองรับการคัดลอกรูป กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Browserul nu permite copierea imaginii. Folosește descărcarea PNG." : "This browser cannot copy images. Use Download PNG instead.");
         return;
       }
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": file) }]);
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": file })]);
       setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o în chat cu Ctrl+V." : "QR image copied. Paste it into the chat with Ctrl+V.");
       setShareOpen(false);
     } catch {
