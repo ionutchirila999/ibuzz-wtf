@@ -16,7 +16,7 @@ type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub
 // every text filter is read back as text — otherwise it is silently dropped.
 const str = (v: unknown) => (v == null ? undefined : String(v));
 
-export const Route = createFileRoute("/shop")({
+export const Route = createFileRoute("/shop")({staticData: { sitemap: true },
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
     category: s["category"] === "womens_shoes" ? "footwear" : s["category"] === "technology" || s["category"] === "clothing" || s["category"] === "footwear" ? s["category"] : undefined,
     audience: ["men","women","children"].includes(String(s["audience"])) ? String(s["audience"]) : undefined,

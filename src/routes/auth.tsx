@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SHOP_NAME } from "@/lib/shop";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/auth")({staticData: { sitemap: "exclude-subtree" },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
