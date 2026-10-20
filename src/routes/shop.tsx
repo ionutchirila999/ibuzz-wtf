@@ -75,7 +75,19 @@ function Shop() {
       // Apply storefront filters in the browser so one unsupported filter/order
       // cannot make the entire Market appear broken.
       try {
-        const { data: rows, error } = await supabase.from("products").select("*");
+        let { data: rows, error } = await supabase.from("products").select("*");
+
+        // Public Market reads can inherit an expired persisted Supabase session.
+        // Refresh that session once, then retry the same read without changing
+        // the public schema, API key, filters, or database policies.
+        if (error?.code === "PGRST303") {
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError) {
+            const retry = await supabase.from("products").select("*");
+            rows = retry.data;
+            error = retry.error;
+          }
+        }
         if (error) throw error;
 
       const term = String(s.q ?? "").normalize("NFC").trim().toLocaleLowerCase();
