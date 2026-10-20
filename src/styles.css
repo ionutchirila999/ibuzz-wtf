@@ -121,6 +121,9 @@
     linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 35%, transparent) 45%, var(--background) 100%);
 }
 .premium-hero > * { position: relative; z-index: 1; }
+.premium-hero > .hero-slides { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; transition: opacity 1.2s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .hero-slide { transition: none; } }
 .hero-heading { font-size: 2rem; line-height: 1.18; }
 .hero-studio { aspect-ratio: 1.8; border-radius: var(--radius); }
 .section-heading { font-size: 1.65rem; line-height: 1.25; font-weight: 700; }
