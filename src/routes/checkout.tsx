@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, lineLink } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
@@ -82,6 +83,8 @@ function Checkout() {
   const [qrMessage, setQrMessage] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [createdOrderNumber, setCreatedOrderNumber] = useState<string | null>(null);
 
   useEffect(() => {
     const items = readCart();
@@ -99,7 +102,7 @@ function Checkout() {
   }), [cart, products, lang]);
   const total = items.reduce((sum, p) => sum + Number(p.price) * p.quantity, 0);
 
-  const orderText = () => `${c.orderIntro}\n${c.orderName}: ${name.trim()}\n${c.orderContact}: ${contact.trim()}\n\n${items.map(p => `${p.displayTitle} × ${p.quantity} = ฿${(Number(p.price) * p.quantity).toLocaleString("en-US", { maximumFractionDigits: 2 })}`).join("\n")}\n\n${c.orderTotal}: ฿${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}\n${c.payment}`;
+  const orderText = (orderNumber?: string | null) => `${c.orderIntro}${orderNumber ? `\\nOrder number: ${orderNumber}` : ""}\n${c.orderName}: ${name.trim()}\n${c.orderContact}: ${contact.trim()}\n\n${items.map(p => `${p.displayTitle} × ${p.quantity} = ฿${(Number(p.price) * p.quantity).toLocaleString("en-US", { maximumFractionDigits: 2 })}`).join("\n")}\n\n${c.orderTotal}: ฿${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}\n${c.payment}`;
   const updateQty = (id: string, qty: number) => {
     const next = cart.map(x => x.id === id ? { ...x, quantity: qty } : x).filter(x => x.quantity > 0);
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
@@ -207,7 +210,44 @@ function Checkout() {
       setShareOpen(true);
     }
   };
-  const openLine = () => { void copyOrder(); window.open(lineLink(), "_blank", "noopener,noreferrer"); };
+  const openLine = async () => {
+    if (placing) return;
+    const lineWindow = window.open("about:blank", "_blank");
+    setPlacing(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        lineWindow?.close();
+        toast.error(lang === "th" ? "เข้าสู่ระบบหรือสร้างบัญชีก่อนสั่งซื้อ เพื่อติดตามสถานะคำสั่งซื้อ" : lang === "ro" ? "Autentifică-te sau creează un cont înainte de comandă pentru a o putea urmări." : "Sign in or create an account before ordering so you can track it.");
+        window.location.href = "/account";
+        return;
+      }
+      let orderNumber = createdOrderNumber;
+      if (!orderNumber) {
+        const { data, error } = await (supabase as any).rpc("create_customer_order", {
+          p_buyer_name: name.trim(),
+          p_buyer_contact: contact.trim(),
+          p_items: items.map(item => ({ id: item.id, quantity: item.quantity })),
+        });
+        if (error) throw error;
+        orderNumber = data?.order_number as string | undefined;
+        if (!orderNumber) throw new Error("Order number was not returned");
+        setCreatedOrderNumber(orderNumber);
+        localStorage.removeItem(KEY);
+        setCart([]);
+      }
+      await navigator.clipboard.writeText(orderText(orderNumber));
+      setCopied(true);
+      if (lineWindow) lineWindow.location.href = lineLink();
+      else window.location.href = lineLink();
+      toast.success(lang === "th" ? `บันทึกคำสั่งซื้อ ${orderNumber} แล้ว` : lang === "ro" ? `Comanda ${orderNumber} a fost salvată` : `Order ${orderNumber} saved`);
+    } catch (error) {
+      lineWindow?.close();
+      toast.error(error instanceof Error ? error.message : (lang === "th" ? "บันทึกคำสั่งซื้อไม่สำเร็จ" : lang === "ro" ? "Comanda nu a putut fi salvată" : "Could not save the order"));
+    } finally {
+      setPlacing(false);
+    }
+  };
 
   return <main className="mx-auto w-full max-w-3xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-8">
     <div className="space-y-1"><p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">iBuzz.wtf · Market</p><h1 className="text-2xl font-bold sm:text-3xl">{c.checkout}</h1><p className="text-sm leading-relaxed text-muted-foreground">{c.intro}</p></div>
@@ -215,7 +255,7 @@ function Checkout() {
       <section className="space-y-3">{items.map(p => <div key={p.id} className="space-y-3 rounded-xl border border-border/70 p-3 sm:flex sm:items-center sm:gap-3 sm:space-y-0 sm:p-4"><div className="min-w-0 sm:flex-1"><p className="break-words font-medium leading-snug">{p.displayTitle}</p><p className="mt-1 text-sm text-muted-foreground">{formatPrice(p.price)} {c.each} · {p.stock} {c.stock}</p></div><div className="flex items-center justify-between gap-3 sm:justify-end"><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={c.decrease} onClick={() => updateQty(p.id, p.quantity - 1)}><Minus className="h-4 w-4"/></Button><span className="w-5 text-center tabular-nums">{p.quantity}</span><Button size="icon" variant="outline" aria-label={c.increase} disabled={p.quantity >= p.stock} onClick={() => updateQty(p.id, p.quantity + 1)}><Plus className="h-4 w-4"/></Button><Button size="icon" variant="ghost" aria-label={c.remove} onClick={() => updateQty(p.id, 0)}><Trash2 className="h-4 w-4"/></Button></div><strong className="shrink-0 text-right">{formatPrice(Number(p.price) * p.quantity)}</strong></div></div>)}</section>
       <section className="rounded-xl border border-border/70 p-4 sm:p-5"><div className="flex items-start justify-between gap-3 text-base font-bold sm:text-lg"><span>{c.total}</span><span className="shrink-0 text-right tabular-nums">{formatPrice(total)} THB</span></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.totalNote}</p></section>
       <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.pay}</h2><button type="button" onClick={() => setQrOpen(true)} aria-label={c.qr} className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-xl border bg-white p-2 transition hover:ring-2 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-[300px] sm:p-3"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></button><Dialog open={qrOpen} onOpenChange={setQrOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-4 sm:p-6"><DialogTitle>{c.qr}</DialogTitle><div className="relative mx-auto aspect-square w-full max-w-[min(72vw,320px)] overflow-hidden rounded-lg border bg-white"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></div><Button type="button" className="w-full" onClick={() => setQrOpen(false)}>{lang === "th" ? "กลับไปชำระเงิน" : lang === "ro" ? "Înapoi la plată" : "Back to checkout"}</Button></DialogContent></Dialog><Dialog open={shareOpen} onOpenChange={setShareOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-5"><DialogTitle>{lang === "th" ? "แชร์รูป QR PromptPay" : lang === "ro" ? "Partajează imaginea QR PromptPay" : "Share PromptPay QR image"}</DialogTitle><p className="text-sm text-muted-foreground">{lang === "th" ? "แชร์ลิงก์ที่เปิดหน้ารหัส QR PromptPay ผู้รับสามารถเปิดลิงก์เพื่อดู QR ได้" : lang === "ro" ? "Partajează un link către pagina QR PromptPay. Destinatarul poate deschide linkul pentru a vedea codul QR." : "Share a link that opens the PromptPay QR viewer page. Recipients can open the link to see the QR."}</p><div className="grid grid-cols-2 gap-2"><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("facebook")}>Facebook</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("whatsapp")}>WhatsApp</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("line")}>LINE</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("telegram")}>Telegram</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("x")}>X</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void copyQrLink()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอกลิงก์ QR" : lang === "ro" ? "Copiază linkul QR" : "Copy QR link"}</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void copyQrImage()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอกรูปภาพ" : lang === "ro" ? "Copiază imaginea" : "Copy image"}</Button><Button type="button" className="col-span-2 min-h-11" onClick={() => { setShareOpen(false); void downloadQr(); }}><Download className="mr-2 h-4 w-4"/>{lang === "th" ? "ดาวน์โหลดรูป PNG" : lang === "ro" ? "Descarcă imaginea PNG" : "Download PNG image"}</Button></div></DialogContent></Dialog><div className="mx-auto grid w-full max-w-[280px] grid-cols-2 gap-2 sm:max-w-sm"><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void downloadQr()}><Download className="mr-1.5 h-4 w-4 shrink-0"/>{c.saveQr}</Button><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void shareQr()}><Share2 className="mr-1.5 h-4 w-4 shrink-0"/>{c.shareQr}</Button></div>{qrMessage && <p role="status" className="text-center text-xs text-muted-foreground">{qrMessage}</p>}<p className="text-sm leading-relaxed">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="rounded-lg bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-700 dark:text-amber-300">{c.warning}</p></section>
-      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Button className="min-h-11 whitespace-normal" variant="outline" disabled={!name.trim() || !contact.trim()} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4 shrink-0"/>{copied ? c.copied : c.copy}</Button><Button className="min-h-11 whitespace-normal" disabled={!name.trim() || !contact.trim()} onClick={openLine}>{c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
+      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Button className="min-h-11 whitespace-normal" variant="outline" disabled={!name.trim() || !contact.trim()} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4 shrink-0"/>{copied ? c.copied : c.copy}</Button><Button className="min-h-11 whitespace-normal" disabled={!name.trim() || !contact.trim() || placing} onClick={() => void openLine()}>{placing ? (lang === "th" ? "กำลังบันทึกคำสั่งซื้อ…" : lang === "ro" ? "Se salvează comanda…" : "Saving order…") : createdOrderNumber ? (lang === "th" ? "ดำเนินการต่อใน LINE" : lang === "ro" ? "Continuă în LINE" : "Continue to LINE") : c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
     </>}
     <p className="text-xs text-muted-foreground">{c.pending}</p>
   </main>;
