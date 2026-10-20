@@ -162,7 +162,7 @@ function Checkout() {
       setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Copierea imaginii a eșuat. Folosește descărcarea PNG." : "Could not copy image. Use Download PNG instead.");
     }
   };
-  const qrShareUrl = "https://ibuzz.wtf/promptpay-share.html?preview=3";
+  const qrShareUrl = `https://ibuzz.wtf/promptpay-share.html?preview=3&lang=${lang}`;
   const copyQrLink = async () => {
     try {
       await navigator.clipboard.writeText(qrShareUrl);
