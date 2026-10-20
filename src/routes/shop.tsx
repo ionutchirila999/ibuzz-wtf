@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { copy } from "@/lib/service-copy";
@@ -5,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SHOP_NAME, SOCIAL_IMAGE, SUBCATEGORIES, productSearchConditions, type Category } from "@/lib/shop";
+import { marketShare, shareLang } from "@/lib/share-meta";
 import { useT } from "@/lib/i18n";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string | undefined; status?: string | undefined; size?: string | undefined };
+type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string | undefined; status?: string | undefined; size?: string | undefined; lang?: "th" | "en" | "ro" | undefined };
 
 // The address bar turns a typed number (10000, shoe size 42) into a number, so
 // every text filter is read back as text — otherwise it is silently dropped.
@@ -26,15 +28,14 @@ export const Route = createFileRoute("/shop")({staticData: { sitemap: true },
     condition: str(s["condition"]),
     sort: str(s["sort"]),
     size: str(s["size"]),
+    lang: s["lang"] === "th" || s["lang"] === "en" || s["lang"] === "ro" ? s["lang"] : undefined,
   }),
   head: ({ match }) => {
-    const cat = (match.search as ShopSearch).category;
-    const label = cat === "technology" ? "Electronics & Tech" : cat === "clothing" ? "Clothing" : cat === "footwear" ? "Footwear" : null;
-    const title = label ? `${label} for Sale — ${SHOP_NAME} Market` : `Market: Electronics, Clothing & Footwear — ${SHOP_NAME}`;
-    const desc = label
-      ? `Browse ${label.toLowerCase()} in the ${SHOP_NAME} Market. See photos, condition and prices, then enquire on WhatsApp or LINE.`
-      : "Shop pre-owned and new electronics, clothing and footwear for men, women and children. Search, filter by availability and enquire on WhatsApp or LINE.";
-    const url = cat ? `https://ibuzz.wtf/shop?category=${cat}` : "https://ibuzz.wtf/shop";
+    const { category: cat, lang } = match.search as ShopSearch;
+    const L = shareLang(lang);
+    const { title, desc } = marketShare(L, cat);
+    const qs = new URLSearchParams({ ...(cat ? { category: cat } : {}), ...(L !== "th" ? { lang: L } : {}) }).toString();
+    const url = `https://ibuzz.wtf/shop${qs ? `?${qs}` : ""}`;
     return {
       meta: [
         { title },
@@ -59,6 +60,8 @@ function Shop() {
   const { t, sub, lang } = useT();
   const s = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
+  // Keep the visitor's language in the address so a copied link previews in it.
+  useEffect(() => { if (s.lang !== lang) void navigate({ search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, s.lang, navigate]);
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
   const { data = [], isLoading } = useQuery({

@@ -8,6 +8,9 @@ import { useT } from "@/lib/i18n";
 import { ContactButtons } from "@/components/ContactButtons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PRODUCT_SHARE, shareLang } from "@/lib/share-meta";
+import { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { ProductGallery } from "@/components/ProductGallery";
 
 const productQuery = (id: string) => ({
@@ -20,21 +23,24 @@ const productQuery = (id: string) => ({
 });
 
 export const Route = createFileRoute("/product/$id")({staticData: { sitemap: true },
+  validateSearch: (s: Record<string, unknown>): { lang?: "th" | "en" | "ro" | undefined } => ({ lang: s["lang"] === "th" || s["lang"] === "en" || s["lang"] === "ro" ? s["lang"] : undefined }),
   loader: async ({ params, context }) => {
     try { return await context.queryClient.ensureQueryData(productQuery(params.id)); } catch { return null; }
   },
-  head: ({ params, loaderData: p }) => {
-    const name = p ? localizedTitle(p, "en") : "Product details";
+  head: ({ params, loaderData: p, match }) => {
+    const L = shareLang((match.search as { lang?: string }).lang);
+    const T = PRODUCT_SHARE[L];
+    const name = p ? localizedTitle(p, L) : T.fallback;
     const price = p ? formatPrice(p.price) : "";
     const sold = p && (p.status === "sold" || p.stock <= 0);
-    const title = `${name}${price ? ` — ${price}` : ""} | ${SHOP_NAME} Market`;
-    const raw = p ? localizedDescription(p, "en") ?? "" : "";
+    const title = `${name}${price ? ` — ${price}` : ""} | ${T.market}`;
+    const raw = p ? localizedDescription(p, L) ?? "" : "";
     const desc = p
-      ? `${sold ? "Sold out. " : ""}${raw.replace(/\s+/g, " ").trim().slice(0, 140)}${raw.length > 140 ? "…" : ""} Enquire on WhatsApp or LINE.`.trim()
-      : "Photos, condition, price and availability. Enquire on WhatsApp or LINE.";
+      ? `${sold ? `${T.sold}. ` : ""}${raw.replace(/\s+/g, " ").trim().slice(0, 140)}${raw.length > 140 ? "…" : ""} ${T.enquire}`.trim()
+      : T.generic;
     // Only the small share copy is used — full photos are too large for WhatsApp previews.
     const image = p?.share_image?.startsWith("https://") ? p.share_image : SOCIAL_IMAGE;
-    const url = `https://ibuzz.wtf/product/${params.id}`;
+    const url = `https://ibuzz.wtf/product/${params.id}${L === "th" ? "" : `?lang=${L}`}`;
     return {
       meta: [
         { title },
@@ -57,6 +63,10 @@ export const Route = createFileRoute("/product/$id")({staticData: { sitemap: tru
 function ProductPage() {
   const { t, sub, lang } = useT();
   const { id } = Route.useParams();
+  const urlLang = Route.useSearch().lang;
+  const navigate = useNavigate();
+  // Keep the visitor's language in the address so a copied link previews in it.
+  useEffect(() => { if (urlLang !== lang) void navigate({ to: ".", search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, urlLang, navigate]);
   const { data: p, isLoading } = useQuery(productQuery(id));
 
   if (isLoading) return <p className="p-8 text-muted-foreground">{t("loading")}</p>;
