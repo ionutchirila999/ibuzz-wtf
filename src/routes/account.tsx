@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { createLovableAuth } from '@lovable.dev/cloud-auth-js';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,8 +77,15 @@ function Account() {
 
   async function signInWithProvider(provider: 'google' | 'apple') {
     setBusy(true); setError(''); setNotice('');
-    const { error: authError } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin + '/account' } });
-    if (authError) { setBusy(false); setError(authError.message); }
+    const lovableAuth = createLovableAuth();
+    const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + '/account' });
+    if (result.redirected) return;
+    if (result.error) { setBusy(false); setError(result.error.message); return; }
+    const { error: authError } = await supabase.auth.setSession(result.tokens);
+    if (authError) { setBusy(false); setError(authError.message); return; }
+    setUserEmail((await supabase.auth.getUser()).data.user?.email ?? null);
+    await loadOrders();
+    setBusy(false);
   }
 
   async function signOut() { await supabase.auth.signOut(); setUserEmail(null); setOrders([]); }
