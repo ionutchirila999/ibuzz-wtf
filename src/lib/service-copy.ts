@@ -4,6 +4,7 @@ export const C = {
  tagline: ['ซ่อม สร้าง ซื้อ ขาย', 'Repair. Build. Buy. Sell.', 'Reparăm. Construim. Cumpărăm. Vindem.'],
  headline: ['เครื่องเสีย? เราซ่อมให้ อยากซื้อหรือขาย? เราช่วยคุณได้', 'Broken? We Fix It. Looking to Buy or Sell? We’ve Got You.', 'Defect? Îl reparăm. Vrei să cumperi sau să vinzi? Suntem aici.'],
  lead: ['ตั้งแต่ซ่อมสมาร์ตโฟนและอุปกรณ์อิเล็กทรอนิกส์ รับซื้อเครื่องเสีย จำหน่ายสินค้าคุณภาพ ไปจนถึงสร้างโซลูชันดิจิทัล iBuzz.wtf รวมเทคโนโลยีและการค้าไว้ในที่เดียว', 'From repairing smartphones and electronics to buying broken devices, selling quality products, and building digital solutions, iBuzz.wtf brings technology and commerce together in one place.', 'De la repararea telefoanelor și electronicelor la cumpărarea dispozitivelor defecte, vânzarea produselor de calitate și construirea soluțiilor digitale, iBuzz.wtf reunește tehnologia și comerțul.'],
+ account: ['บัญชีของฉัน', 'My Account', 'Contul meu'],
  repair: ['ซ่อม', 'Repair', 'Reparații'], digital: ['ดิจิทัล', 'Digital', 'Digital'], market: ['ตลาด', 'Market', 'Magazin'], portfolio: ['ผลงาน', 'Portfolio', 'Portofoliu'],
  fix: ['เราซ่อมให้', 'We Fix It.', 'Reparăm.'], build: ['เราสร้างให้', 'We Build It.', 'Construim.'], trade: ['เราซื้อและขาย', 'We Buy & Sell It.', 'Cumpărăm și vindem.'],
  repairLead: ['วิเคราะห์ปัญหาและซ่อมอุปกรณ์อิเล็กทรอนิกส์', 'Professional diagnostics and repair services.', 'Diagnosticare și reparații electronice.'],
