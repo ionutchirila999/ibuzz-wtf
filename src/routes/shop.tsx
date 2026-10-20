@@ -64,7 +64,7 @@ function Shop() {
   useEffect(() => { if (s.lang !== lang) void navigate({ search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, s.lang, navigate]);
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
-  const { data = [], isLoading, isError } = useQuery({
+  const { data = [], isLoading, isError, error: productsError } = useQuery({
     queryKey: ["products", s],
     staleTime: 30_000,
     retry: 1,
@@ -74,8 +74,9 @@ function Shop() {
       // The database's public-read policy already excludes hidden products.
       // Apply storefront filters in the browser so one unsupported filter/order
       // cannot make the entire Market appear broken.
-      const { data: rows, error } = await supabase.from("products").select("*");
-      if (error) throw error;
+      try {
+        const { data: rows, error } = await supabase.from("products").select("*");
+        if (error) throw error;
 
       const term = String(s.q ?? "").normalize("NFC").trim().toLocaleLowerCase();
       const filtered = (rows ?? []).filter((p) => {
@@ -94,11 +95,15 @@ function Shop() {
         return true;
       });
 
-      return filtered.sort((a, b) => {
-        if (s.sort === "price_asc") return Number(a.price) - Number(b.price);
-        if (s.sort === "price_desc") return Number(b.price) - Number(a.price);
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
+        return filtered.sort((a, b) => {
+          if (s.sort === "price_asc") return Number(a.price) - Number(b.price);
+          if (s.sort === "price_desc") return Number(b.price) - Number(a.price);
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      } catch (error) {
+        console.error("[Market] Supabase products query failed:", error);
+        throw error;
+      }
     },
   });
 
@@ -163,6 +168,7 @@ function Shop() {
         <div className="rounded-xl border border-destructive/40 p-8 text-center">
           <p className="font-semibold">{lang === "th" ? "ไม่สามารถโหลดสินค้าได้" : lang === "ro" ? "Produsele nu au putut fi încărcate." : "Products could not be loaded."}</p>
           <p className="mt-2 text-sm text-muted-foreground">{lang === "th" ? "กรุณารีเฟรชหน้า หากยังพบปัญหา โปรดตรวจสอบการเชื่อมต่อฐานข้อมูลสินค้า" : lang === "ro" ? "Reîmprospătează pagina. Dacă problema continuă, trebuie verificată conexiunea la baza de date a produselor." : "Please refresh the page. If this continues, the product database connection needs checking."}</p>
+          {productsError instanceof Error && <p className="mx-auto mt-3 max-w-2xl break-words text-left font-mono text-xs text-muted-foreground">Debug: {productsError.message}</p>}
           <Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>{lang === "th" ? "รีเฟรชตลาด" : lang === "ro" ? "Reîmprospătează piața" : "Refresh Market"}</Button>
         </div>
       ) : data.length === 0 ? (
