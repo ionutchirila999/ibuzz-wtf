@@ -151,17 +151,15 @@ function Checkout() {
   const copyQrImage = async () => {
     try {
       const file = await makeQrPng();
-      if (navigator.clipboard && typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": file })]);
-        setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว" : lang === "ro" ? "Imaginea QR a fost copiată" : "QR image copied");
-        setShareOpen(false);
+      if (!navigator.clipboard || typeof ClipboardItem === "undefined" || typeof navigator.clipboard.write !== "function") {
+        setQrMessage(lang === "th" ? "เบราว์เซอร์นี้ไม่รองรับการคัดลอกรูป กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Browserul nu permite copierea imaginii. Folosește descărcarea PNG." : "This browser cannot copy images. Use Download PNG instead.");
         return;
       }
-      await downloadQr();
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": file) }]);
+      setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o în chat cu Ctrl+V." : "QR image copied. Paste it into the chat with Ctrl+V.");
       setShareOpen(false);
     } catch {
-      await downloadQr();
-      setShareOpen(false);
+      setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Copierea imaginii a eșuat. Folosește descărcarea PNG." : "Could not copy image. Use Download PNG instead.");
     }
   };
   const openSocialShare = async (platform: "facebook" | "whatsapp" | "line" | "telegram" | "x") => {
@@ -173,9 +171,18 @@ function Checkout() {
       telegram: "https://web.telegram.org/",
       x: "https://x.com/compose/post?text=" + encodeURIComponent(caption),
     };
-    // Open synchronously from the click so browsers do not block the new tab.
     const socialWindow = window.open("about:blank", "_blank");
-    await downloadQr();
+    try {
+      const file = await makeQrPng();
+      if (navigator.clipboard && typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": file })]);
+        setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
+      } else {
+        setQrMessage(lang === "th" ? "เบราว์เซอร์ไม่รองรับการคัดลอกรูป โปรดกดดาวน์โหลด PNG ก่อน" : lang === "ro" ? "Browserul nu permite copierea imaginii. Descarcă PNG mai întâi." : "This browser cannot copy images. Download PNG first.");
+      }
+    } catch {
+      setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Copierea imaginii a eșuat. Descarcă PNG." : "Could not copy image. Use Download PNG instead.");
+    }
     if (socialWindow) {
       socialWindow.opener = null;
       socialWindow.location.href = targets[platform];
@@ -183,11 +190,6 @@ function Checkout() {
     setShareOpen(false);
   };
   const shareQr = async () => {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (!isMobile) {
-      setShareOpen(true);
-      return;
-    }
     try {
       const file = await makeQrPng();
       if (typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
