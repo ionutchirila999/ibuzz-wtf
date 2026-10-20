@@ -79,6 +79,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -89,6 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: SHOP_NAME },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#1F1548" },
+      { name: "google-site-verification", content: "QHp28nwRJyJRwvnWv90E2sIy9nNwDGvmH75jIKf3A5g" },
 
     ],
     links: [
