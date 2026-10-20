@@ -10,16 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DigitalRouteImport } from './routes/digital'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RepairRouteImport } from './routes/repair'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ShopRouteImport } from './routes/shop'
-import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -45,6 +45,11 @@ const AdminRoute = AdminRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DigitalRoute = DigitalRouteImport.update({
@@ -75,11 +80,6 @@ const SellRoute = SellRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutRoute = CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -117,17 +117,15 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/account': typeof AccountRoute
-  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/checkout': typeof CheckoutRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -137,14 +135,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/checkout': typeof CheckoutRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -155,15 +154,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/checkout': typeof CheckoutRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -178,13 +178,13 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/auth'
+    | '/checkout'
     | '/digital'
     | '/portfolio'
     | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
-    | '/checkout'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -197,12 +197,12 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/auth'
+    | '/checkout'
     | '/digital'
     | '/portfolio'
     | '/privacy'
     | '/sell'
     | '/shop'
-    | '/checkout'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -215,13 +215,13 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/auth'
+    | '/checkout'
     | '/digital'
     | '/portfolio'
     | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
-    | '/checkout'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -235,13 +235,13 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
+  CheckoutRoute: typeof CheckoutRoute
   DigitalRoute: typeof DigitalRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
-  CheckoutRoute: typeof CheckoutRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -276,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/digital': {
@@ -318,13 +325,6 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout': {
-      id: '/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -386,17 +386,17 @@ const RepairRouteWithChildren =
   RepairRoute._addFileChildren(RepairRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  AccountRoute: AccountRoute,
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
+  CheckoutRoute: CheckoutRoute,
   DigitalRoute: DigitalRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
-  CheckoutRoute: CheckoutRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ProductIdRoute: ProductIdRoute,
