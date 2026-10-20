@@ -171,24 +171,21 @@ function Checkout() {
       telegram: "https://web.telegram.org/",
       x: "https://x.com/compose/post?text=" + encodeURIComponent(caption),
     };
-    const socialWindow = window.open("about:blank", "_blank");
+    // Open the chosen social website directly on click. Never leave a blank tab
+    // waiting for clipboard/image conversion to finish.
+    window.open(targets[platform], "_blank", "noopener,noreferrer");
+    setShareOpen(false);
     try {
       if (!navigator.clipboard || typeof ClipboardItem === "undefined" || typeof navigator.clipboard.write !== "function") {
-        throw new Error("Image clipboard is not supported");
+        setQrMessage(lang === "th" ? "เปิดโซเชียลแล้ว หากต้องการแนบรูป ให้ดาวน์โหลด PNG ก่อน" : lang === "ro" ? "Rețeaua socială a fost deschisă. Descarcă PNG pentru a atașa imaginea." : "Social site opened. Download the PNG if you need to attach the image.");
+        return;
       }
-      // Start clipboard.write immediately from the click. ClipboardItem accepts
-      // a Promise<Blob>, preserving browser user activation while the PNG renders.
       const pngPromise = makeQrPng().then(file => file);
       await navigator.clipboard.write([new ClipboardItem({ "image/png": pngPromise })]);
-      setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
+      setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในโพสต์หรือแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
     } catch {
-      setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ เบราว์เซอร์อาจไม่รองรับการคัดลอกรูป" : lang === "ro" ? "Copierea imaginii a eșuat; browserul poate să nu accepte copierea imaginilor." : "Could not copy image; this browser may not support copying images.");
+      setQrMessage(lang === "th" ? "เปิดโซเชียลแล้ว แต่คัดลอกรูปอัตโนมัติไม่สำเร็จ" : lang === "ro" ? "Rețeaua socială s-a deschis, dar copierea automată a imaginii a eșuat." : "Social site opened, but automatic image copying failed.");
     }
-    if (socialWindow) {
-      socialWindow.opener = null;
-      socialWindow.location.href = targets[platform];
-    }
-    setShareOpen(false);
   };
   const shareQr = async () => {
     // Only use the native file-share sheet on mobile. On Windows desktop it
