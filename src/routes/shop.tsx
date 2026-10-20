@@ -144,7 +144,9 @@ function Shop() {
       </div>
       {isLoading ? (
         <p className="text-muted-foreground">{t("loading")}</p>
-      ) : isError ? (\n        <div className="rounded-xl border border-destructive/40 p-8 text-center"><p className="font-semibold">Products could not be loaded.</p><p className="mt-2 text-sm text-muted-foreground">Please refresh the page. If this continues, the product database connection needs checking.</p><Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>Refresh Market</Button></div>\n      ) : data.length === 0 ? (
+      ) : isError ? (
+        <div className="rounded-xl border border-destructive/40 p-8 text-center"><p className="font-semibold">Products could not be loaded.</p><p className="mt-2 text-sm text-muted-foreground">Please refresh the page. If this continues, the product database connection needs checking.</p><Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>Refresh Market</Button></div>
+      ) : data.length === 0 ? (
         <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">{t("shop.empty")}</div>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
