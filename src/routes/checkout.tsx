@@ -178,7 +178,7 @@ function Checkout() {
     const encodedText = encodeURIComponent(caption + " " + qrShareUrl);
     const targets: Record<typeof platform, string> = {
       facebook: "https://www.facebook.com/sharer/sharer.php?u=" + encodedUrl,
-      whatsapp: "https://web.whatsapp.com/send?text=" + encodedText,
+      whatsapp: "https://wa.me/?text=" + encodedText,
       line: "https://line.me/R/msg/text/?" + encodedText,
       telegram: "https://t.me/share/url?url=" + encodedUrl + "&text=" + encodeURIComponent(caption),
       x: "https://x.com/compose/post?text=" + encodedText,
