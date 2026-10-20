@@ -134,3 +134,33 @@
 @media (min-width: 640px) { .hero-heading { font-size: 2.5rem; } .section-heading { font-size: 2rem; } .section-space { padding-top: 4rem; padding-bottom: 4rem; } }
 @media (min-width: 1024px) { .hero-heading { font-size: 3rem; } .hero-studio { aspect-ratio: 1.2; object-fit: cover; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+
+
+/* Modern, responsive sign-in surfaces with restrained glow and tactile feedback. */
+.auth-page::before {
+  content: ""; position: absolute; inset: 4% 2%; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 28%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 54%), radial-gradient(ellipse at 85% 75%, color-mix(in oklab, var(--azure) 12%, transparent), transparent 42%);
+  filter: blur(12px);
+}
+.auth-panel {
+  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 88%, white 4%), color-mix(in oklab, var(--background) 84%, var(--primary) 16%));
+  border-color: color-mix(in oklab, var(--primary) 28%, var(--border));
+  box-shadow: 0 24px 80px -34px color-mix(in oklab, var(--primary) 45%, transparent), inset 0 1px 0 color-mix(in oklab, white 12%, transparent);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+.auth-panel:focus-within { border-color: color-mix(in oklab, var(--primary) 62%, var(--border)); box-shadow: 0 26px 84px -32px color-mix(in oklab, var(--primary) 55%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent); }
+.auth-title { background: linear-gradient(100deg, var(--foreground), color-mix(in oklab, var(--primary-soft) 82%, white)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.auth-orb { position: absolute; z-index: -1; width: 15rem; height: 15rem; border-radius: 9999px; filter: blur(70px); opacity: .24; pointer-events: none; animation: auth-float 9s ease-in-out infinite alternate; }
+.auth-orb-one { left: 3%; top: 16%; background: var(--primary); }
+.auth-orb-two { right: 2%; bottom: 10%; background: var(--azure); animation-delay: -4s; }
+.auth-panel input { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
+.auth-panel input:focus-visible { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 24%, transparent); }
+.auth-panel button { transition: transform 160ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease; }
+.auth-panel button:active { transform: scale(.985); }
+.auth-panel button:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.auth-social-button { min-height: 2.9rem; gap: .65rem; }
+.auth-social-button:hover { border-color: color-mix(in oklab, var(--primary) 55%, var(--border)); box-shadow: 0 8px 24px -16px var(--primary); }
+.google-mark { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: white; color: #4285f4; font-weight: 800; font-size: .9rem; }
+@keyframes auth-float { from { transform: translate3d(0, -8px, 0) scale(.96); } to { transform: translate3d(12px, 14px, 0) scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .auth-orb { animation: none; } .auth-panel, .auth-panel input, .auth-panel button { transition: none; } }
