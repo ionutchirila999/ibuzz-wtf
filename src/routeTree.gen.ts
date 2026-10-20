@@ -135,6 +135,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/checkout': typeof CheckoutRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -153,6 +154,7 @@ export interface FileRoutesById {
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/checkout': typeof CheckoutRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -172,6 +174,7 @@ export interface FileRouteTypes {
     | '/repair'
     | '/sell'
     | '/shop'
+    | '/checkout'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -223,6 +226,7 @@ export interface RootRouteChildren {
   RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
+  CheckoutRoute: typeof CheckoutRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -294,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -362,6 +373,7 @@ const rootRouteChildren: RootRouteChildren = {
   RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
+  CheckoutRoute: CheckoutRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ProductIdRoute: ProductIdRoute,
