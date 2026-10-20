@@ -64,4 +64,8 @@ describe("Market search matching", () => {
     expect(productSearchConditions("   ")).toBeUndefined();
     expect(productSearchConditions("%%%")).toBeUndefined();
   });
+  it("still searches a term the address bar turned into a number", () => {
+    expect(productSearchConditions(10000 as unknown as string)).toContain("description.ilike.%10000%");
+    expect(productSearchConditions(10000 as unknown as string)).not.toContain("%1%0%0%0%0%");
+  });
 });

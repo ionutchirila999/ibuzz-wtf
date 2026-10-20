@@ -123,7 +123,7 @@ const SEARCH_FIELDS = ["title", "title_th", "title_ro", "brand", "model", "descr
 // there is nothing to search for, so other filters (like availability) are left
 // exactly as they are.
 export function productSearchConditions(raw: string | undefined): string | undefined {
-  const term = (raw ?? "").normalize("NFC").replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100);
+  const term = String(raw ?? "").normalize("NFC").replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100);
   if (!term.trim()) return undefined;
   const exact = `%${term.replace(/_/g, "")}%`;
   // Model numbers are often typed without the hyphen or spacing used on the

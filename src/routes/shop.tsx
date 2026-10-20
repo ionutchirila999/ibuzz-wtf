@@ -12,16 +12,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 type ShopSearch = { category?: Category | undefined; q?: string | undefined; sub?: string | undefined; condition?: string | undefined; sort?: string | undefined; audience?: string | undefined; status?: string | undefined; size?: string | undefined };
 
+// The address bar turns a typed number (10000, shoe size 42) into a number, so
+// every text filter is read back as text — otherwise it is silently dropped.
+const str = (v: unknown) => (v == null ? undefined : String(v));
+
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
     category: s["category"] === "womens_shoes" ? "footwear" : s["category"] === "technology" || s["category"] === "clothing" || s["category"] === "footwear" ? s["category"] : undefined,
     audience: ["men","women","children"].includes(String(s["audience"])) ? String(s["audience"]) : undefined,
     status: s["status"] === "available" || s["status"] === "sold" ? s["status"] : undefined,
-    q: typeof s["q"] === "string" ? s["q"] : undefined,
-    sub: typeof s["sub"] === "string" ? s["sub"] : undefined,
-    condition: typeof s["condition"] === "string" ? s["condition"] : undefined,
-    sort: typeof s["sort"] === "string" ? s["sort"] : undefined,
-    size: typeof s["size"] === "string" ? s["size"] : undefined,
+    q: str(s["q"]),
+    sub: str(s["sub"]),
+    condition: str(s["condition"]),
+    sort: str(s["sort"]),
+    size: str(s["size"]),
   }),
   head: () => ({
     meta: [
