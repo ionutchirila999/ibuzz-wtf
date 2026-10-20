@@ -145,7 +145,11 @@ function Shop() {
       {isLoading ? (
         <p className="text-muted-foreground">{t("loading")}</p>
       ) : isError ? (
-        <div className="rounded-xl border border-destructive/40 p-8 text-center"><p className="font-semibold">Products could not be loaded.</p><p className="mt-2 text-sm text-muted-foreground">Please refresh the page. If this continues, the product database connection needs checking.</p><Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>Refresh Market</Button></div>
+        <div className="rounded-xl border border-destructive/40 p-8 text-center">
+          <p className="font-semibold">{lang === "th" ? "ไม่สามารถโหลดสินค้าได้" : lang === "ro" ? "Produsele nu au putut fi încărcate." : "Products could not be loaded."}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{lang === "th" ? "กรุณารีเฟรชหน้า หากยังพบปัญหา โปรดตรวจสอบการเชื่อมต่อฐานข้อมูลสินค้า" : lang === "ro" ? "Reîmprospătează pagina. Dacă problema continuă, trebuie verificată conexiunea la baza de date a produselor." : "Please refresh the page. If this continues, the product database connection needs checking."}</p>
+          <Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>{lang === "th" ? "รีเฟรชตลาด" : lang === "ro" ? "Reîmprospătează piața" : "Refresh Market"}</Button>
+        </div>
       ) : data.length === 0 ? (
         <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">{t("shop.empty")}</div>
       ) : (
