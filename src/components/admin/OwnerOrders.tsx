@@ -1,0 +1,66 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { formatPrice } from '@/lib/shop';
+import { Check, ExternalLink, Package } from 'lucide-react';
+
+const STATUSES = ['received', 'confirmed', 'processing', 'shipped', 'ready_for_pickup', 'completed', 'cancelled'];
+const PAYMENTS = ['pending', 'submitted', 'paid', 'failed', 'refunded'];
+type OrderRow = { id: string; order_number: string; buyer_name: string; buyer_contact: string; total: number; payment_status: string; status: string; tracking_number: string | null; tracking_url: string | null; created_at: string; order_items: { id: string; product_title: string; unit_price: number; quantity: number; line_total: number }[] };
+
+export function OwnerOrders() {
+  const qc = useQueryClient();
+  const [drafts, setDrafts] = useState<Record<string, { status: string; payment_status: string; tracking_number: string; tracking_url: string }>>({});
+  const orders = useQuery({
+    queryKey: ['owner-orders'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as OrderRow[];
+    },
+  });
+  function draft(order: OrderRow) {
+    return drafts[order.id] ?? { status: order.status, payment_status: order.payment_status, tracking_number: order.tracking_number ?? '', tracking_url: order.tracking_url ?? '' };
+  }
+  function setDraft(order: OrderRow, field: keyof ReturnType<typeof draft>, value: string) {
+    setDrafts(old => ({ ...old, [order.id]: { ...draft(order), [field]: value } }));
+  }
+  async function save(order: OrderRow) {
+    const d = draft(order);
+    if (d.tracking_url && !/^https:\/\//i.test(d.tracking_url)) { toast.error('Tracking URL must start with https://'); return; }
+    const { error } = await (supabase as any).from('orders').update({
+      status: d.status,
+      payment_status: d.payment_status,
+      tracking_number: d.tracking_number.trim() || null,
+      tracking_url: d.tracking_url.trim() || null,
+      updated_at: new Date().toISOString(),
+    }).eq('id', order.id);
+    if (error) { toast.error('Could not update order. Check admin access.'); return; }
+    toast.success('Order updated');
+    setDrafts(old => { const next = { ...old }; delete next[order.id]; return next; });
+    await qc.invalidateQueries({ queryKey: ['owner-orders'] });
+    await qc.invalidateQueries({ queryKey: ['customer-orders'] });
+  }
+
+  if (orders.isLoading) return <p className="py-8 text-center text-muted-foreground">Loading orders…</p>;
+  if (orders.error) return <p role="alert" className="py-8 text-center text-destructive">Could not load orders. Confirm the order-tracking migration has been applied.</p>;
+  if (!orders.data?.length) return <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-8 w-8 text-muted-foreground"/><p className="mt-3 font-medium">No customer orders yet.</p><p className="mt-1 text-sm text-muted-foreground">New orders saved at checkout will appear here.</p></div>;
+
+  return <div className="mt-4 space-y-4">{orders.data.map(order => {
+    const d = draft(order);
+    return <article key={order.id} className="rounded-xl border bg-card p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{order.order_number} · {new Date(order.created_at).toLocaleString()}</p><h3 className="mt-1 text-lg font-bold">{formatPrice(order.total)}</h3><p className="mt-1 text-sm">{order.buyer_name} · {order.buyer_contact}</p></div><div className="flex gap-2"><Badge variant="secondary">{order.status}</Badge><Badge variant={order.payment_status === 'paid' ? 'default' : 'outline'}>{order.payment_status}</Badge></div></div>
+      <ul className="mt-4 space-y-1 border-t pt-3 text-sm">{(order.order_items ?? []).map(item => <li key={item.id} className="flex justify-between gap-3"><span>{item.product_title} × {item.quantity}</span><span>{formatPrice(item.line_total)}</span></li>)}</ul>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="space-y-1 text-xs text-muted-foreground">Fulfilment status<select value={d.status} onChange={e => setDraft(order,'status',e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">{STATUSES.map(s => <option key={s} value={s}>{s.replaceAll('_',' ')}</option>)}</select></label>
+        <label className="space-y-1 text-xs text-muted-foreground">Payment status<select value={d.payment_status} onChange={e => setDraft(order,'payment_status',e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">{PAYMENTS.map(s => <option key={s} value={s}>{s}</option>)}</select></label>
+        <label className="space-y-1 text-xs text-muted-foreground">Tracking number<input value={d.tracking_number} onChange={e => setDraft(order,'tracking_number',e.target.value)} placeholder="Tracking number" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"/></label>
+        <label className="space-y-1 text-xs text-muted-foreground">Tracking URL<input value={d.tracking_url} onChange={e => setDraft(order,'tracking_url',e.target.value)} placeholder="https://…" inputMode="url" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"/></label>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><span className="text-xs text-muted-foreground">Only the shop admin can change order or payment status.</span><div className="flex gap-2">{d.tracking_url && /^https:\/\//i.test(d.tracking_url) && <Button asChild variant="outline" size="sm"><a href={d.tracking_url} target="_blank" rel="noopener noreferrer">Test tracking link <ExternalLink className="ml-1 h-3.5 w-3.5"/></a></Button>}<Button size="sm" onClick={() => void save(order)}><Check className="mr-1 h-4 w-4"/>Save updates</Button></div></div>
+    </article>;
+  })}</div>;
+}
