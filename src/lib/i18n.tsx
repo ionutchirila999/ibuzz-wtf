@@ -133,6 +133,9 @@ const I18nCtx = createContext<Ctx | null>(null);
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(DEFAULT_LANG);
   useEffect(() => {
+    // A shared link's ?lang= wins, so the page opens in the language its preview showed.
+    const fromUrl = new URLSearchParams(window.location.search).get("lang");
+    if (fromUrl === "th" || fromUrl === "en" || fromUrl === "ro") { setLangState(fromUrl); localStorage.setItem("lang", fromUrl); return; }
     const saved = localStorage.getItem("lang");
     if (saved === "th" || saved === "en" || saved === "ro") setLangState(saved);
   }, []);
