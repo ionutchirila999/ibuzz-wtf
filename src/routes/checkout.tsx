@@ -173,15 +173,16 @@ function Checkout() {
     };
     const socialWindow = window.open("about:blank", "_blank");
     try {
-      const file = await makeQrPng();
-      if (navigator.clipboard && typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": file })]);
-        setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
-      } else {
-        setQrMessage(lang === "th" ? "เบราว์เซอร์ไม่รองรับการคัดลอกรูป โปรดกดดาวน์โหลด PNG ก่อน" : lang === "ro" ? "Browserul nu permite copierea imaginii. Descarcă PNG mai întâi." : "This browser cannot copy images. Download PNG first.");
+      if (!navigator.clipboard || typeof ClipboardItem === "undefined" || typeof navigator.clipboard.write !== "function") {
+        throw new Error("Image clipboard is not supported");
       }
+      // Start clipboard.write immediately from the click. ClipboardItem accepts
+      // a Promise<Blob>, preserving browser user activation while the PNG renders.
+      const pngPromise = makeQrPng().then(file => file);
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": pngPromise })]);
+      setQrMessage(lang === "th" ? "คัดลอกรูป QR แล้ว วางในแชตด้วย Ctrl+V" : lang === "ro" ? "Imaginea QR a fost copiată. Lipește-o cu Ctrl+V." : "QR image copied. Paste it into the post or chat with Ctrl+V.");
     } catch {
-      setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ กรุณาใช้ดาวน์โหลด PNG" : lang === "ro" ? "Copierea imaginii a eșuat. Descarcă PNG." : "Could not copy image. Use Download PNG instead.");
+      setQrMessage(lang === "th" ? "คัดลอกรูปไม่สำเร็จ เบราว์เซอร์อาจไม่รองรับการคัดลอกรูป" : lang === "ro" ? "Copierea imaginii a eșuat; browserul poate să nu accepte copierea imaginilor." : "Could not copy image; this browser may not support copying images.");
     }
     if (socialWindow) {
       socialWindow.opener = null;
@@ -190,6 +191,13 @@ function Checkout() {
     setShareOpen(false);
   };
   const shareQr = async () => {
+    // Only use the native file-share sheet on mobile. On Windows desktop it
+    // often has no targets and shows an empty "Share" panel.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (!isMobile) {
+      setShareOpen(true);
+      return;
+    }
     try {
       const file = await makeQrPng();
       if (typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
