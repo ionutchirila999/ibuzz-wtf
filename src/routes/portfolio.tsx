@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowUpRight, Code2, Languages, MonitorSmartphone, ShoppingBag, Wrench } from 'lucide-react';
+import { ArrowUpRight, Code2, MonitorSmartphone, ShoppingBag, Wrench } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { copy, pageHead } from '@/lib/service-copy';
 import { Button } from '@/components/ui/button';
