@@ -32,6 +32,99 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_title: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          line_total: number
+          order_id: string
+          product_id?: string | null
+          product_title: string
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_title?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_contact: string
+          buyer_name: string
+          created_at: string
+          customer_note: string | null
+          id: string
+          order_number: string
+          payment_status: string
+          status: string
+          total: number
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buyer_contact: string
+          buyer_name: string
+          created_at?: string
+          customer_note?: string | null
+          id?: string
+          order_number?: string
+          payment_status?: string
+          status?: string
+          total: number
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buyer_contact?: string
+          buyer_name?: string
+          created_at?: string
+          customer_note?: string | null
+          id?: string
+          order_number?: string
+          payment_status?: string
+          status?: string
+          total?: number
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_costs: {
         Row: {
           fault_notes: string | null
@@ -294,6 +387,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_customer_order: {
+        Args: { p_buyer_contact: string; p_buyer_name: string; p_items: Json }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
