@@ -5,7 +5,9 @@ import { copy } from "@/lib/service-copy";
 import { useT } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 
-export function ProductCard({ p }: { p: Product }) {
+type MarketCardProduct = Pick<Product, "id" | "images" | "title" | "title_th" | "title_ro" | "brand" | "market_condition" | "status" | "stock" | "is_demo" | "price" | "negotiable">;
+
+export function ProductCard({ p }: { p: MarketCardProduct }) {
   const { t, lang } = useT();
   const sold = p.status === "sold" || p.stock <= 0;
   return (
