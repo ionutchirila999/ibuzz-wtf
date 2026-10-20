@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Menu, ArrowUpRight, MessageCircle, ShoppingCart, Facebook, Music2, Youtube } from 'lucide-react';
+import { Menu, ArrowUpRight, MessageCircle, ShoppingCart } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
 import { LOGO_NAME, SHOP_CONTACT, SHOP_NAME, lineLink, whatsappLink } from '@/lib/shop';
 import { LANGS, useT } from '@/lib/i18n';
