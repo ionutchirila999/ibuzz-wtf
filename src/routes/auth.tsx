@@ -57,7 +57,7 @@ function Auth() {
     }
   }
 
-  async function signInWithProvider(provider: "google" | "apple") {
+  async function signInWithProvider(provider: "google") {
     setBusy(true);
     const lovableAuth = createLovableAuth();
     const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/admin" });
@@ -72,8 +72,8 @@ function Auth() {
   const setup = ownerExists === false;
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-20">
-      <h1 className="text-2xl font-bold">{mode === "up" ? "Set up owner account" : "Owner sign in"}</h1>
+    <main className="auth-page relative isolate mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl items-center justify-center overflow-hidden px-4 py-12 sm:px-6 sm:py-16"><div className="auth-orb auth-orb-one" aria-hidden="true" /><div className="auth-orb auth-orb-two" aria-hidden="true" /><div className="auth-panel relative z-10 w-full max-w-md rounded-3xl border p-6 sm:p-9">
+      <h1 className="auth-title text-3xl font-bold tracking-tight sm:text-4xl">{mode === "up" ? "Set up owner account" : "Owner sign in"}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {setup
           ? "No owner yet. The first account to confirm its email becomes the shop owner automatically."
@@ -84,9 +84,8 @@ function Auth() {
           Check {sentTo} and tap the confirmation link. You'll land in the owner dashboard with full access.
         </p>
       )}
-      <div className="mt-6 grid grid-cols-1 gap-2">
+      <div className="mt-7 grid grid-cols-1 gap-2">
         <Button type="button" variant="outline" className="w-full" disabled={busy || ownerExists === null} onClick={() => void signInWithProvider("google")}>Continue with Google</Button>
-        <Button type="button" variant="outline" className="w-full" disabled={busy || ownerExists === null} onClick={() => void signInWithProvider("apple")}>Continue with Apple</Button>
       </div>
       <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /><span>or use email</span><span className="h-px flex-1 bg-border" /></div>
       <form onSubmit={submit} className="space-y-4">
@@ -99,6 +98,6 @@ function Auth() {
           {mode === "in" ? "Create the owner account" : "Already created it? Sign in"}
         </button>
       )}
-    </div>
+    </div></main>
   );
 }
