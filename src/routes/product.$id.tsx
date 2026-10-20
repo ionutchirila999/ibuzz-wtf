@@ -56,14 +56,7 @@ export const Route = createFileRoute("/product/$id")({staticData: { sitemap: tru
 function ProductPage() {
   const { t, sub, lang } = useT();
   const { id } = Route.useParams();
-  const { data: p, isLoading } = useQuery({
-    queryKey: ["product", id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: p, isLoading } = useQuery(productQuery(id));
 
   if (isLoading) return <p className="p-8 text-muted-foreground">{t("loading")}</p>;
   if (!p) return <div className="p-8 text-center">{t("p.notFound")} <Link to="/shop" className="text-primary">{t("p.back")}</Link></div>;
