@@ -78,6 +78,13 @@
       "when": 1792212429140,
       "tag": "0010_grant_product_costs_access",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792461877006,
+      "tag": "0011_product_share_image",
+      "breakpoints": true
     }
   ]
 }

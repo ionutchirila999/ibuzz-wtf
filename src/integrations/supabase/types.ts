@@ -97,6 +97,7 @@ export type Database = {
           negotiable: boolean
           price: number
           return_policy: string | null
+          share_image: string | null
           shoe_size: string | null
           size_system: string | null
           status: string
@@ -132,6 +133,7 @@ export type Database = {
           negotiable?: boolean
           price?: number
           return_policy?: string | null
+          share_image?: string | null
           shoe_size?: string | null
           size_system?: string | null
           status?: string
@@ -167,6 +169,7 @@ export type Database = {
           negotiable?: boolean
           price?: number
           return_policy?: string | null
+          share_image?: string | null
           shoe_size?: string | null
           size_system?: string | null
           status?: string
