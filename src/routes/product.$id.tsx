@@ -10,19 +10,46 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/ProductGallery";
 
+const productQuery = (id: string) => ({
+  queryKey: ["product", id],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+});
+
 export const Route = createFileRoute("/product/$id")({staticData: { sitemap: true },
-  head: () => ({
-    meta: [
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: SOCIAL_IMAGE },
-      { name: "twitter:image", content: SOCIAL_IMAGE },
-      { title: `Product details — ${SHOP_NAME}` },
-      { name: "description", content: "Photos, condition, price and availability. Enquire on WhatsApp or LINE." },
-      { property: "og:title", content: `Product details — ${SHOP_NAME}` },
-      { property: "og:description", content: "Photos, condition, price and availability." },
-    ],
-  }),
+  loader: async ({ params, context }) => {
+    try { return await context.queryClient.ensureQueryData(productQuery(params.id)); } catch { return null; }
+  },
+  head: ({ params, loaderData: p }) => {
+    const name = p ? localizedTitle(p, "en") : "Product details";
+    const price = p ? formatPrice(p.price) : "";
+    const sold = p && (p.status === "sold" || p.stock <= 0);
+    const title = `${name}${price ? ` — ${price}` : ""} | ${SHOP_NAME} Market`;
+    const raw = p ? localizedDescription(p, "en") ?? "" : "";
+    const desc = p
+      ? `${sold ? "Sold out. " : ""}${raw.replace(/\s+/g, " ").trim().slice(0, 140)}${raw.length > 140 ? "…" : ""} Enquire on WhatsApp or LINE.`.trim()
+      : "Photos, condition, price and availability. Enquire on WhatsApp or LINE.";
+    const first = p?.images?.[0];
+    const image = typeof first === "string" && first.startsWith("https://") ? first : SOCIAL_IMAGE;
+    const url = `https://ibuzz.wtf/product/${params.id}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: image },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: image },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ProductPage,
 });
 

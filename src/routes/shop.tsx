@@ -27,18 +27,29 @@ export const Route = createFileRoute("/shop")({staticData: { sitemap: true },
     sort: str(s["sort"]),
     size: str(s["size"]),
   }),
-  head: () => ({
-    meta: [
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: SOCIAL_IMAGE },
-      { name: "twitter:image", content: SOCIAL_IMAGE },
-      { title: `Market — ${SHOP_NAME}` },
-      { name: "description", content: "Browse electronics, clothing and footwear for men, women and children. Search, filter and enquire." },
-      { property: "og:title", content: `Market — ${SHOP_NAME}` },
-      { property: "og:description", content: "Browse electronics, clothing and footwear for men, women and children." },
-    ],
-  }),
+  head: ({ match }) => {
+    const cat = (match.search as ShopSearch).category;
+    const label = cat === "technology" ? "Electronics & Tech" : cat === "clothing" ? "Clothing" : cat === "footwear" ? "Footwear" : null;
+    const title = label ? `${label} for Sale — ${SHOP_NAME} Market` : `Market: Electronics, Clothing & Footwear — ${SHOP_NAME}`;
+    const desc = label
+      ? `Browse ${label.toLowerCase()} in the ${SHOP_NAME} Market. See photos, condition and prices, then enquire on WhatsApp or LINE.`
+      : "Shop pre-owned and new electronics, clothing and footwear for men, women and children. Search, filter by availability and enquire on WhatsApp or LINE.";
+    const url = cat ? `https://ibuzz.wtf/shop?category=${cat}` : "https://ibuzz.wtf/shop";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: SOCIAL_IMAGE },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: SOCIAL_IMAGE },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: Shop,
 });
 
