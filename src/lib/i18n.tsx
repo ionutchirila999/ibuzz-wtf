@@ -42,7 +42,7 @@ const D = {
   "cond.pre_owned": ["มือสอง", "Pre-owned", "Second-hand"],
   "cond.refurbished": ["รีเฟอร์บิช", "Refurbished", "Recondiționat"],
   "shop.all": ["ทั้งหมด", "All", "Toate"],
-  "shop.search": ["ค้นหายี่ห้อ รุ่น…", "Search brand, model…", "Caută marcă, model…"],
+  "shop.search": ["ค้นหาชื่อ ยี่ห้อ รุ่น…", "Search name, brand, model…", "Caută nume, marcă, model…"],
   "shop.type": ["ประเภท", "Type", "Tip"],
   "shop.allTypes": ["ทุกประเภท", "All types", "Toate tipurile"],
   "shop.condition": ["สภาพ", "Condition", "Stare"],
