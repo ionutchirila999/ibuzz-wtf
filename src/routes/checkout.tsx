@@ -102,7 +102,7 @@ function Checkout() {
   }), [cart, products, lang]);
   const total = items.reduce((sum, p) => sum + Number(p.price) * p.quantity, 0);
 
-  const orderText = (orderNumber?: string | null) => `${c.orderIntro}${orderNumber ? `\\nOrder number: ${orderNumber}` : ""}\n${c.orderName}: ${name.trim()}\n${c.orderContact}: ${contact.trim()}\n\n${items.map(p => `${p.displayTitle} × ${p.quantity} = ฿${(Number(p.price) * p.quantity).toLocaleString("en-US", { maximumFractionDigits: 2 })}`).join("\n")}\n\n${c.orderTotal}: ฿${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}\n${c.payment}`;
+  const orderText = (orderNumber?: string | null) => `${c.orderIntro}${orderNumber ? `\nOrder number: ${orderNumber}` : ""}\n${c.orderName}: ${name.trim()}\n${c.orderContact}: ${contact.trim()}\n\n${items.map(p => `${p.displayTitle} × ${p.quantity} = ฿${(Number(p.price) * p.quantity).toLocaleString("en-US", { maximumFractionDigits: 2 })}`).join("\n")}\n\n${c.orderTotal}: ฿${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}\n${c.payment}`;
   const updateQty = (id: string, qty: number) => {
     const next = cart.map(x => x.id === id ? { ...x, quantity: qty } : x).filter(x => x.quantity > 0);
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
@@ -236,8 +236,7 @@ function Checkout() {
         localStorage.removeItem(KEY);
         setCart([]);
       }
-      await navigator.clipboard.writeText(orderText(orderNumber));
-      setCopied(true);
+      try { await navigator.clipboard.writeText(orderText(orderNumber)); setCopied(true); } catch { /* LINE can still be opened; the order is safely saved in the account. */ }
       if (lineWindow) lineWindow.location.href = lineLink();
       else window.location.href = lineLink();
       toast.success(lang === "th" ? `บันทึกคำสั่งซื้อ ${orderNumber} แล้ว` : lang === "ro" ? `Comanda ${orderNumber} a fost salvată` : `Order ${orderNumber} saved`);
