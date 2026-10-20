@@ -38,6 +38,9 @@ function Account() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordPanelOpen, setPasswordPanelOpen] = useState(false);
 
   async function loadOrders() {
     setLoadingOrders(true); setError('');
@@ -88,7 +91,17 @@ function Account() {
     setBusy(false);
   }
 
-  async function signOut() { await supabase.auth.signOut(); setUserEmail(null); setOrders([]); }
+  async function updatePassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); setError(''); setNotice('');
+    if (newPassword.length < 8) { setError('Password must be at least 8 characters.'); return; }
+    if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+    setBusy(true);
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    setBusy(false);
+    if (updateError) { setError(updateError.message); return; }
+    setNewPassword(''); setConfirmPassword(''); setPasswordPanelOpen(false); setNotice('Password updated successfully.');
+  }
+  async function signOut() { await supabase.auth.signOut(); setUserEmail(null); setOrders([]); setPasswordPanelOpen(false); }
   const label = (value: string) => (w as unknown as Record<string, string>)[value] ?? value.replaceAll('_', ' ');
   const money = (value: number) => new Intl.NumberFormat(lang === 'th' ? 'th-TH' : lang === 'ro' ? 'ro-RO' : 'en-US', { style: 'currency', currency: 'THB', maximumFractionDigits: 2 }).format(Number(value));
 
@@ -103,6 +116,15 @@ function Account() {
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}{notice && <p role="status" className="mt-4 text-sm text-muted-foreground">{notice}</p>}
       <p className="mt-5 text-center text-sm text-muted-foreground"><button className="underline underline-offset-4" onClick={()=>setMode(mode==='in'?'up':'in')}>{mode==='in'?w.switchUp:w.switchIn}</button></p>
     </section> : <section className="mt-8"><div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><span>{userEmail}</span><span>·</span><span>{w.orders}</span></div>
+      <div className="mb-6 rounded-xl border border-border/50 bg-card/40 p-4 sm:p-5">
+        <Button type="button" variant="outline" onClick={() => { setPasswordPanelOpen(v => !v); setError(""); setNotice(""); }}>Change password</Button>
+        {passwordPanelOpen && <form onSubmit={updatePassword} className="mt-4 grid gap-3 sm:max-w-md">
+          <div className="space-y-2"><Label htmlFor="new-account-password">New password</Label><Input id="new-account-password" type="password" autoComplete="new-password" minLength={8} value={newPassword} onChange={e=>setNewPassword(e.target.value)} required /></div>
+          <div className="space-y-2"><Label htmlFor="confirm-account-password">Confirm new password</Label><Input id="confirm-account-password" type="password" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required /></div>
+          <Button type="submit" disabled={busy}>{busy ? w.loading : "Update password"}</Button>
+        </form>}
+        {notice && <p role="status" className="mt-3 text-sm text-muted-foreground">{notice}</p>}
+      </div>
       {error && <p role="alert" className="mb-4 rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
       {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-4">{orders.map(order => <article key={order.id} className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{order.tracking_url && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={order.tracking_url} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
