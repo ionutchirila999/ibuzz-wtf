@@ -107,30 +107,10 @@ function Checkout() {
   const shareQr = async () => {
     const url = new URL("/promptpay-qr.jpg", window.location.origin).href;
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("QR image unavailable");
-      const blob = await response.blob();
-      const file = new File([blob], "iBuzz-PromptPay-QR.jpg", { type: blob.type || "image/jpeg" });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: c.qr, files: [file] });
-        setQrMessage(c.qrShared);
-        return;
-      }
-      if (navigator.share) {
-        await navigator.share({ title: c.qr, text: c.qr, url });
-        setQrMessage(c.qrShared);
-        return;
-      }
       await navigator.clipboard.writeText(url);
       setQrMessage(c.qrShareFallback);
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      try {
-        await navigator.clipboard.writeText(url);
-        setQrMessage(c.qrShareFallback);
-      } catch {
-        setQrMessage(c.qrShareFallback);
-      }
+    } catch {
+      setQrMessage(c.qrShareFallback);
     }
   };
   const openLine = () => { void copyOrder(); window.open(lineLink(), "_blank", "noopener,noreferrer"); };
