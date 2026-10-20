@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { copy } from "@/lib/service-copy";
@@ -59,6 +60,8 @@ function Shop() {
   const { t, sub, lang } = useT();
   const s = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
+  // Keep the visitor's language in the address so a copied link previews in it.
+  useEffect(() => { if (s.lang !== lang) void navigate({ search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, s.lang, navigate]);
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
   const { data = [], isLoading } = useQuery({
