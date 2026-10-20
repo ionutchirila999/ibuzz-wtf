@@ -168,7 +168,7 @@ function Shop() {
         <div className="rounded-xl border border-destructive/40 p-8 text-center">
           <p className="font-semibold">{lang === "th" ? "ไม่สามารถโหลดสินค้าได้" : lang === "ro" ? "Produsele nu au putut fi încărcate." : "Products could not be loaded."}</p>
           <p className="mt-2 text-sm text-muted-foreground">{lang === "th" ? "กรุณารีเฟรชหน้า หากยังพบปัญหา โปรดตรวจสอบการเชื่อมต่อฐานข้อมูลสินค้า" : lang === "ro" ? "Reîmprospătează pagina. Dacă problema continuă, trebuie verificată conexiunea la baza de date a produselor." : "Please refresh the page. If this continues, the product database connection needs checking."}</p>
-          {productsError instanceof Error && <p className="mx-auto mt-3 max-w-2xl break-words text-left font-mono text-xs text-muted-foreground">Debug: {productsError.message}</p>}
+          {productsError != null && <p className="mx-auto mt-3 max-w-2xl break-words text-left font-mono text-xs text-muted-foreground">Debug: {productsError instanceof Error ? productsError.message : typeof productsError === "object" ? JSON.stringify(productsError) : String(productsError)}</p>}
           <Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>{lang === "th" ? "รีเฟรชตลาด" : lang === "ro" ? "Reîmprospătează piața" : "Refresh Market"}</Button>
         </div>
       ) : data.length === 0 ? (
