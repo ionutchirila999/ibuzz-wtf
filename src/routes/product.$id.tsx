@@ -23,7 +23,7 @@ const productQuery = (id: string) => ({
 });
 
 export const Route = createFileRoute("/product/$id")({staticData: { sitemap: true },
-  validateSearch: (s: Record<string, unknown>): { lang?: "th" | "en" | "ro" } => ({ lang: s["lang"] === "th" || s["lang"] === "en" || s["lang"] === "ro" ? s["lang"] : undefined }),
+  validateSearch: (s: Record<string, unknown>): { lang?: "th" | "en" | "ro" | undefined } => ({ lang: s["lang"] === "th" || s["lang"] === "en" || s["lang"] === "ro" ? s["lang"] : undefined }),
   loader: async ({ params, context }) => {
     try { return await context.queryClient.ensureQueryData(productQuery(params.id)); } catch { return null; }
   },
