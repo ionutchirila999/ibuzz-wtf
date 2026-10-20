@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SHOP_NAME } from "@/lib/shop";
+import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 
 export const Route = createFileRoute("/auth")({staticData: { sitemap: "exclude-subtree" },
   head: () => ({
@@ -58,8 +59,14 @@ function Auth() {
 
   async function signInWithProvider(provider: "google" | "apple") {
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/admin` } });
-    if (error) { setBusy(false); toast.error(error.message); }
+    const lovableAuth = createLovableAuth();
+    const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/admin" });
+    if (result.redirected) return;
+    if (result.error) { setBusy(false); toast.error(result.error.message); return; }
+    const { error } = await supabase.auth.setSession(result.tokens);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    navigate({ to: "/admin" });
   }
 
   const setup = ownerExists === false;
