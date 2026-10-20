@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/ProductGallery";
 
-export const Route = createFileRoute("/product/$id")({
+export const Route = createFileRoute("/product/$id")({staticData: { sitemap: true },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

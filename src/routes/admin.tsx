@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/admin")({staticData: { sitemap: "exclude-subtree" },
   ssr: false,
   head: () => ({
     meta: [
