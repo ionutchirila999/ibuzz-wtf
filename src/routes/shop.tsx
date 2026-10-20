@@ -64,10 +64,10 @@ function Shop() {
   useEffect(() => { if (s.lang !== lang) void navigate({ search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, s.lang, navigate]);
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
-  const { data = [], isLoading } = useQuery({
+  const { data = [], isLoading, isError } = useQuery({
     queryKey: ["products", s],
     queryFn: async () => {
-      let q = supabase.from("products").select("*").neq("status", "hidden");
+      let q = supabase.from("products").select("*").or("status.is.null,status.neq.hidden");
       if (s.category) q = q.eq("market_category", s.category);
       if (s.sub) q = q.eq("subcategory", s.sub);
       if (s.condition) q = q.eq("market_condition", s.condition);
