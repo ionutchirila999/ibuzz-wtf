@@ -41,7 +41,7 @@ function Account() {
   const [busy, setBusy] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordPanelOpen, setPasswordPanelOpen] = useState(false);
+  const [passwordPanelOpen, setPasswordPanelOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('resetPassword') === '1');
 
   async function loadOrders() {
     setLoadingOrders(true); setError('');
