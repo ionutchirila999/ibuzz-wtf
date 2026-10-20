@@ -18,7 +18,7 @@ type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 
 const empty: Form = {
   market_category: "technology", market_condition: "pre_owned", audience: "all", category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
-  images: [], price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
+  images: [], share_image: null, price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
   title_th: "", title_ro: "", description_th: "", description_ro: "",
   translation_status_th: "needs_review", translation_status_ro: "needs_review",
   color: "", material: "", authenticity_verified: false, authenticity_notes: "", delivery_options: "", return_policy: "",
