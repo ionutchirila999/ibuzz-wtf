@@ -6,7 +6,7 @@ import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Minus, Plus, Trash2, Copy, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, Copy, ShoppingBag, Download, Share2 } from "lucide-react";
 
 type CartItem = { id: string; quantity: number };
 type CartProduct = { id: string; title: string; title_th?: string | null; title_ro?: string | null; price: number; stock: number; status: string };
@@ -19,7 +19,7 @@ const COPY = {
     loading: "กำลังโหลดตะกร้า…", empty: "ตะกร้าของคุณว่างเปล่า", browse: "เลือกซื้อสินค้า",
     each: "ต่อชิ้น", stock: "มีในสต็อก", decrease: "ลดจำนวน", increase: "เพิ่มจำนวน", remove: "นำสินค้าออก",
     total: "ยอดที่ต้องชำระ", totalNote: "โหลดราคาและสต็อกล่าสุดจากฐานข้อมูลสินค้า โปรดยืนยันยอดก่อนชำระเงิน",
-    pay: "1. ชำระเงินด้วย PromptPay", qr: "คิวอาร์โค้ด PromptPay",
+    pay: "1. ชำระเงินด้วย PromptPay", qr: "คิวอาร์โค้ด PromptPay", saveQr: "บันทึก QR ลงอุปกรณ์", shareQr: "แชร์ QR", qrShared: "พร้อมแชร์ QR", qrShareFallback: "คัดลอกลิงก์ QR แล้ว",
     scan: "เปิดแอปธนาคารไทย สแกนคิวอาร์โค้ดด้านบน แล้วกรอกยอดที่แสดงที่นี่: ", staticQr: "คิวอาร์โค้ดนี้เป็นแบบคงที่ คุณต้องกรอกจำนวนเงินเอง",
     warning: "อย่าชำระเงินหากคิวอาร์โค้ดหรือข้อมูลผู้รับในแอปธนาคารไม่ตรงกับที่คาดไว้",
     send: "2. ส่งคำสั่งซื้อทาง LINE", name: "ชื่อของคุณ", namePlaceholder: "ชื่อสำหรับคำสั่งซื้อ",
@@ -36,7 +36,7 @@ const COPY = {
     loading: "Loading cart…", empty: "Your cart is empty", browse: "Browse Market",
     each: "each", stock: "in stock", decrease: "Decrease quantity", increase: "Increase quantity", remove: "Remove item",
     total: "Total due", totalNote: "Prices and available stock are reloaded from the product database. Confirm the total before paying.",
-    pay: "1. Pay with PromptPay", qr: "PromptPay QR code",
+    pay: "1. Pay with PromptPay", qr: "PromptPay QR code", saveQr: "Save QR to device", shareQr: "Share QR", qrShared: "Ready to share QR", qrShareFallback: "QR link copied",
     scan: "Open your Thai banking app, scan the QR above, and enter the exact total shown here: ", staticQr: "The QR is static, so you must enter the amount yourself.",
     warning: "Do not pay if the QR or recipient details shown by your banking app do not match what you expect.",
     send: "2. Send order to LINE", name: "Your name", namePlaceholder: "Name for the order",
@@ -53,7 +53,7 @@ const COPY = {
     loading: "Se încarcă coșul…", empty: "Coșul tău este gol", browse: "Vezi produsele",
     each: "bucata", stock: "în stoc", decrease: "Scade cantitatea", increase: "Mărește cantitatea", remove: "Elimină produsul",
     total: "Total de plată", totalNote: "Prețurile și stocul disponibil sunt reîncărcate din baza de date. Confirmă totalul înainte de plată.",
-    pay: "1. Plătește cu PromptPay", qr: "Cod QR PromptPay",
+    pay: "1. Plătește cu PromptPay", qr: "Cod QR PromptPay", saveQr: "Salvează QR pe dispozitiv", shareQr: "Distribuie QR", qrShared: "QR pregătit pentru partajare", qrShareFallback: "Linkul QR a fost copiat",
     scan: "Deschide aplicația bancară thailandeză, scanează codul QR și introdu suma exactă afișată aici: ", staticQr: "Codul QR este static, deci trebuie să introduci suma manual.",
     warning: "Nu plăti dacă detaliile codului QR sau ale destinatarului din aplicația bancară nu corespund.",
     send: "2. Trimite comanda prin LINE", name: "Numele tău", namePlaceholder: "Numele pentru comandă",
@@ -78,6 +78,7 @@ function Checkout() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [copied, setCopied] = useState(false);
+  const [qrMessage, setQrMessage] = useState("");
 
   useEffect(() => {
     const items = readCart();
@@ -101,6 +102,35 @@ function Checkout() {
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
   };
   const copyOrder = async () => { try { await navigator.clipboard.writeText(orderText()); setCopied(true); } catch { setCopied(false); } };
+  const shareQr = async () => {
+    const url = new URL("/promptpay-qr.jpg", window.location.origin).href;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("QR image unavailable");
+      const blob = await response.blob();
+      const file = new File([blob], "iBuzz-PromptPay-QR.jpg", { type: blob.type || "image/jpeg" });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: c.qr, files: [file] });
+        setQrMessage(c.qrShared);
+        return;
+      }
+      if (navigator.share) {
+        await navigator.share({ title: c.qr, text: c.qr, url });
+        setQrMessage(c.qrShared);
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setQrMessage(c.qrShareFallback);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(url);
+        setQrMessage(c.qrShareFallback);
+      } catch {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    }
+  };
   const openLine = () => { void copyOrder(); window.open(lineLink(), "_blank", "noopener,noreferrer"); };
 
   return <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
@@ -108,7 +138,7 @@ function Checkout() {
     {loading ? <p>{c.loading}</p> : !items.length ? <div className="rounded-xl border p-6 text-center"><ShoppingBag className="mx-auto mb-3 h-8 w-8"/><p className="font-semibold">{c.empty}</p><Button asChild className="mt-4"><Link to="/shop" search={{ lang }}>{c.browse}</Link></Button></div> : <>
       <section className="space-y-3">{items.map(p => <div key={p.id} className="flex items-center gap-3 rounded-xl border p-4"><div className="min-w-0 flex-1"><p className="font-medium">{p.displayTitle}</p><p className="text-sm text-muted-foreground">{formatPrice(p.price)} {c.each} · {p.stock} {c.stock}</p></div><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={c.decrease} onClick={() => updateQty(p.id, p.quantity - 1)}><Minus className="h-4 w-4"/></Button><span className="w-5 text-center">{p.quantity}</span><Button size="icon" variant="outline" aria-label={c.increase} disabled={p.quantity >= p.stock} onClick={() => updateQty(p.id, p.quantity + 1)}><Plus className="h-4 w-4"/></Button><Button size="icon" variant="ghost" aria-label={c.remove} onClick={() => updateQty(p.id, 0)}><Trash2 className="h-4 w-4"/></Button></div><strong className="w-24 text-right">{formatPrice(Number(p.price) * p.quantity)}</strong></div>)}</section>
       <section className="rounded-xl border p-5"><div className="flex items-center justify-between text-lg font-bold"><span>{c.total}</span><span>{formatPrice(total)} THB</span></div><p className="mt-2 text-sm text-muted-foreground">{c.totalNote}</p></section>
-      <section className="space-y-4 rounded-xl border p-5"><h2 className="text-xl font-semibold">{c.pay}</h2><div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-lg border bg-white" aria-label={c.qr}><img src="/promptpay-qr.jpg" alt={c.qr} className="absolute left-[-50%] top-[-134%] w-[200%] max-w-none"/></div><p className="text-sm">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="text-sm text-amber-700 dark:text-amber-300">{c.warning}</p></section>
+      <section className="space-y-4 rounded-xl border p-5"><h2 className="text-xl font-semibold">{c.pay}</h2><a href="/promptpay-qr.jpg" target="_blank" rel="noreferrer" aria-label={c.qr} className="relative mx-auto block aspect-square w-full max-w-sm overflow-hidden rounded-lg border bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><img src="/promptpay-qr.jpg" alt={c.qr} className="absolute left-[-50%] top-[-134%] w-[200%] max-w-none"/></a><div className="mx-auto grid w-full max-w-sm grid-cols-2 gap-2"><Button asChild variant="outline" className="w-full"><a href="/promptpay-qr.jpg" download="iBuzz-PromptPay-QR.jpg"><Download className="mr-2 h-4 w-4"/>{c.saveQr}</a></Button><Button type="button" variant="outline" className="w-full" onClick={() => void shareQr()}><Share2 className="mr-2 h-4 w-4"/>{c.shareQr}</Button></div>{qrMessage && <p role="status" className="text-center text-xs text-muted-foreground">{qrMessage}</p>}<p className="text-sm">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="text-sm text-amber-700 dark:text-amber-300">{c.warning}</p></section>
       <section className="space-y-4 rounded-xl border p-5"><h2 className="text-xl font-semibold">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid gap-2 sm:grid-cols-2"><Button variant="outline" disabled={!name.trim() || !contact.trim()} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4"/>{copied ? c.copied : c.copy}</Button><Button disabled={!name.trim() || !contact.trim()} onClick={openLine}>{c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
     </>}
     <p className="text-xs text-muted-foreground">{c.pending}</p>
