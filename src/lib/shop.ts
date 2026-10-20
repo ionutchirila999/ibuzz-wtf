@@ -130,5 +130,11 @@ export function productSearchConditions(raw: string | undefined): string | undef
   // label (F36A for F-36A), so also let any separator stand for anything.
   const loose = `%${term.replace(/[-._ ]+/g, "%")}%`;
   const patterns = exact === loose ? [exact] : [exact, loose];
+  // A short code mixing letters and digits (F36A, JX500) reads as a model
+  // number, so anything may sit between its characters.
+  const code = term.replace(/[-._ ]+/g, "");
+  if (!/\s/.test(term) && /\d/.test(code) && /[^\d]/.test(code) && code.length <= 12) {
+    patterns.push(`%${[...code].join("%")}%`);
+  }
   return SEARCH_FIELDS.flatMap((f) => patterns.map((p) => `${f}.ilike.${p}`)).join(",");
 }
