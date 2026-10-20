@@ -65,9 +65,15 @@ function Shop() {
   const set = (patch: Partial<ShopSearch>) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
   const { data = [], isLoading, isError } = useQuery({
-    queryKey: ["products", s],
+    // Language changes affect card text, not the database result set.
+    queryKey: ["products", { category: s.category, q: s.q, sub: s.sub, condition: s.condition, sort: s.sort, audience: s.audience, status: s.status, size: s.size }],
+    staleTime: 30_000,
+    retry: 1,
+    placeholderData: (previousData) => previousData,
     queryFn: async () => {
-      let q = supabase.from("products").select("*").or("status.is.null,status.neq.hidden");
+      // Fetch only fields needed for filtering, sorting, and the product cards.
+      // Avoid transferring internal/admin-only product fields to public visitors.
+      let q = supabase.from("products").select("id,images,title,title_th,title_ro,brand,market_condition,status,stock,is_demo,price,negotiable,market_category,subcategory,shoe_size,audience,created_at,description,description_th,description_ro,model").or("status.is.null,status.neq.hidden");
       if (s.category) q = q.eq("market_category", s.category);
       if (s.sub) q = q.eq("subcategory", s.sub);
       if (s.condition) q = q.eq("market_condition", s.condition);
