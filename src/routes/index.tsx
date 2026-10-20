@@ -29,7 +29,7 @@ function HeroSlides() {
     const id = window.setInterval(() => setI((n) => (n + 1) % SLIDES.length), 6000);
     return () => window.clearInterval(id);
   }, [paused]);
-  const cur = SLIDES[i];
+  const cur = SLIDES[i] ?? SLIDES[0]!;
   return <>
     <div ref={ref} className="hero-slides" aria-hidden="true">{SLIDES.map((sl, n) => <div key={n} className="hero-slide" style={{ backgroundImage: `url("${sl.src}")`, opacity: n === i ? 1 : 0 }} />)}</div>
     <div className="hero-dots mx-auto flex max-w-6xl items-center gap-3 px-5 pb-4 sm:px-8">
