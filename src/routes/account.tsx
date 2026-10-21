@@ -138,7 +138,7 @@ function Account() {
 
   if (sessionLoading) return <main className="mx-auto max-w-5xl px-5 py-16"><p className="text-muted-foreground">{w.loading}</p></main>;
   return <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="section-eyebrow">iBuzz.wtf</p><h1 className="section-heading mt-3">{w.title}</h1><p className="mt-3 text-sm text-muted-foreground">{w.lead}</p></div>{userEmail && <Button variant="outline" onClick={() => void signOut()}><LogOut className="mr-2 h-4 w-4"/>{w.signOut}</Button>}</div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="section-eyebrow">iBuzz.wtf</p><h1 className="section-heading mt-3">{w.title}</h1><p className="mt-3 text-sm text-muted-foreground">{userEmail ? (lang === 'th' ? 'จัดการบัญชีและติดตามคำสั่งซื้อของคุณได้ที่นี่' : lang === 'ro' ? 'Gestionează-ți contul și urmărește comenzile aici.' : 'Manage your account and track your orders here.') : w.lead}</p></div>{userEmail && <Button variant="outline" onClick={() => void signOut()}><LogOut className="mr-2 h-4 w-4"/>{w.signOut}</Button>}</div>
     {!userEmail ? <section className="auth-panel mx-auto mt-8 max-w-md rounded-3xl border border-border/60 bg-card/50 p-5 sm:p-8">
       {!resetMode && <div className="mb-5 flex gap-2"><Button variant={mode==='in'?'default':'outline'} className="flex-1" onClick={() => {setMode('in');setError('');setNotice('');}}>{w.signIn}</Button><Button variant={mode==='up'?'default':'outline'} className="flex-1" onClick={() => {setMode('up');setError('');setNotice('');}}>{w.signUp}</Button></div>}
       {!resetMode && <div className="mb-5 grid grid-cols-1 gap-2"><Button type="button" variant="outline" className="auth-social-button w-full" disabled={busy} onClick={() => void signInWithProvider('google')}><span className="google-mark" aria-hidden="true">G</span>Continue with Google</Button></div>}
@@ -165,12 +165,12 @@ function Account() {
           <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => ['shipped', 'ready_for_pickup', 'completed'].includes(order.status)).length}</p>
           <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'รวมคำสั่งซื้อที่เสร็จสิ้น' : lang === 'ro' ? 'Inclusiv comenzile finalizate' : 'Including completed orders'}</p>
         </div>
-        <div className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ดูรายละเอียดคำสั่งซื้อเพื่อส่งคำขอช่วยเหลือ' : lang === 'ro' ? 'Deschide o comandă pentru a contacta asistența' : 'Open an order to contact support'}</p></div>
-          <p className="mt-3 text-xs font-medium text-primary">{lang === 'th' ? 'ความช่วยเหลือเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Asistență pentru comenzi' : 'Order support'}</p>
+        <button type="button" onClick={() => document.getElementById('customer-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4 text-left transition-colors hover:border-primary/60 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ดูรายละเอียดคำสั่งซื้อเพื่อส่งคำขอช่วยเหลือ' : lang === 'ro' ? 'Deschide o comandă pentru a contacta asistența' : 'Go to your orders to open a support request'}</p></div>
+          <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ความช่วยเหลือเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Asistență pentru comenzi' : 'Order support'}</p>
         </div>
       </div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div id="customer-orders" className="mb-6 flex scroll-mt-6 flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{w.orders}</h2>
         <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
       </div>
