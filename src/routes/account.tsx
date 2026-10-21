@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2 } from 'lucide-react';
+import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 
 export const Route = createFileRoute('/account')({
   staticData: { sitemap: 'exclude-subtree' },
@@ -45,9 +46,13 @@ function Account() {
   const [emailPanelOpen, setEmailPanelOpen] = useState(false);
   const [passwordPanelOpen, setPasswordPanelOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('resetPassword') === '1');
 
-  async function loadOrders() {
+  async function loadOrders(userId?: string) {
     setLoadingOrders(true); setError('');
-    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_title,unit_price,quantity,line_total)').order('created_at', { ascending: false });
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const ownerId = userId ?? authData.user?.id;
+    if (authError || !ownerId) { setOrders([]); setLoadingOrders(false); return; }
+    // Always scope customer order reads to the authenticated account; never depend on RLS alone.
+    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_title,unit_price,quantity,line_total)').eq('user_id', ownerId).order('created_at', { ascending: false });
     if (queryError) { setError(w.error); setOrders([]); }
     else setOrders((data ?? []) as Order[]);
     setLoadingOrders(false);
@@ -59,11 +64,11 @@ function Account() {
       if (!alive) return;
       setUserEmail(data.session?.user.email ?? null);
       setSessionLoading(false);
-      if (data.session?.user) void loadOrders();
+      if (data.session?.user) void loadOrders(data.session.user.id);
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user.email ?? null);
-      if (session?.user) void loadOrders();
+      if (session?.user) void loadOrders(session.user.id);
       else setOrders([]);
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
@@ -85,7 +90,7 @@ function Account() {
     if (result.error) { setError(result.error.message); return; }
     if (mode === 'up' && !result.data.session) { setNotice(w.sent); return; }
     setUserEmail(result.data.user?.email ?? email.trim());
-    await loadOrders();
+    await loadOrders(result.data.user?.id);
   }
 
   async function signInWithProvider(provider: 'google') {
@@ -97,7 +102,7 @@ function Account() {
     const { error: authError } = await supabase.auth.setSession(result.tokens);
     if (authError) { setBusy(false); setError(authError.message); return; }
     setUserEmail((await supabase.auth.getUser()).data.user?.email ?? null);
-    await loadOrders();
+    await loadOrders((await supabase.auth.getUser()).data.user?.id);
     setBusy(false);
   }
 
@@ -167,6 +172,7 @@ function Account() {
       {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-4">{orders.map(order => <article key={order.id} className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{order.tracking_url && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={order.tracking_url} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border/30 pt-4 text-xs text-muted-foreground"><CheckCircle2 className="h-4 w-4"/>{w.status}: {label(order.status)}</div>
+        <CustomerOrderDetails order={order} />
       </article>)}</div>}
     </section>}
   </main>;
