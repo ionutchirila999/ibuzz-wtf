@@ -88,20 +88,15 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         <div className="flex w-max min-w-0 items-start justify-center gap-3">
           {TIKTOK_VIDEOS.map((video) => (
             <div key={video.id} className="w-[172px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[192px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[260px] xl:max-w-[280px]">
-              <a
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={text.watch}
-                className="group relative flex aspect-[9/16] w-full flex-col items-center justify-center gap-4 overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-4 text-center outline-none transition duration-300 hover:from-slate-900 hover:to-violet-950 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-inset"
-              >
-                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(34,211,238,0.22),transparent_55%)]" />
-                <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-cyan-200/50 bg-cyan-300/10 text-cyan-100 shadow-[0_0_35px_rgba(34,211,238,0.18)] transition duration-300 group-hover:scale-110 group-hover:bg-cyan-300/20">
-                  <Play className="ml-1 h-7 w-7 fill-current" />
-                </span>
-                <span className="relative text-sm font-semibold text-white">{text.watch}</span>
-                <span aria-hidden="true" className="relative text-xs text-cyan-100/70">iBuzz.wtf ↗</span>
-              </a>
+              <iframe
+                title={`iBuzz.wtf TikTok video ${video.id}`}
+                src={`https://www.tiktok.com/player/v1/${video.id}?controls=1&description=0&music_info=0&loop=0`}
+                className="block aspect-[9/16] w-full border-0 bg-transparent"
+                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
             </div>
           ))}
         </div>
