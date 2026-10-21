@@ -46,9 +46,10 @@ export function ProductForm({ product, onDone }: { product: (Product & { product
     if (!f.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
     let share_image: string | null = (product as { share_image?: string | null } | undefined)?.share_image ?? null;
-    const main = f.images[0];
+    const main = f.images.find((src) => !/\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src));
+    const previousMain = product?.images?.find((src) => !/\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src));
     if (!main) share_image = null;
-    else if (!share_image || main !== product?.images?.[0]) {
+    else if (!share_image || main !== previousMain) {
       try { share_image = await store(await makeShareImage(main), "share.jpg"); } catch { /* preview falls back to the site banner */ }
     }
     const payload = { ...f, share_image, category: legacyCategory(f.market_category as Category), condition: legacyCondition(f.market_condition), shoe_size: f.market_category !== "technology" ? f.shoe_size : null, size_system: f.market_category !== "technology" ? f.size_system : null };
