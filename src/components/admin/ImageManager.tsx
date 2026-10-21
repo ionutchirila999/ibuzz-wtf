@@ -7,6 +7,8 @@ import { ImageEditor } from "./ImageEditor";
 import { moveItem, validateImageFile } from "@/lib/product-images";
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const isVideoUrl = (src: string) => /\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
 
 export async function store(file: Blob, name: string): Promise<string> {
   const path = `${crypto.randomUUID()}-${name.replace(/[^a-z0-9.]/gi, "_")}`;
@@ -29,7 +31,8 @@ export function ImageManager({ images, onChange, onBusy }: { images: string[]; o
     onBusy(true);
     const urls: string[] = [];
     for (const file of Array.from(files)) {
-      const bad = validateImageFile(file);
+      const video = VIDEO_TYPES.includes(file.type);
+      const bad = video ? (file.size > 50 * 1024 * 1024 ? "Video must be 50 MB or smaller" : file.size === 0 ? "Video file is empty" : null) : validateImageFile(file);
       if (bad) { toast.error(`${file.name}: ${bad}`); continue; }
       try { urls.push(await store(file, file.name)); } catch (e) { toast.error((e as Error).message); }
     }
@@ -59,7 +62,7 @@ export function ImageManager({ images, onChange, onBusy }: { images: string[]; o
         {images.map((src, i) => (
           <div key={src} className="overflow-hidden rounded-md border bg-card">
             <div className="relative aspect-square">
-              <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
+              {isVideoUrl(src) ? <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />}
               {i === 0 && <span className="absolute left-1 top-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Main</span>}
             </div>
             <div className="grid grid-cols-3 gap-1 p-1">
@@ -73,11 +76,11 @@ export function ImageManager({ images, onChange, onBusy }: { images: string[]; o
           </div>
         ))}
         <button type="button" onClick={() => addRef.current?.click()} className="grid aspect-square place-items-center rounded-md border border-dashed text-muted-foreground">
-          <span className="flex flex-col items-center gap-1 text-xs"><Upload className="h-5 w-5" />Add photos</span>
+          <span className="flex flex-col items-center gap-1 text-xs"><Upload className="h-5 w-5" />Add photos or video</span>
         </button>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">JPG, PNG or WebP up to 10 MB. The first photo (★) is the main photo. Changes apply when you save the listing.</p>
-      <input ref={addRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => { add(e.target.files); e.target.value = ""; }} />
+      <p className="mt-1 text-xs text-muted-foreground">Photos: JPG, PNG or WebP up to 10 MB. Videos: MP4, WebM or MOV up to 50 MB. Reorder media with ★ to choose the main photo or video. Save the listing to apply changes.</p>
+      <input ref={addRef} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple hidden onChange={(e) => { add(e.target.files); e.target.value = ""; }} />
       <input ref={replaceRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => { replace(e.target.files); e.target.value = ""; }} />
       {editing && (
         <ImageEditor src={editing.src} onCancel={() => setEditing(null)} onSave={async (blob) => {
