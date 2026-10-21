@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, ImageOff, Maximize2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, ImageOff, Maximize2, Play } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
@@ -7,6 +7,8 @@ import { galleryText, photoCaption } from "@/lib/gallery-copy";
 export function ProductGallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const photos = images.filter((src): src is string => typeof src === "string" && src.trim().length > 0);
@@ -28,10 +30,12 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
     <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
       <section className="w-full min-w-0" aria-label={title}>
         <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/70 shadow-[0_12px_40px_-28px_rgba(34,211,238,0.4)]">
-          <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}>
-            <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]">{currentIsVideo ? <video src={current} controls playsInline preload="metadata" className="h-full w-full select-none object-contain" aria-label={photoName(index)} /> : <img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="h-full w-full select-none object-contain" />}</div>
-            <span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span>
-          </button>
+          <div className="relative">
+            <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]">
+              {currentIsVideo ? <div className="relative flex h-full w-full items-center justify-center"><video key={current} ref={videoRef} src={current} controls playsInline preload="metadata" onPlay={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} className="h-full w-full select-none object-contain" aria-label={photoName(index)} />{!videoPlaying && <button type="button" onClick={() => { void videoRef.current?.play().catch(() => undefined); }} aria-label="Play product video" className="absolute left-1/2 top-1/2 z-10 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-cyan-200/70 bg-slate-950/85 text-cyan-100 shadow-[0_0_32px_rgba(34,211,238,0.35)] backdrop-blur transition hover:scale-105 hover:bg-slate-900"><Play className="ml-1 h-7 w-7 fill-current" /></button>}</div> : <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block h-full w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}><img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="h-full w-full select-none object-contain" /><span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span></button>}
+            </div>
+            {currentIsVideo && <button type="button" onClick={() => setLightboxOpen(true)} aria-label={text("open")} title="Enlarge video" className="absolute bottom-3 right-3 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/85 text-cyan-100 shadow-lg backdrop-blur-md hover:border-cyan-300/40"><Maximize2 className="h-3.5 w-3.5" /></button>}
+          </div>
           {photos.length > 1 && <>
             <button type="button" onClick={() => step(-1)} aria-label={text("previous")} className={`${arrowClass} left-2`}><ChevronLeft className="h-4 w-4" /></button>
             <button type="button" onClick={() => step(1)} aria-label={text("next")} className={`${arrowClass} right-2`}><ChevronRight className="h-4 w-4" /></button>
