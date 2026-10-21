@@ -8,7 +8,7 @@ import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
 export function ProductGallery({ images, title, videoUrl }: { images: string[]; title: string; videoUrl?: string | null }) {
-  const [active, setActive] = useState(-1);
+  const [active, setActive] = useState(0);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const captions = images.map((src) => photoCaption(lang, src));
@@ -22,15 +22,17 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
     } catch { /* Ignore malformed URLs; the image gallery remains available. */ }
   }
   const hasVideo = Boolean(videoId);
-  const currentImageIndex = active < 0 && !hasVideo ? 0 : active;
-  const image = images[currentImageIndex];
-  const videoActive = hasVideo && active === -1;
   const totalItems = images.length + (hasVideo ? 1 : 0);
-  const move = (direction: number) => setActive((current) => {
-    const position = hasVideo ? (current < 0 ? 0 : current + 1) : current;
-    const next = (position + direction + totalItems) % totalItems;
-    return hasVideo && next === 0 ? -1 : hasVideo ? next - 1 : next;
-  });
+  const videoActive = hasVideo && active === 0;
+  const currentImageIndex = active - (hasVideo ? 1 : 0);
+  const image = videoActive ? undefined : images[currentImageIndex];
+  const move = (direction: number) => setActive((current) => (current + direction + totalItems) % totalItems);
+  const movePhoto = (direction: number) => {
+    if (!images.length) return;
+    const index = videoActive ? 0 : currentImageIndex;
+    const next = (index + direction + images.length) % images.length;
+    setActive(next + (hasVideo ? 1 : 0));
+  };
   const photoLabel = (index: number) => {
     const caption = captions[index];
     const base = caption ?? `${text("photo")} ${index + 1} / ${images.length}`;
@@ -41,7 +43,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   const thumbLabel = (index: number) =>
     captions[index] ?? `${text("photo")} ${index + 1} / ${images.length}`;
 
-  if (!image && !videoId) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
+  if (!images.length && !videoId) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
   return (
     <Dialog>
@@ -64,7 +66,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
         </div>
         {!videoActive && captions[currentImageIndex] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[currentImageIndex]}</p>}
         {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1" role="group" aria-label={text("photo")}>
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index + (hasVideo ? 1 : 0))} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === currentImageIndex && !videoActive ? "border-primary" : "border-transparent"}` }>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
@@ -73,8 +75,8 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
       <DialogPortal>
         <DialogOverlay className="bg-background/90" />
         <DialogPrimitive.Content aria-describedby={undefined} className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-lg border bg-background text-foreground shadow-lg outline-none sm:inset-6" onKeyDown={(event) => {
-          if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
-          if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
+          if (event.key === "ArrowLeft") { event.preventDefault(); movePhoto(-1); }
+          if (event.key === "ArrowRight") { event.preventDefault(); movePhoto(1); }
         }}>
           <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 border-b px-3">
             <DialogTitle className="min-w-0 truncate text-sm font-semibold">{title}</DialogTitle>
@@ -89,9 +91,9 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
                 {captions[currentImageIndex] && <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 max-w-[75%] truncate rounded-md bg-background/85 px-2 py-1 text-xs text-foreground">{captions[currentImageIndex]}</span>}
               </div>
               <div className="flex flex-wrap items-center justify-center gap-1 border-t p-2">
-                <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")}><ChevronLeft /></Button>
-                <span className="w-14 text-center text-sm tabular-nums" aria-live="polite" aria-atomic="true">{active + 1} / {images.length}</span>
-                <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => move(1)} title={text("next")} aria-label={text("next")}><ChevronRight /></Button>
+                <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => movePhoto(-1)} title={text("previous")} aria-label={text("previous")}><ChevronLeft /></Button>
+                <span className="w-14 text-center text-sm tabular-nums" aria-live="polite" aria-atomic="true">{Math.max(0, currentImageIndex) + 1} / {images.length}</span>
+                <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => movePhoto(1)} title={text("next")} aria-label={text("next")}><ChevronRight /></Button>
                 <span className="mx-1 h-6 border-l" aria-hidden="true" />
                 <Button variant="ghost" size="icon" className="size-11" onClick={() => zoomOut()} title={text("zoomOut")} aria-label={text("zoomOut")}><ZoomOut /></Button>
                 <Button variant="ghost" size="icon" className="size-11" onClick={() => zoomIn()} title={text("zoomIn")} aria-label={text("zoomIn")}><ZoomIn /></Button>
