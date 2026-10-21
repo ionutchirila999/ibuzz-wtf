@@ -34,7 +34,7 @@ export function ImageManager({ images, onChange, onBusy }: { images: string[]; o
       const video = VIDEO_TYPES.includes(file.type);
       const bad = video ? (file.size > 50 * 1024 * 1024 ? "Video must be 50 MB or smaller" : file.size === 0 ? "Video file is empty" : null) : validateImageFile(file);
       if (bad) { toast.error(`${file.name}: ${bad}`); continue; }
-      try { urls.push(await store(file, file.name)); } catch (e) { toast.error((e as Error).message); }
+      try { urls.push(await store(file, file.name)); } catch (e) { const message = (e as Error).message || 'Upload failed'; toast.error(/maximum allowed size|file size limit|payload too large/i.test(message) ? `${file.name}: Supabase Storage rejected this file size. The bucket limit must be raised in Supabase.` : `${file.name}: ${message}`); }
     }
     onChange([...images, ...urls]);
     onBusy(false);
