@@ -200,6 +200,7 @@ function Account() {
         {notice && <p role="status" className="mt-3 text-sm text-muted-foreground">{notice}</p>}
       </div>
       </div>
+      </div>
     </section>}
   </main>;
 }
