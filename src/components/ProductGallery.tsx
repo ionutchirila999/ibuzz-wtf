@@ -10,7 +10,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const photos = images.filter((src): src is string => typeof src === "string" && src.trim().length > 0);
-  const isVideo = (src: string) => /\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
+  const isVideo = (src: string) => /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
   const currentIsVideo = photos[active] ? isVideo(photos[active]) : false;
   const index = photos.length ? Math.min(active, photos.length - 1) : 0;
   const current = photos[index];
