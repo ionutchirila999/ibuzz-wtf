@@ -14,6 +14,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ProductGallery } from "@/components/ProductGallery";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ShoppingCart } from "lucide-react";
+import { WishlistButton } from "@/components/WishlistButton";
 
 const productQuery = (id: string) => ({
   queryKey: ["product", id],
@@ -148,6 +149,7 @@ function ProductPage() {
               <p className="font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">{formatPrice(p.price)}</p>
               {p.negotiable && <span className="pb-1 text-sm text-muted-foreground">{t("p.neg")}</span>}
             </div>
+            <div className="mt-4"><WishlistButton productId={p.id} /></div>
             <div className="mt-5 flex items-center justify-between gap-3 text-sm">
               <span className="text-muted-foreground">{t("p.avail")}</span>
               <span className={sold ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>
