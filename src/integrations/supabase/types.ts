@@ -362,6 +362,7 @@ export type Database = {
           translation_status_ro: string
           translation_status_th: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           audience?: string
@@ -398,6 +399,7 @@ export type Database = {
           translation_status_ro?: string
           translation_status_th?: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           audience?: string
