@@ -1,17 +1,16 @@
 import { useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { ArrowUpRight, ChevronLeft, ChevronRight, ImageOff, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff, Play, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
 export function ProductGallery({ images, title, videoUrl }: { images: string[]; title: string; videoUrl?: string | null }) {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(-1);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
-  const image = images[active];
   const captions = images.map((src) => photoCaption(lang, src));
   let videoId: string | null = null;
   if (videoUrl) {
@@ -22,7 +21,16 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
       }
     } catch { /* Ignore malformed URLs; the image gallery remains available. */ }
   }
-  const move = (direction: number) => setActive((current) => (current + direction + images.length) % images.length);
+  const hasVideo = Boolean(videoId);
+  const currentImageIndex = active < 0 && !hasVideo ? 0 : active;
+  const image = images[currentImageIndex];
+  const videoActive = hasVideo && active === -1;
+  const totalItems = images.length + (hasVideo ? 1 : 0);
+  const move = (direction: number) => setActive((current) => {
+    const position = hasVideo ? (current < 0 ? 0 : current + 1) : current;
+    const next = (position + direction + totalItems) % totalItems;
+    return hasVideo && next === 0 ? -1 : hasVideo ? next - 1 : next;
+  });
   const photoLabel = (index: number) => {
     const caption = captions[index];
     const base = caption ?? `${text("photo")} ${index + 1} / ${images.length}`;
@@ -33,19 +41,19 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   const thumbLabel = (index: number) =>
     captions[index] ?? `${text("photo")} ${index + 1} / ${images.length}`;
 
-  if (!image) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
+  if (!image && !videoId) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
   return (
     <Dialog>
       <div className="min-w-0">
-        <div className="relative">
-          <DialogTrigger asChild>
-            <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg border bg-muted p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(active)}`}>
-              <img src={image} alt={photoLabel(active)} className="aspect-square w-full object-contain" />
+        <div className="relative overflow-hidden rounded-lg border bg-muted">
+          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-square w-full border-0 bg-black" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
+            <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
+              <img src={image} alt={photoLabel(currentImageIndex)} className="aspect-square w-full object-contain" />
               <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
             </Button>
-          </DialogTrigger>
-          {images.length > 1 && <>
+          </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
+          {totalItems > 1 && <>
             <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
               <ChevronLeft aria-hidden="true" />
             </Button>
@@ -54,23 +62,13 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
             </Button>
           </>}
         </div>
-        {captions[active] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[active]}</p>}
+        {!videoActive && captions[currentImageIndex] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[currentImageIndex]}</p>}
         {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1" role="group" aria-label={text("photo")}>
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={thumbLabel(index)} aria-current={index === active} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
-        {videoUrl && <div className="mt-4 overflow-hidden rounded-xl border bg-card">
-          <div className="flex items-center justify-between gap-3 border-b px-3 py-2">
-            <p className="text-sm font-semibold">{text("productVideo")}</p>
-            <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 text-sm text-primary underline-offset-4 hover:underline">
-              {text("openTikTok")} <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-            </a>
-          </div>
-          {videoId
-            ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-[9/16] max-h-[560px] w-full border-0 bg-black" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
-            : <p className="p-3 text-sm text-muted-foreground">{text("openTikTok")}</p>}
-        </div>}
+
       </div>
       <DialogPortal>
         <DialogOverlay className="bg-background/90" />
@@ -86,9 +84,9 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
             {({ zoomIn, zoomOut, resetTransform }) => <>
               <div className="relative min-h-0 flex-1 overflow-hidden bg-muted">
                 <TransformComponent wrapperClass="!h-full !w-full !touch-none" contentClass="!h-full !w-full">
-                  <img src={image} alt={photoLabel(active)} draggable={false} className="h-full w-full select-none object-contain" />
+                  <img src={image} alt={photoLabel(currentImageIndex)} draggable={false} className="h-full w-full select-none object-contain" />
                 </TransformComponent>
-                {captions[active] && <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 max-w-[75%] truncate rounded-md bg-background/85 px-2 py-1 text-xs text-foreground">{captions[active]}</span>}
+                {captions[currentImageIndex] && <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 max-w-[75%] truncate rounded-md bg-background/85 px-2 py-1 text-xs text-foreground">{captions[currentImageIndex]}</span>}
               </div>
               <div className="flex flex-wrap items-center justify-center gap-1 border-t p-2">
                 <Button variant="ghost" size="icon" className="size-11" disabled={images.length < 2} onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")}><ChevronLeft /></Button>
