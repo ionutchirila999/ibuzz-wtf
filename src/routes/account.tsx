@@ -150,7 +150,6 @@ function Account() {
         <Button type="button" variant="outline" onClick={() => { setEmailPanelOpen(v => !v); setError(""); setNotice(""); }}>{w.changeEmail}</Button>
         {emailPanelOpen && <form onSubmit={updateEmail} className="mt-4 grid gap-3">
           <div className="space-y-2"><Label htmlFor="new-account-email">{w.newEmail}</Label><Input id="new-account-email" type="email" autoComplete="email" value={newEmail} onChange={e=>setNewEmail(e.target.value)} required /></div>
-          <p className="text-xs text-muted-foreground">{w.emailChangeSent}</p>
           <Button type="submit" disabled={busy}>{busy ? w.loading : w.saveEmail}</Button>
         </form>}
       </div>
