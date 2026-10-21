@@ -143,7 +143,7 @@ function ProductPage() {
               {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
               {p.market_condition && <Badge variant="secondary">{rows.find(([k]) => k === t("shop.condition"))?.[1]}</Badge>}
             </div>
-            <h1 className="mt-3 break-words text-balance text-xl font-bold leading-snug tracking-tight sm:text-2xl xl:text-3xl">{localizedTitle(p, lang)}</h1>
+            <h1 className="mt-3 block max-w-full truncate text-base font-bold leading-tight tracking-tight sm:text-lg lg:text-xl" title={localizedTitle(p, lang)}>{localizedTitle(p, lang)}</h1>
             <div className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1 border-b border-border/70 pb-5">
               <p className="font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">{formatPrice(p.price)}</p>
               {p.negotiable && <span className="pb-1 text-sm text-muted-foreground">{t("p.neg")}</span>}
