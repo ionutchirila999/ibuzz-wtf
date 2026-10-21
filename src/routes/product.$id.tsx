@@ -12,6 +12,7 @@ import { PRODUCT_SHARE, shareLang } from "@/lib/share-meta";
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ProductGallery } from "@/components/ProductGallery";
+import { EnquiryForm } from "@/components/EnquiryForm";
 import { ShoppingCart } from "lucide-react";
 
 const productQuery = (id: string) => ({
@@ -154,6 +155,18 @@ function ProductPage() {
             {sold && <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-4"><p className="font-semibold">{t("p.soldNotice")}</p></div>}
             {!sold && !p.negotiable && <Button size="lg" className="mt-5 min-h-12 w-full gap-2 rounded-xl text-base font-semibold" onClick={addToCart}><ShoppingCart className="h-5 w-5" />{t("p.addCartCheckout")}</Button>}
             <div className="mt-3"><ContactButtons product={p} disabled={sold} /></div>
+            {!sold && <details className="mt-4 rounded-xl border border-border/70 bg-background">
+              <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold marker:hidden">
+                <span className="flex items-center justify-between gap-3">
+                  <span>{lang === "th" ? "สอบถามเกี่ยวกับสินค้านี้" : lang === "ro" ? "Întreabă despre acest produs" : "Ask about this item"}</span>
+                  <span className="text-primary" aria-hidden="true">+</span>
+                </span>
+                <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">{lang === "th" ? "ฝากข้อความไว้ แล้วเราจะติดต่อกลับ" : lang === "ro" ? "Lasă-ne un mesaj și te vom contacta." : "Leave a message and we’ll follow up with you."}</span>
+              </summary>
+              <div className="border-t border-border/70 p-4">
+                <EnquiryForm kind="product" service={localizedTitle(p, lang)} />
+              </div>
+            </details>}
             {sold && <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}
             <div className="mt-5 rounded-xl bg-muted/50 p-4">
               <p className="text-sm font-semibold">{lang === "th" ? "มีคำถามเกี่ยวกับสินค้านี้?" : lang === "ro" ? "Ai întrebări despre acest produs?" : "Have a question about this item?"}</p>
