@@ -260,20 +260,20 @@ end;
 $function$;
 
 create or replace function public.ibuzz_audit_repair_changes()
-returns trigger language plpgsql security definer set search_path = public as $
+returns trigger language plpgsql security definer set search_path = public as $repair_audit$
 begin
   insert into public.admin_audit_log(actor_id, action, entity_table, entity_id, details)
   values (auth.uid(), case when tg_op = 'INSERT' then 'repair_created' else 'repair_updated' end,
     'repair_jobs', new.id::text,
     jsonb_build_object('job_number', new.job_number, 'status', new.status, 'quoted_price', new.quoted_price, 'final_price', new.final_price));
   return new;
-end $;
+end $repair_audit$;
 drop trigger if exists ibuzz_repair_audit on public.repair_jobs;
 create trigger ibuzz_repair_audit after insert or update on public.repair_jobs
 for each row execute function public.ibuzz_audit_repair_changes();
 
 create or replace function public.ibuzz_audit_support_changes()
-returns trigger language plpgsql security definer set search_path = public as $
+returns trigger language plpgsql security definer set search_path = public as $support_audit$
 begin
   if tg_op = 'UPDATE' and (old.status is distinct from new.status or old.admin_reply is distinct from new.admin_reply) then
     insert into public.admin_audit_log(actor_id, action, entity_table, entity_id, details)
@@ -281,7 +281,7 @@ begin
       jsonb_build_object('status', new.status, 'reply_changed', old.admin_reply is distinct from new.admin_reply));
   end if;
   return new;
-end $;
+end $support_audit$;
 drop trigger if exists ibuzz_support_audit on public.support_tickets;
 create trigger ibuzz_support_audit after update on public.support_tickets
 for each row execute function public.ibuzz_audit_support_changes();
