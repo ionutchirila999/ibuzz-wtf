@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2 } from 'lucide-react';
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
+import { CustomerAccountExtras } from '@/components/account/CustomerAccountExtras';
 import { safeTrackingUrl } from '@/lib/tracking';
 
 export const Route = createFileRoute('/account')({
