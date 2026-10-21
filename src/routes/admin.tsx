@@ -11,6 +11,7 @@ import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
 import { OwnerOrders } from "@/components/admin/OwnerOrders";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
 import { TikTokShowcase } from "@/components/TikTokShowcase";
+import { AdminOperations } from "@/components/admin/AdminOperations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -102,15 +103,27 @@ function Dashboard() {
         <Stat label="Sold" value={String(rows.filter((p) => p.status === "sold").length)} />
         <Stat label="Profit from sold" value={formatPrice(soldProfit)} />
       </div>
-      <Tabs defaultValue="listings">
-        <TabsList>
+      <Tabs defaultValue="overview">
+        <TabsList className="h-auto flex-wrap justify-start gap-1">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
           <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
           <TabsTrigger value="calc">Profit calculator</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="repairs">Repairs</TabsTrigger>
+          <TabsTrigger value="support">Support</TabsTrigger>
+          <TabsTrigger value="audit">Audit</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
+
+        <TabsContent value="inventory" className="mt-4"><AdminOperations section="inventory" /></TabsContent>
+        <TabsContent value="repairs" className="mt-4"><AdminOperations section="repairs" /></TabsContent>
+        <TabsContent value="support" className="mt-4"><AdminOperations section="support" /></TabsContent>
+        <TabsContent value="audit" className="mt-4"><AdminOperations section="audit" /></TabsContent>
 
         <TabsContent value="listings" className="mt-4 space-y-2">
           <Button variant="glow" onClick={() => setEditing(null)}><Plus /> Add product</Button>
