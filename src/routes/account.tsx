@@ -122,7 +122,8 @@ function Account() {
       setError(w.addressRequired);
       return;
     }
-    const normalized = savedAddresses.map((item, index) => ({ ...item, is_default: item.is_default || (index === 0 && !savedAddresses.some(a => a.is_default)) }));
+    const defaultIndex = savedAddresses.length ? Math.max(0, savedAddresses.findIndex(item => item.is_default)) : -1;
+    const normalized = savedAddresses.map((item, index) => ({ ...item, is_default: index === defaultIndex }));
     const { data: authData, error: authError } = await supabase.auth.getUser();
     if (authError || !authData.user) { setError(w.profileError); return; }
     setBusy(true);
