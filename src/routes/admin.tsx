@@ -11,7 +11,6 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
 import { OwnerOrders } from "@/components/admin/OwnerOrders";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
-import { TikTokShowcase } from "@/components/TikTokShowcase";
 import { AdminOperations } from "@/components/admin/AdminOperations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -114,7 +113,6 @@ function Dashboard() {
           <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
           <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
           <TabsTrigger value="calc">Profit calculator</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
           <TabsTrigger value="inventory">{tabLabels.inventory}</TabsTrigger>
           <TabsTrigger value="repairs">{tabLabels.repairs}</TabsTrigger>
           <TabsTrigger value="support">{tabLabels.support}</TabsTrigger>
@@ -173,7 +171,6 @@ function Dashboard() {
         </TabsContent>
 
         <TabsContent value="enquiries"><OwnerEnquiries/></TabsContent>
-        <TabsContent value="social" className="mt-4"><TikTokShowcase owner /></TabsContent>
         <TabsContent value="calc" className="mt-4"><ProfitCalculator /></TabsContent>
       </Tabs>
 
