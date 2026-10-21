@@ -19,7 +19,7 @@ export const Route = createFileRoute('/account')({
 });
 
 type OrderItem = { id: string; product_title: string; unit_price: number; quantity: number; line_total: number };
-type Order = { id: string; order_number: string; total: number; payment_status: string; status: string; tracking_number: string | null; tracking_url: string | null; created_at: string; order_items: OrderItem[] };
+type Order = { id: string; order_number: string; buyer_name: string; buyer_contact: string; total: number; payment_status: string; status: string; tracking_number: string | null; tracking_url: string | null; created_at: string; order_items: OrderItem[] };
 
 const WORDS = {
   th: { changeEmail:'เปลี่ยนอีเมล', newEmail:'อีเมลใหม่', saveEmail:'ส่งคำขอเปลี่ยนอีเมล', emailChangeSent:'ส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว โปรดเปิดลิงก์เพื่อยืนยันการเปลี่ยนแปลง', emailChangeError:'ไม่สามารถส่งคำขอเปลี่ยนอีเมลได้', forgotPassword:'ลืมรหัสผ่าน?', resetSent:'ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลแล้ว โปรดตรวจสอบกล่องจดหมาย', resetError:'ไม่สามารถส่งลิงก์รีเซ็ตรหัสผ่านได้', changePassword:'เปลี่ยนรหัสผ่าน', newPassword:'รหัสผ่านใหม่', confirmPassword:'ยืนยันรหัสผ่านใหม่', savePassword:'บันทึกรหัสผ่าน', passwordUpdated:'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', passwordMismatch:'รหัสผ่านไม่ตรงกัน', passwordMin:'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', title:'บัญชีของฉัน', lead:'เข้าสู่ระบบหรือสร้างบัญชีเพื่อติดตามคำสั่งซื้อ', email:'อีเมล', password:'รหัสผ่าน', signIn:'เข้าสู่ระบบ', signUp:'สร้างบัญชี', create:'สร้างบัญชีลูกค้า', switchIn:'มีบัญชีแล้ว? เข้าสู่ระบบ', switchUp:'ยังไม่มีบัญชี? สร้างบัญชี', sent:'โปรดตรวจสอบอีเมลเพื่อยืนยันบัญชี ก่อนเข้าสู่ระบบ', orders:'คำสั่งซื้อของฉัน', empty:'ยังไม่มีคำสั่งซื้อ', shop:'เลือกซื้อสินค้า', signOut:'ออกจากระบบ', order:'คำสั่งซื้อ', date:'วันที่', total:'ยอดรวม', payment:'การชำระเงิน', status:'สถานะคำสั่งซื้อ', tracking:'เลขติดตามพัสดุ', track:'ติดตามพัสดุ', items:'รายการสินค้า', pending:'รอตรวจสอบ', submitted:'ส่งหลักฐานแล้ว', paid:'ชำระแล้ว', failed:'ชำระไม่สำเร็จ', refunded:'คืนเงินแล้ว', received:'ได้รับคำสั่งซื้อ', confirmed:'ยืนยันแล้ว', processing:'กำลังดำเนินการ', shipped:'จัดส่งแล้ว', ready_for_pickup:'พร้อมรับสินค้า', completed:'เสร็จสิ้น', cancelled:'ยกเลิกแล้ว', loading:'กำลังโหลด…', error:'ไม่สามารถโหลดคำสั่งซื้อได้ กรุณาลองใหม่', signInRequired:'เข้าสู่ระบบเพื่อดูคำสั่งซื้อของคุณ' },
@@ -54,7 +54,7 @@ function Account() {
     const ownerId = userId ?? authData.user?.id;
     if (authError || !ownerId) { setOrders([]); setLoadingOrders(false); return; }
     // Always scope customer order reads to the authenticated account; never depend on RLS alone.
-    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_title,unit_price,quantity,line_total)').eq('user_id', ownerId).order('created_at', { ascending: false });
+    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,buyer_name,buyer_contact,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_title,unit_price,quantity,line_total)').eq('user_id', ownerId).order('created_at', { ascending: false });
     if (queryError) { setError(w.error); setOrders([]); }
     else setOrders((data ?? []) as Order[]);
     setLoadingOrders(false);
