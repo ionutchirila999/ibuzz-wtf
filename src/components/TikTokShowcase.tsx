@@ -1,4 +1,5 @@
 import { ArrowUpRight, ExternalLink, Play, Youtube } from 'lucide-react';
+import { useRef } from 'react';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 
@@ -15,6 +16,8 @@ type TikTokShowcaseProps = { owner?: boolean };
 
 export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
   const { lang } = useT();
+  const videoScroller = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ active: false, startX: 0, scrollLeft: 0 });
   const text = {
     th: {
       eyebrow: owner ? 'เครื่องมือโซเชียลสำหรับเจ้าของ' : 'ติดตาม iBuzz.wtf',
@@ -60,8 +63,27 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         </div>
       </div>
       <div
-        className="mx-auto mt-8 flex w-full max-w-6xl justify-center overflow-x-auto overflow-y-hidden scroll-smooth px-3 pb-3 sm:mt-10"
-        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(34, 211, 238, 0.75) transparent', WebkitOverflowScrolling: 'touch' }}
+        className="mx-auto mt-8 flex w-full max-w-6xl justify-center overflow-x-auto overflow-y-hidden scroll-smooth px-3 pb-3 [touch-action:pan-x] sm:mt-10"
+        ref={videoScroller}
+        onWheel={(event) => {
+          const el = videoScroller.current;
+          if (el && el.scrollWidth > el.clientWidth && Math.abs(event.deltaY) > Math.abs(event.deltaX)) el.scrollLeft += event.deltaY;
+        }}
+        onPointerDown={(event) => {
+          if (event.pointerType === 'mouse' && event.button === 0) {
+            const el = videoScroller.current;
+            if (!el) return;
+            dragState.current = { active: true, startX: event.clientX, scrollLeft: el.scrollLeft };
+            el.style.cursor = 'grabbing';
+          }
+        }}
+        onPointerMove={(event) => {
+          const el = videoScroller.current;
+          if (el && dragState.current.active) el.scrollLeft = dragState.current.scrollLeft - (event.clientX - dragState.current.startX);
+        }}
+        onPointerUp={() => { dragState.current.active = false; if (videoScroller.current) videoScroller.current.style.cursor = 'grab'; }}
+        onPointerCancel={() => { dragState.current.active = false; if (videoScroller.current) videoScroller.current.style.cursor = 'grab'; }}
+        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(34, 211, 238, 0.75) transparent', WebkitOverflowScrolling: 'touch', cursor: 'grab' }}
       >
         <div className="flex w-max min-w-0 items-start justify-center gap-3">
           {TIKTOK_VIDEOS.map((video) => (
