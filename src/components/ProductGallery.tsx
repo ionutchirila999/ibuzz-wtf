@@ -9,6 +9,7 @@ import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
 export function ProductGallery({ images, title, videoUrl }: { images: string[]; title: string; videoUrl?: string | null }) {
   const [active, setActive] = useState(0);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const captions = images.map((src) => photoCaption(lang, src));
@@ -46,7 +47,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   if (!images.length && !videoId) return <div className="grid aspect-square place-items-center rounded-lg border bg-muted text-muted-foreground"><ImageOff aria-label={title} /></div>;
 
   return (
-    <Dialog>
+    <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
       <div className="min-w-0">
         <div className="relative overflow-hidden rounded-lg border bg-muted">
           {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-square w-full border-0 bg-black" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
@@ -55,6 +56,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
               <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
             </Button>
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
+          {videoActive && <Button type="button" variant="secondary" size="icon" onClick={() => setZoomOpen(true)} title={text("open")} aria-label={text("open")} className="absolute bottom-2 right-2 size-10 rounded-full border bg-background/90 text-foreground shadow-md"><ZoomIn aria-hidden="true" /></Button>}
           {totalItems > 1 && <>
             <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
               <ChevronLeft aria-hidden="true" />
@@ -82,7 +84,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
             <DialogTitle className="min-w-0 truncate text-sm font-semibold">{title}</DialogTitle>
             <DialogClose asChild><Button size="icon" variant="ghost" className="size-11 shrink-0" title={text("close")} aria-label={text("close")}><X /></Button></DialogClose>
           </div>
-          <TransformWrapper key={image} initialScale={1} minScale={1} maxScale={8} wheel={{ step: 0.002 }} doubleClick={{ mode: "toggle", step: 1 }}>
+          {videoActive ? <div className="relative min-h-0 flex-1 overflow-hidden bg-black"><iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="h-full w-full border-0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /></div> : <TransformWrapper key={image} initialScale={1} minScale={1} maxScale={8} wheel={{ step: 0.002 }} doubleClick={{ mode: "toggle", step: 1 }}>
             {({ zoomIn, zoomOut, resetTransform }) => <>
               <div className="relative min-h-0 flex-1 overflow-hidden bg-muted">
                 <TransformComponent wrapperClass="!h-full !w-full !touch-none" contentClass="!h-full !w-full">
@@ -100,7 +102,7 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
                 <Button variant="ghost" size="icon" className="size-11" onClick={() => resetTransform()} title={text("reset")} aria-label={text("reset")}><RotateCcw /></Button>
               </div>
             </>}
-          </TransformWrapper>
+          </TransformWrapper>}
         </DialogPrimitive.Content>
       </DialogPortal>
     </Dialog>
