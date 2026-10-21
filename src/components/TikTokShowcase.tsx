@@ -17,7 +17,7 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
     const script = document.createElement('script');
     script.src = 'https://www.tiktok.com/embed.js';
     script.async = true;
-    script.dataset.ibuzzTikTokEmbed = 'true';
+    script.dataset['ibuzzTikTokEmbed'] = 'true';
     document.body.appendChild(script);
     return () => { script.remove(); };
   }, [refreshKey]);

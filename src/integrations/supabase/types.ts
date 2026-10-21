@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity_id: string | null
+          entity_table: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_table: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_table?: string
+          id?: string
+        }
+        Relationships: []
+      }
       enquiry_rate_limits: {
         Row: {
           created_at: string
@@ -31,6 +61,98 @@ export type Database = {
           visitor_hash?: string
         }
         Relationships: []
+      }
+      expense_entries: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          occurred_on: string
+          order_id: string | null
+          product_id: string | null
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          occurred_on?: string
+          order_id?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          occurred_on?: string
+          order_id?: string | null
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_entries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          quantity_delta: number
+          reason: string
+          stock_after: number
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          quantity_delta: number
+          reason?: string
+          stock_after: number
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          quantity_delta?: number
+          reason?: string
+          stock_after?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -73,6 +195,44 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          payment_status: string
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          payment_status: string
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          payment_status?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -277,6 +437,77 @@ export type Database = {
         }
         Relationships: []
       }
+      repair_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_contact: string
+          customer_name: string
+          device: string
+          diagnosis: string | null
+          enquiry_id: string | null
+          final_price: number
+          id: string
+          internal_notes: string | null
+          issue_description: string
+          job_number: string
+          labour_cost: number
+          parts_cost: number
+          quoted_price: number
+          status: string
+          updated_at: string
+          warranty_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_contact: string
+          customer_name: string
+          device: string
+          diagnosis?: string | null
+          enquiry_id?: string | null
+          final_price?: number
+          id?: string
+          internal_notes?: string | null
+          issue_description: string
+          job_number?: string
+          labour_cost?: number
+          parts_cost?: number
+          quoted_price?: number
+          status?: string
+          updated_at?: string
+          warranty_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_contact?: string
+          customer_name?: string
+          device?: string
+          diagnosis?: string | null
+          enquiry_id?: string | null
+          final_price?: number
+          id?: string
+          internal_notes?: string | null
+          issue_description?: string
+          job_number?: string
+          labour_cost?: number
+          parts_cost?: number
+          quoted_price?: number
+          status?: string
+          updated_at?: string
+          warranty_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_jobs_enquiry_id_fkey"
+            columns: ["enquiry_id"]
+            isOneToOne: false
+            referencedRelation: "service_enquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resale_offers: {
         Row: {
           asking_price: number | null
@@ -363,6 +594,62 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          admin_reply: string | null
+          created_at: string
+          customer_email: string | null
+          id: string
+          message: string
+          order_id: string | null
+          priority: string
+          replied_at: string | null
+          status: string
+          subject: string
+          ticket_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          created_at?: string
+          customer_email?: string | null
+          id?: string
+          message: string
+          order_id?: string | null
+          priority?: string
+          replied_at?: string | null
+          status?: string
+          subject: string
+          ticket_number?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_reply?: string | null
+          created_at?: string
+          customer_email?: string | null
+          id?: string
+          message?: string
+          order_id?: string | null
+          priority?: string
+          replied_at?: string | null
+          status?: string
+          subject?: string
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
