@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff, Maximize2, X } from "lucide-react";
 import { Button } from "./ui/button";
-import { Dialog, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
@@ -28,7 +28,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
       <section className="w-full min-w-0" aria-label={title}>
         <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/70 shadow-[0_12px_40px_-28px_rgba(34,211,238,0.4)]">
           <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}>
-            <img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="block aspect-[4/3] max-h-[min(62vw,440px)] w-full select-none object-contain p-2.5 sm:aspect-[5/4] sm:max-h-[390px] sm:p-4 lg:max-h-[440px] xl:max-h-[480px]" />
+            <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]"><img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="h-full w-full select-none object-contain" /></div>
             <span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span>
           </button>
           {photos.length > 1 && <>
@@ -50,9 +50,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           <span className="shrink-0 text-[10px] font-medium tracking-wide text-slate-400">{text("photo").toUpperCase()}</span>
         </div>}
       </section>
-      <DialogPortal>
-        <DialogOverlay className="bg-slate-950/95 backdrop-blur-xl" />
-        <DialogContent className="fixed inset-2 z-50 flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-none flex-col gap-0 rounded-xl border border-cyan-300/20 bg-slate-950 p-0 text-white shadow-[0_0_80px_-30px_rgba(34,211,238,0.25)] sm:inset-5 sm:h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-2xl">
+      <DialogContent className="fixed inset-2 z-50 flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-xl border border-cyan-300/20 bg-slate-950 p-0 text-white shadow-[0_0_80px_-30px_rgba(34,211,238,0.25)] data-[state=open]:animate-none data-[state=closed]:animate-none sm:inset-5 sm:h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-2xl">
           <div className="flex min-h-12 shrink-0 items-center justify-between gap-3 border-b border-cyan-300/15 px-3 sm:px-4">
             <DialogTitle className="min-w-0 truncate text-xs font-medium text-slate-200 sm:text-sm">{photoName(index)}</DialogTitle>
             <DialogClose asChild><Button type="button" variant="ghost" size="icon" aria-label={text("close")} className="size-8 shrink-0 text-slate-300 hover:bg-white/10 hover:text-cyan-100"><X className="h-4 w-4" /></Button></DialogClose>
@@ -66,8 +64,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
             </>}
           </div>
           <div className="flex shrink-0 items-center justify-center border-t border-cyan-300/15 px-4 py-2 text-[11px] font-medium tracking-wide text-slate-400">{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</div>
-        </DialogContent>
-      </DialogPortal>
+      </DialogContent>
     </Dialog>
   );
 }
