@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        default: "border border-cyan-200/50 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-200 text-slate-950 shadow-[0_0_22px_-8px_rgba(34,211,238,0.55)] hover:border-cyan-100 hover:shadow-[0_0_30px_-6px_rgba(34,211,238,0.7)]",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          "border border-cyan-300/30 bg-slate-950/50 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-cyan-200/70 hover:bg-cyan-300/10 hover:text-cyan-100 hover:shadow-[0_0_20px_-10px_rgba(34,211,238,0.55)]",
+        secondary: "border border-violet-300/35 bg-gradient-to-r from-violet-600/90 to-indigo-600/90 text-white shadow-[0_0_22px_-10px_rgba(139,92,246,0.65)] hover:border-violet-200/70 hover:shadow-[0_0_28px_-8px_rgba(139,92,246,0.75)]",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        glow: "bg-primary text-primary-foreground shadow-glow hover:brightness-110",
+        glow: "border border-cyan-200/60 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-200 text-slate-950 shadow-[0_0_24px_-8px_rgba(34,211,238,0.65)] hover:brightness-110 hover:shadow-[0_0_34px_-5px_rgba(34,211,238,0.8)]",
         whatsapp: "bg-whatsapp text-whatsapp-foreground hover:brightness-110",
         line: "bg-line text-line-foreground hover:brightness-110",
       },
