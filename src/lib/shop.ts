@@ -18,7 +18,6 @@ export const SOCIAL_IMAGE = `${SITE_ORIGIN}${socialAsset.url}`;
 
 // Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
-  whatsappNumber: "66828977279", // +66 82 897 7279 (082-897-7279) in international format
   lineId: "ibuzz.wtf", // lowercase: LINE IDs can't contain capital letters
   lineLabel: "ibuzz.wtf", // how the contact is shown on buttons — the exact LINE ID
 };
@@ -69,12 +68,6 @@ export function formatPrice(n: number | null | undefined) {
   return `฿${Number(n ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
-export function whatsappLink(product?: Pick<Product, "title">, greeting?: string) {
-  const text = product
-    ? `${greeting ?? "Hi, I'm interested in:"} ${product.title}`
-    : (greeting ?? "Hi, I have a question");
-  return `https://wa.me/${SHOP_CONTACT.whatsappNumber}?text=${encodeURIComponent(text)}`;
-}
 export function lineLink() {
   return "https://line.me/ti/p/CcGd-nkSXZ";
 }
