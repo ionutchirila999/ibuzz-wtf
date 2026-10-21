@@ -115,11 +115,36 @@ export function AccountSecurity() {
 
   async function beginMfa() {
     setWorking(true);
-    const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "iBuzz.wtf authenticator" });
-    setWorking(false);
-    if (error || !data?.totp) { toast.error(w.mfaSetupError); return; }
-    setPending({ id: data.id, qr_code: data.totp.qr_code, secret: data.totp.secret });
-    setCode("");
+    try {
+      // Supabase can leave an unverified factor behind if setup was cancelled or interrupted.
+      // Remove stale unverified TOTP factors before creating a fresh enrollment.
+      const { data: existing, error: listError } = await supabase.auth.mfa.listFactors();
+      if (listError) throw listError;
+
+      const staleFactors = (existing?.all ?? []).filter(
+        (factor) => factor.factor_type === "totp" && factor.status !== "verified",
+      );
+      for (const factor of staleFactors) {
+        const { error: cleanupError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+        if (cleanupError) throw cleanupError;
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "iBuzz.wtf authenticator",
+      });
+      if (error) throw error;
+      if (!data?.totp?.qr_code || !data.totp.secret || !data.id) {
+        throw new Error("Supabase did not return complete TOTP enrollment data");
+      }
+      setPending({ id: data.id, qr_code: data.totp.qr_code, secret: data.totp.secret });
+      setCode("");
+    } catch (error) {
+      console.error("2FA enrollment failed:", error);
+      toast.error(w.mfaSetupError);
+    } finally {
+      setWorking(false);
+    }
   }
 
   async function verifyMfa(e: React.FormEvent<HTMLFormElement>) {
