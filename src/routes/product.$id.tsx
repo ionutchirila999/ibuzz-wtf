@@ -83,21 +83,21 @@ function ProductPage() {
   ];
 
   return (
-    <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-clip px-3 py-4 sm:px-5 sm:py-7 lg:px-8 lg:py-10">
-      <Link to="/shop" className="mb-5 inline-flex min-h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 text-sm text-muted-foreground transition hover:border-cyan-300/30 hover:text-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
-      <div className="grid min-w-0 items-start gap-5 md:gap-7 lg:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)] xl:gap-10">
-        <section className="min-w-0 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.055] to-white/[0.015] p-2 shadow-[0_24px_90px_-48px_rgba(34,211,238,0.35)] sm:p-3 lg:rounded-3xl lg:p-4"><ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} /><div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1.5"><PackageCheck className="h-3.5 w-3.5 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>{p.authenticity_verified && <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-emerald-600"><ShieldCheck className="h-3.5 w-3.5" />{t("p.auth")}</span>}</div></section>
-        <div className="min-w-0 space-y-4 sm:space-y-5 lg:sticky lg:top-24 lg:self-start">
+    <div className="relative mx-auto w-full min-w-0 max-w-6xl overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+      <Link to="/shop" className="mb-4 inline-flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
+      <div className="grid min-w-0 items-start gap-5 md:gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] xl:gap-8">
+        <section className="min-w-0 bg-transparent p-0"><ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} /><div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1.5"><PackageCheck className="h-3.5 w-3.5 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>{p.authenticity_verified && <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-emerald-600"><ShieldCheck className="h-3.5 w-3.5" />{t("p.auth")}</span>}</div></section>
+        <div className="min-w-0 space-y-4 sm:space-y-5 xl:sticky xl:top-24 xl:self-start">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
             {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
           </div>
-          <h1 className="min-w-0 max-w-full break-words text-balance text-2xl font-bold leading-tight tracking-tight sm:text-3xl xl:text-4xl">{localizedTitle(p, lang)}</h1>
-          <p className="min-w-0 max-w-full break-words border-b border-white/10 pb-4 font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">
+          <h1 className="min-w-0 max-w-full break-words text-balance text-xl font-bold leading-tight tracking-tight sm:text-2xl lg:text-3xl">{localizedTitle(p, lang)}</h1>
+          <p className="min-w-0 max-w-full break-words border-b border-border/70 pb-3 font-display text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">
             {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
           </p>
           {sold && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4"><div className="flex items-center gap-2 text-warning"><Ban className="h-5 w-5 shrink-0" /><p className="font-display text-base font-bold">{t("p.soldOut")}</p></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{t("p.soldNotice")}</p></div>}
-          {!sold && !p.negotiable && <Button size="default" className="min-h-12 w-full justify-center gap-2 rounded-xl text-base font-semibold shadow-[0_8px_30px_-12px_rgba(34,211,238,0.5)] sm:min-h-13" onClick={() => {
+          {!sold && !p.negotiable && <Button size="default" className="min-h-12 w-full justify-center gap-2 rounded-lg text-base font-semibold sm:min-h-12" onClick={() => {
             try {
               const key = "ibuzz-cart-v1";
               const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
@@ -111,12 +111,12 @@ function ProductPage() {
           }}><ShoppingCart className="h-4 w-4" /> {t("p.addCartCheckout")}</Button>}
           <ContactButtons product={p} disabled={sold} />
           {sold && <Button asChild variant="outline" size="lg" className="w-full justify-center gap-1.5 px-3 text-sm"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="h-4 w-4" /></Link></Button>}
-          <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] backdrop-blur-xl"><div className="border-b border-white/10 px-4 py-3 sm:px-5"><h2 className="font-semibold tracking-tight">{t("p.details")}</h2></div><dl className="grid grid-cols-1 divide-y divide-border/60 text-sm sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+          <section className="overflow-hidden rounded-xl border border-border/70 bg-card/40"><div className="border-b border-white/10 px-4 py-3 sm:px-5"><h2 className="font-semibold tracking-tight">{t("p.details")}</h2></div><dl className="grid grid-cols-1 divide-y divide-border/60 text-sm sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
             {rows.filter(([, v]) => v).map(([k, v]) => (
               <div key={k} className="flex min-w-0 items-start gap-3 px-4 py-3 sm:px-5"><span className="mt-0.5 text-primary">{k === t("p.category") ? <Layers className="h-4 w-4" /> : k === t("p.brand") ? <Tag className="h-4 w-4" /> : k === t("p.size") ? <Ruler className="h-4 w-4" /> : k === t("p.color") ? <Palette className="h-4 w-4" /> : <PackageCheck className="h-4 w-4" />}</span><div className="min-w-0 flex-1"><dt className="text-xs text-muted-foreground">{k}</dt><dd className="mt-1 break-words font-medium">{v}</dd></div></div>
             ))}
           </dl></section>
-          {p.description && <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-5"><h2 className="font-semibold tracking-tight">{t("p.about")}</h2><p className="whitespace-pre-line break-words text-sm leading-7 text-muted-foreground">{localizedDescription(p, lang)}</p></section>}
+          {p.description && <section className="space-y-3 rounded-xl border border-border/70 bg-card/40 p-4 sm:p-5"><h2 className="font-semibold tracking-tight">{t("p.about")}</h2><p className="whitespace-pre-line break-words text-sm leading-7 text-muted-foreground">{localizedDescription(p, lang)}</p></section>}
           <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-5"><h2 className="font-semibold tracking-tight">{t("p.confidence")}</h2><div className="space-y-3 text-sm">
             {p.authenticity_verified && (
               <div className="flex gap-2"><ShieldCheck className="h-5 w-5 shrink-0 text-success" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>
