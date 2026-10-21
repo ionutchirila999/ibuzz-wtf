@@ -25,7 +25,8 @@ export function AdminOperations({ section }: { section: Section }) {
   const [replies, setReplies] = useState<Record<string,string>>({});
   const [jobStatus, setJobStatus] = useState<Record<string,string>>({});
   const [ticketState, setTicketState] = useState<Record<string,string>>({});
-  const [stockThreshold, setStockThreshold] = useState(2);\n  const [expense, setExpense] = useState({category:"",description:"",amount:"",occurred_on:new Date().toISOString().slice(0,10)});
+  const [stockThreshold, setStockThreshold] = useState(2);
+  const [expense, setExpense] = useState({category:"",description:"",amount:"",occurred_on:new Date().toISOString().slice(0,10)});
   const products = useQuery({ queryKey:["ops-products"], queryFn:async()=>{ const {data,error}=await supabase.from("products").select("id,title,stock,status,price,is_demo").order("title"); if(error)throw error; return data??[]; }});
   const orders = useQuery({ queryKey:["ops-orders"], queryFn:async()=>{ const {data,error}=await (supabase as any).from("orders").select("id,order_number,total,status,payment_status,created_at,updated_at").order("created_at",{ascending:false}).limit(500); if(error)throw error; return data??[]; }});
   const enquiries = useQuery({ queryKey:["ops-enquiries"], queryFn:async()=>{ const {data,error}=await supabase.from("service_enquiries").select("id,name,contact,service,kind,status,created_at").order("created_at",{ascending:false}).limit(200); if(error)throw error; return data??[]; }});
