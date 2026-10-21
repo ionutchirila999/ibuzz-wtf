@@ -8,7 +8,7 @@ import { moveItem, validateImageFile } from "@/lib/product-images";
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
-const isVideoUrl = (src: string) => /\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
+const isVideoUrl = (src: string) => /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
 
 export async function store(file: Blob, name: string): Promise<string> {
   const path = `${crypto.randomUUID()}-${name.replace(/[^a-z0-9.]/gi, "_")}`;
