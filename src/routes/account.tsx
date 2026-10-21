@@ -166,9 +166,9 @@ function Account() {
           <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'รวมคำสั่งซื้อที่เสร็จสิ้น' : lang === 'ro' ? 'Inclusiv comenzile finalizate' : 'Including completed orders'}</p>
         </div>
         <button type="button" onClick={() => document.getElementById('customer-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4 text-left transition-colors hover:border-primary/60 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ดูรายละเอียดคำสั่งซื้อเพื่อส่งคำขอช่วยเหลือ' : lang === 'ro' ? 'Deschide o comandă pentru a contacta asistența' : 'Go to your orders to open a support request'}</p></div>
-          <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ความช่วยเหลือเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Asistență pentru comenzi' : 'Order support'}</p>
-        </div>
+          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ไปที่คำสั่งซื้อเพื่อเปิดคำขอช่วยเหลือ' : lang === 'ro' ? 'Mergi la comenzi pentru a contacta asistența' : 'Go to your orders to open a support request'}</p></div>
+          <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ดูคำสั่งซื้อและขอความช่วยเหลือ' : lang === 'ro' ? 'Vezi comenzile și cere ajutor' : 'View orders and get support'} <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></span>
+        </button>
       </div>
       <div id="customer-orders" className="mb-6 flex scroll-mt-6 flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{w.orders}</h2>
