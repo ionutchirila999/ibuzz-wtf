@@ -25,19 +25,20 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   }
   const hasVideo = Boolean(videoId);
   const totalItems = images.length + (hasVideo ? 1 : 0);
-  const videoActive = hasVideo && active === 0;
-  const currentImageIndex = active - (hasVideo ? 1 : 0);
+  // Lead with the product itself; video is supplementary media at the end.
+  const videoActive = hasVideo && active === images.length;
+  const currentImageIndex = videoActive ? 0 : Math.min(active, Math.max(0, images.length - 1));
   const image = videoActive ? undefined : images[currentImageIndex];
   const move = (direction: number) => setActive((current) => (current + direction + totalItems) % totalItems);
   const selectPhoto = (index: number) => {
-    setActive(index + (hasVideo ? 1 : 0));
+    setActive(index);
     thumbnailStrip.current?.querySelectorAll<HTMLButtonElement>("button")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   };
   const movePhoto = (direction: number) => {
     if (!images.length) return;
     const index = videoActive ? 0 : currentImageIndex;
     const next = (index + direction + images.length) % images.length;
-    setActive(next + (hasVideo ? 1 : 0));
+    setActive(next);
   };
   const photoLabel = (index: number) => {
     const caption = captions[index];
@@ -54,10 +55,10 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   return (
     <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
       <div className="min-w-0">
-        <div className="relative isolate mx-auto min-w-0 max-w-xl overflow-hidden rounded-xl border border-border/70 bg-[#080d1b] sm:rounded-2xl">
-          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block h-[clamp(220px,38vw,380px)] w-full border-0 bg-black sm:h-[clamp(260px,34vw,420px)] xl:h-[min(54vh,480px)]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
+        <div className="group relative isolate mx-auto min-w-0 max-w-2xl overflow-hidden rounded-2xl border border-border/70 bg-muted/40 shadow-sm sm:rounded-3xl">
+          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-square max-h-[min(76vw,560px)] w-full border-0 bg-neutral-950 sm:aspect-[5/4] sm:max-h-[560px]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
             <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-xl p-0 hover:bg-muted sm:rounded-2xl" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
-              <img src={image} alt={photoLabel(currentImageIndex)} className="h-[clamp(220px,38vw,380px)] w-full bg-[#080d1b] object-contain sm:h-[clamp(260px,34vw,420px)] xl:h-[min(54vh,480px)]" />
+              <img src={image} alt={photoLabel(currentImageIndex)} className="aspect-square max-h-[min(76vw,560px)] w-full bg-white object-contain p-3 sm:aspect-[5/4] sm:max-h-[560px] sm:p-5" />
               <span className="absolute bottom-3 right-3 grid size-10 place-items-center rounded-xl border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur"><ZoomIn aria-hidden="true" /></span>
             </Button>
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
@@ -72,8 +73,8 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
           </>}
         </div>
         {!videoActive && captions[currentImageIndex] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[currentImageIndex]}</p>}
-        {images.length > 1 && <div ref={thumbnailStrip} onWheel={(event) => { if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) { event.preventDefault(); event.currentTarget.scrollLeft += event.deltaY; } }} className="mx-auto mt-2 flex max-w-2xl snap-x snap-mandatory gap-1.5 overflow-x-auto overscroll-x-contain px-1 py-1.5 touch-pan-x scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,.35)_transparent]" role="group" aria-label={text("photo")}>
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => selectPhoto(index)} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-12 shrink-0 snap-start overflow-hidden rounded-lg border p-0 transition-colors duration-150 sm:size-14 ${index === currentImageIndex && !videoActive ? "border-cyan-300" : "border-white/10 opacity-70 hover:opacity-100"}` }>
+        {images.length > 1 && <div ref={thumbnailStrip} onWheel={(event) => { if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) { event.preventDefault(); event.currentTarget.scrollLeft += event.deltaY; } }} className="mx-auto mt-3 flex max-w-2xl snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 py-2 touch-pan-x scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,.35)_transparent]" role="group" aria-label={text("photo")}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => selectPhoto(index)} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-[68px] shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-background p-0 transition sm:size-20 ${index === currentImageIndex && !videoActive ? "border-primary ring-2 ring-primary/15" : "border-border/70 opacity-75 hover:opacity-100"}` }>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
