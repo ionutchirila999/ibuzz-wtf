@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Heart, MapPin, UserRound, Bell, ShieldCheck, Trash2 } from "lucide-react";
+import { Heart, UserRound, Bell, ShieldCheck, Trash2 } from "lucide-react";
 
 type Product = { id: string; title: string; title_th: string | null; title_ro: string | null; price: number; status: string; images: string[]; stock: number };
 type SavedProduct = { id: string; product_id: string; created_at: string; products: Product | null };
