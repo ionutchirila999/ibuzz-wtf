@@ -149,6 +149,31 @@ function Account() {
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}{notice && <p role="status" className="mt-4 text-sm text-muted-foreground">{notice}</p>}
       {!resetMode && <p className="mt-5 text-center text-sm text-muted-foreground"><button type="button" className="underline underline-offset-4" onClick={()=>setMode(mode==='in'?'up':'in')}>{mode==='in'?w.switchUp:w.switchIn}</button></p>}
     </section> : <section className="mt-8"><div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><span>{userEmail}</span><span>·</span><span>{w.orders}</span></div>
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <p className="text-sm text-muted-foreground">{w.orders}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อทั้งหมด' : lang === 'ro' ? 'Comenzi în total' : 'All your orders'}</p>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'กำลังดำเนินการ' : lang === 'ro' ? 'În curs' : 'In progress'}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => !['completed', 'cancelled'].includes(order.status)).length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อที่ยังไม่เสร็จสิ้น' : lang === 'ro' ? 'Comenzi nefinalizate' : 'Orders not yet completed'}</p>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'จัดส่งแล้ว' : lang === 'ro' ? 'Expediate' : 'Shipped'}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => ['shipped', 'ready_for_pickup', 'completed'].includes(order.status)).length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'รวมคำสั่งซื้อที่เสร็จสิ้น' : lang === 'ro' ? 'Inclusiv comenzile finalizate' : 'Including completed orders'}</p>
+        </div>
+        <div className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ดูรายละเอียดคำสั่งซื้อเพื่อส่งคำขอช่วยเหลือ' : lang === 'ro' ? 'Deschide o comandă pentru a contacta asistența' : 'Open an order to contact support'}</p></div>
+          <p className="mt-3 text-xs font-medium text-primary">{lang === 'th' ? 'ความช่วยเหลือเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Asistență pentru comenzi' : 'Order support'}</p>
+        </div>
+      </div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">{w.orders}</h2>
+        <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
+      </div>
       <div className="mb-6 grid gap-4 md:grid-cols-2">
       <div className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-5">
         <p className="mb-3 text-sm text-muted-foreground">{userEmail}</p>
