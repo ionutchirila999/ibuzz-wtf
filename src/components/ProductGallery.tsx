@@ -54,14 +54,14 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   return (
     <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
       <div className="min-w-0">
-        <div className="relative isolate mx-auto min-w-0 max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-[#080d1b] sm:rounded-2xl">
-          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block h-[clamp(260px,52vw,520px)] w-full border-0 bg-black sm:h-[clamp(320px,44vw,560px)] lg:h-[min(58vh,560px)]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
+        <div className="relative isolate mx-auto min-w-0 max-w-xl overflow-hidden rounded-xl border border-border/70 bg-[#080d1b] sm:rounded-2xl">
+          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block h-[clamp(240px,62vw,420px)] w-full border-0 bg-black sm:h-[clamp(280px,44vw,460px)] xl:h-[min(58vh,520px)]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
             <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-xl p-0 hover:bg-muted sm:rounded-2xl" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
-              <img src={image} alt={photoLabel(currentImageIndex)} className="h-[clamp(260px,52vw,520px)] w-full bg-[#080d1b] object-contain sm:h-[clamp(320px,44vw,560px)] lg:h-[min(58vh,560px)]" />
+              <img src={image} alt={photoLabel(currentImageIndex)} className="h-[clamp(240px,62vw,420px)] w-full bg-[#080d1b] object-contain sm:h-[clamp(280px,44vw,460px)] xl:h-[min(58vh,520px)]" />
               <span className="absolute bottom-3 right-3 grid size-10 place-items-center rounded-xl border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur"><ZoomIn aria-hidden="true" /></span>
             </Button>
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
-          {videoActive && <Button type="button" variant="secondary" size="icon" onClick={() => setZoomOpen(true)} title={text("open")} aria-label={text("open")} className="absolute bottom-2 right-2 size-10 rounded-full border bg-background/90 text-foreground shadow-md"><ZoomIn aria-hidden="true" /></Button>}
+          {videoActive && <Button type="button" variant="secondary" size="icon" onClick={() => setZoomOpen(true)} title={text("open")} aria-label={text("open")} className="absolute bottom-2 right-2 size-9 rounded-full border bg-background/85 text-foreground shadow-sm"><ZoomIn aria-hidden="true" /></Button>}
           {totalItems > 1 && <>
             <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} type="button" onPointerDown={(event) => event.stopPropagation()} className="absolute left-2 top-1/2 size-8 -translate-y-1/2 rounded-full border border-white/10 bg-background/70 text-foreground/90 shadow-sm backdrop-blur transition hover:bg-background hover:text-foreground sm:left-3 sm:size-9">
               <ChevronLeft aria-hidden="true" />
