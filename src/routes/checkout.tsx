@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, lineLink } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
 import { pageHead } from "@/lib/service-copy";
+import { checkoutTotal, reconcileCheckoutItems } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,15 +100,12 @@ function Checkout() {
       .then(({ data, error }) => { if (!error && data) setProducts(data as CartProduct[]); setLoading(false); });
   }, []);
 
-  const items = useMemo(() => cart.flatMap(item => {
-    const p = products.find(x => x.id === item.id);
-    return p && p.status !== "sold" && p.status !== "hidden" && p.stock > 0
-      ? [{ ...p, displayTitle: (lang === "th" ? p.title_th : lang === "ro" ? p.title_ro : null) || p.title, quantity: Math.min(item.quantity, p.stock) }]
-      : [];
-  }), [cart, products, lang]);
-  const total = items.reduce((sum, p) => sum + Number(p.price) * p.quantity, 0);
+  const items = useMemo(() => reconcileCheckoutItems(cart, products).map(p => ({
+    ...p,
+    displayTitle: (lang === "th" ? (p as CartProduct).title_th : lang === "ro" ? (p as CartProduct).title_ro : null) || p.title,
+  })), [cart, products, lang]);
+  const total = checkoutTotal(items);
 
-  const orderText = (orderNumber?: string | null) => `${c.orderIntro}${orderNumber ? `\nOrder number: ${orderNumber}` : ""}\n${c.orderName}: ${name.trim()}\n${c.orderContact}: ${contact.trim()}\n\n${items.map(p => `${p.displayTitle} × ${p.quantity} = ฿${(Number(p.price) * p.quantity).toLocaleString("en-US", { maximumFractionDigits: 2 })}`).join("\n")}\n\n${c.orderTotal}: ฿${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}\n${c.payment}`;
   const updateQty = (id: string, qty: number) => {
     const next = cart.map(x => x.id === id ? { ...x, quantity: qty } : x).filter(x => x.quantity > 0);
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
