@@ -77,7 +77,7 @@ const D = {
   "sell.elec": ["อิเล็กทรอนิกส์", "Electronics", "Electronice"],
   "sell.shoes": ["รองเท้าผู้หญิง", "Women's shoes", "Pantofi de damă"],
   "sell.name": ["ชื่อของคุณ", "Your name", "Numele tău"],
-  "sell.contact": ["เบอร์โทร, WhatsApp หรือ LINE ID", "Phone, WhatsApp or LINE ID", "Telefon, WhatsApp sau ID LINE"],
+  "sell.contact": ["เบอร์โทรหรือ LINE ID", "Phone or LINE ID", "Telefon sau ID LINE"],
   "sell.item": ["คุณจะขายอะไร?", "What are you selling?", "Ce vinzi?"],
   "sell.phTech": ["เช่น iPhone 13 128GB จอแตก หรือ DSLR ชัตเตอร์เสีย", "e.g. iPhone 13 128GB, cracked screen, or a DSLR with a broken shutter", "ex. iPhone 13 128GB, ecran spart, sau un DSLR cu obturatorul defect"],
   "sell.phShoes": ["เช่น Nike Air Max ผู้หญิง EU 38 ใส่สองครั้ง", "e.g. Nike Air Max women's EU 38, worn twice", "ex. Nike Air Max damă EU 38, purtați de două ori"],
@@ -89,8 +89,6 @@ const D = {
   "sell.err": ["ส่งไม่สำเร็จ กรุณาลองใหม่", "Couldn't send. Please try again.", "Nu s-a putut trimite. Încearcă din nou."],
   "sell.doneT": ["ได้รับข้อเสนอแล้ว", "Offer received", "Ofertă primită"],
   "sell.doneD": ["เราจะตรวจสอบและติดต่อกลับเร็วๆ นี้", "We'll review it and contact you soon.", "O vom analiza și te vom contacta curând."],
-  "wa.product": ["สวัสดีค่ะ สนใจสินค้า:", "Hi, I'm interested in:", "Bună, sunt interesat(ă) de:"],
-  "wa.general": ["สวัสดีค่ะ มีคำถามค่ะ", "Hi, I have a question", "Bună, am o întrebare"],
 } satisfies Record<string, [string, string, string]>;
 
 export type TKey = keyof typeof D;
