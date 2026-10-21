@@ -111,19 +111,19 @@ function ProductPage() {
           }}><ShoppingCart className="h-4 w-4" /> Add to cart & checkout</Button>}
           <ContactButtons product={p} disabled={sold} />
           {sold && <Button asChild variant="outline" size="lg" className="w-full justify-center gap-1.5 px-3 text-sm"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="h-4 w-4" /></Link></Button>}
-          <dl className="divide-y rounded-xl border bg-card text-sm">
+          <section className="overflow-hidden rounded-2xl border border-border/70 bg-card/80"><div className="border-b border-border/70 px-4 py-3"><h2 className="font-semibold tracking-tight">Product details</h2></div><dl className="grid grid-cols-1 divide-y divide-border/60 text-sm sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
             {rows.filter(([, v]) => v).map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted-foreground">{k}</dt><dd className="text-right">{v}</dd></div>
+              <div key={k} className="flex min-w-0 items-start gap-3 px-4 py-3"><span className="mt-0.5 text-primary">{k === t("p.category") ? <Layers className="h-4 w-4" /> : k === t("p.brand") ? <Tag className="h-4 w-4" /> : k === t("p.size") ? <Ruler className="h-4 w-4" /> : k === t("p.color") ? <Palette className="h-4 w-4" /> : <PackageCheck className="h-4 w-4" />}</span><div className="min-w-0 flex-1"><dt className="text-xs text-muted-foreground">{k}</dt><dd className="mt-1 break-words font-medium">{v}</dd></div></div>
             ))}
-          </dl>
-          {p.description && <p className="whitespace-pre-line text-sm text-muted-foreground">{localizedDescription(p, lang)}</p>}
-          <div className="space-y-3 text-sm">
+          </dl></section>
+          {p.description && <section className="space-y-2 rounded-2xl border border-border/70 bg-card/70 p-4 sm:p-5"><h2 className="font-semibold tracking-tight">About this product</h2><p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{localizedDescription(p, lang)}</p></section>}
+          <section className="space-y-3 rounded-2xl border border-border/70 bg-card/70 p-4 sm:p-5"><h2 className="font-semibold tracking-tight">Shopping with confidence</h2><div className="space-y-3 text-sm">
             {p.authenticity_verified && (
               <div className="flex gap-2"><ShieldCheck className="h-5 w-5 shrink-0 text-success" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>
             )}
             {p.delivery_options && <div className="flex gap-2"><Truck className="h-5 w-5 shrink-0 text-primary" /><span>{p.delivery_options}</span></div>}
             {p.return_policy && <div className="flex gap-2"><RotateCcw className="h-5 w-5 shrink-0 text-primary" /><span>{p.return_policy}</span></div>}
-          </div>
+          </div></section>
         </div>
       </div>
     </div>
