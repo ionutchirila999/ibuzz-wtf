@@ -63,7 +63,7 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         </div>
       </div>
       <div
-        className="mx-auto mt-8 flex w-full max-w-6xl justify-center overflow-x-auto overflow-y-hidden scroll-smooth px-3 pb-3 [touch-action:pan-x] sm:mt-10"
+        className="mx-auto mt-8 flex w-full max-w-6xl justify-start overflow-x-auto overflow-y-hidden scroll-smooth snap-x snap-proximity px-3 pb-3 [touch-action:pan-x] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-10"
         ref={videoScroller}
         onWheel={(event) => {
           const el = videoScroller.current;
@@ -83,11 +83,11 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         }}
         onPointerUp={() => { dragState.current.active = false; if (videoScroller.current) videoScroller.current.style.cursor = 'grab'; }}
         onPointerCancel={() => { dragState.current.active = false; if (videoScroller.current) videoScroller.current.style.cursor = 'grab'; }}
-        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(34, 211, 238, 0.75) transparent', WebkitOverflowScrolling: 'touch', cursor: 'grab' }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab' }}
       >
-        <div className="flex w-max min-w-0 items-start justify-center gap-2.5">
+        <div className="flex w-max min-w-0 items-start justify-start gap-3 px-1">
           {TIKTOK_VIDEOS.map((video) => (
-            <div key={video.id} className="w-[170px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[190px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[256px] xl:max-w-[276px]">
+            <div key={video.id} className="w-[170px] shrink-0 snap-start overflow-hidden rounded-2xl border border-border/70 bg-card shadow-md shadow-black/5 transition-transform duration-200 hover:-translate-y-0.5 sm:w-[190px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[256px] xl:max-w-[276px]">
               <iframe
                 title={`iBuzz.wtf TikTok video ${video.id}`}
                 src={`https://www.tiktok.com/player/v1/${video.id}?controls=1&description=0&music_info=0&loop=0`}
