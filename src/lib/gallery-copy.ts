@@ -9,6 +9,8 @@ const galleryCopy = {
   previous: ["รูปก่อนหน้า", "Previous photo", "Fotografia anterioară"],
   next: ["รูปถัดไป", "Next photo", "Fotografia următoare"],
   close: ["ปิด", "Close", "Închide"],
+  productVideo: ["วิดีโอสินค้า", "Product video", "Videoclipul produsului"],
+  openTikTok: ["เปิดบน TikTok", "Open on TikTok", "Deschide pe TikTok"],
 } satisfies Record<string, [string, string, string]>;
 
 // Concise per-photo captions keyed by the filename slug of the stored image
