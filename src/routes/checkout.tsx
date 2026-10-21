@@ -8,6 +8,7 @@ import { pageHead } from "@/lib/service-copy";
 import { checkoutTotal, reconcileCheckoutItems } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Minus, Plus, Trash2, Copy, ShoppingBag, Download, Share2 } from "lucide-react";
@@ -27,12 +28,12 @@ const COPY = {
     scan: "เปิดแอปธนาคารไทย สแกนคิวอาร์โค้ดด้านบน แล้วกรอกยอดที่แสดงที่นี่: ", staticQr: "คิวอาร์โค้ดนี้เป็นแบบคงที่ คุณต้องกรอกจำนวนเงินเอง",
     warning: "อย่าชำระเงินหากคิวอาร์โค้ดหรือข้อมูลผู้รับในแอปธนาคารไม่ตรงกับที่คาดไว้",
     send: "2. ส่งคำสั่งซื้อทาง LINE", name: "ชื่อของคุณ", namePlaceholder: "ชื่อสำหรับคำสั่งซื้อ",
-    contact: "เบอร์โทรศัพท์หรือ LINE", contactPlaceholder: "ช่องทางที่เราติดต่อคุณได้",
+    contact: "เบอร์โทรศัพท์หรือ LINE", contactPlaceholder: "ช่องทางที่เราติดต่อคุณได้", shippingAddress: "ที่อยู่จัดส่ง", shippingAddressPlaceholder: "บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์",
     instructions: "คัดลอกรายละเอียดคำสั่งซื้อ เปิด LINE ส่งให้ iBuzz.wtf และแนบสลิปการชำระเงินในแชต",
     copied: "คัดลอกรายการแล้ว", copy: "คัดลอกรายละเอียดคำสั่งซื้อ", openLine: "เปิด LINE เพื่อส่งคำสั่งซื้อ",
     lineNote: "การเปิด LINE จะไม่ส่งข้อความให้อัตโนมัติ โปรดวางรายละเอียดที่คัดลอกไว้และแนบสลิปด้วยตนเอง",
     pending: "สถานะการชำระเงินจะยังคงรอตรวจสอบจนกว่า iBuzz.wtf จะตรวจสอบยอดเงินจริง การส่งสลิปเพียงอย่างเดียวยังไม่ถือว่ายืนยันการชำระเงิน",
-    orderIntro: "สวัสดี iBuzz.wtf! ฉันต้องการสั่งซื้อสินค้า", orderName: "ชื่อ", orderContact: "ช่องทางติดต่อ",
+    orderIntro: "สวัสดี iBuzz.wtf! ฉันต้องการสั่งซื้อสินค้า", orderName: "ชื่อ", orderContact: "ช่องทางติดต่อ", shippingAddress: "ที่อยู่จัดส่ง", shippingAddressPlaceholder: "บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์",
     orderTotal: "ยอดรวม", payment: "การชำระเงิน: PromptPay (รอตรวจสอบด้วยตนเอง) ฉันจะแนบสลิปในแชต LINE นี้ โปรดยืนยันสต็อกและการชำระเงินก่อนดำเนินการ",
   },
   en: {
@@ -44,12 +45,12 @@ const COPY = {
     scan: "Open your Thai banking app, scan the QR above, and enter the exact total shown here: ", staticQr: "The QR is static, so you must enter the amount yourself.",
     warning: "Do not pay if the QR or recipient details shown by your banking app do not match what you expect.",
     send: "2. Send order to LINE", name: "Your name", namePlaceholder: "Name for the order",
-    contact: "Phone or LINE contact", contactPlaceholder: "How we can contact you",
+    contact: "Phone or LINE contact", contactPlaceholder: "How we can contact you", shippingAddress: "Delivery address", shippingAddressPlaceholder: "House number, street, district, province, postal code",
     instructions: "Copy the order message, open LINE, send it to iBuzz.wtf, and attach your payment slip in that chat.",
     copied: "Order copied", copy: "Copy order details", openLine: "Open LINE to send order",
     lineNote: "Opening LINE does not send the message automatically. Paste the copied order details and attach your slip yourself.",
     pending: "Payment status remains pending until iBuzz.wtf manually checks the funds. Sending a slip alone does not confirm payment.",
-    orderIntro: "Hello iBuzz.wtf! I'd like to place an order.", orderName: "Name", orderContact: "Contact",
+    orderIntro: "Hello iBuzz.wtf! I'd like to place an order.", orderName: "Name", orderContact: "Contact", shippingAddress: "Delivery address", shippingAddressPlaceholder: "Street address, district, province, postal code",
     orderTotal: "TOTAL", payment: "Payment: PromptPay (pending manual verification). I will attach my payment slip in this LINE chat. Please confirm stock and payment before processing.",
   },
   ro: {
@@ -61,12 +62,12 @@ const COPY = {
     scan: "Deschide aplicația băncii din Thailanda, scanează codul QR și introdu suma exactă afișată aici: ", staticQr: "Codul QR este static; introdu manual suma de plată.",
     warning: "Nu efectua plata dacă informațiile despre codul QR sau beneficiar din aplicația bancară nu corespund.",
     send: "2. Trimite comanda prin LINE", name: "Numele tău", namePlaceholder: "Numele pentru comandă",
-    contact: "Telefon sau ID LINE", contactPlaceholder: "Datele la care te putem contacta",
+    contact: "Telefon sau ID LINE", contactPlaceholder: "Datele la care te putem contacta", shippingAddress: "Adresa de livrare", shippingAddressPlaceholder: "Stradă, district, provincie, cod poștal",
     instructions: "Copiază detaliile comenzii, deschide LINE, trimite-le către iBuzz.wtf și atașează dovada plății în conversație.",
     copied: "Detaliile comenzii au fost copiate", copy: "Copiază detaliile comenzii", openLine: "Deschide LINE pentru a trimite comanda",
     lineNote: "Deschiderea LINE nu trimite automat mesajul. Lipește detaliile copiate și atașează dovada plății.",
     pending: "Plata rămâne în așteptare până când iBuzz.wtf confirmă încasarea. Trimiterea dovezii de plată nu înseamnă că plata a fost confirmată.",
-    orderIntro: "Salut, iBuzz.wtf! Aș dori să plasez o comandă.", orderName: "Nume", orderContact: "Date de contact",
+    orderIntro: "Salut, iBuzz.wtf! Aș dori să plasez o comandă.", orderName: "Nume", orderContact: "Date de contact", shippingAddress: "Adresa de livrare", shippingAddressPlaceholder: "Stradă, district, provincie, cod poștal",
     orderTotal: "TOTAL", payment: "Plată prin PromptPay (în curs de verificare manuală). Voi atașa dovada plății în această conversație LINE. Vă rog să confirmați stocul și plata înainte de procesarea comenzii.",
   },
 } as const;
@@ -85,6 +86,7 @@ function Checkout() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
   const [copied, setCopied] = useState(false);
   const [qrMessage, setQrMessage] = useState("");
   const [qrOpen, setQrOpen] = useState(false);
@@ -110,6 +112,17 @@ function Checkout() {
     const next = cart.map(x => x.id === id ? { ...x, quantity: qty } : x).filter(x => x.quantity > 0);
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
   };
+  const orderText = (orderNumber?: string) => [
+    c.orderIntro,
+    orderNumber ? `Order: ${orderNumber}` : null,
+    `${c.orderName}: ${name.trim()}`,
+    `${c.orderContact}: ${contact.trim()}`,
+    `${c.shippingAddress}: ${shippingAddress.trim()}`,
+    "",
+    ...items.map(item => `${item.displayTitle} × ${item.quantity} — ${formatPrice(item.price * item.quantity)}`),
+    `${c.orderTotal}: ${formatPrice(total)} THB`,
+    c.payment,
+  ].filter((line): line is string => line !== null).join("\\n");
   const copyOrder = async () => { try { await navigator.clipboard.writeText(orderText()); setCopied(true); } catch { setCopied(false); } };
   const makeQrPng = async () => {
     const response = await fetch("/promptpay-qr.svg");
@@ -230,6 +243,7 @@ function Checkout() {
         const { data, error } = await (supabase as any).rpc("create_customer_order", {
           p_buyer_name: name.trim(),
           p_buyer_contact: contact.trim(),
+          p_shipping_address: shippingAddress.trim(),
           p_items: items.map(item => ({ id: item.id, quantity: item.quantity })),
         });
         if (error) throw error;
@@ -257,7 +271,7 @@ function Checkout() {
       <section className="space-y-3">{items.map(p => <div key={p.id} className="space-y-3 rounded-xl border border-border/70 p-3 sm:flex sm:items-center sm:gap-3 sm:space-y-0 sm:p-4"><div className="min-w-0 sm:flex-1"><p className="break-words font-medium leading-snug">{p.displayTitle}</p><p className="mt-1 text-sm text-muted-foreground">{formatPrice(p.price)} {c.each} · {p.stock} {c.stock}</p></div><div className="flex items-center justify-between gap-3 sm:justify-end"><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={c.decrease} onClick={() => updateQty(p.id, p.quantity - 1)}><Minus className="h-4 w-4"/></Button><span className="w-5 text-center tabular-nums">{p.quantity}</span><Button size="icon" variant="outline" aria-label={c.increase} disabled={p.quantity >= p.stock} onClick={() => updateQty(p.id, p.quantity + 1)}><Plus className="h-4 w-4"/></Button><Button size="icon" variant="ghost" aria-label={c.remove} onClick={() => updateQty(p.id, 0)}><Trash2 className="h-4 w-4"/></Button></div><strong className="shrink-0 text-right">{formatPrice(Number(p.price) * p.quantity)}</strong></div></div>)}</section>
       <section className="rounded-xl border border-border/70 p-4 sm:p-5"><div className="flex items-start justify-between gap-3 text-base font-bold sm:text-lg"><span>{c.total}</span><span className="shrink-0 text-right tabular-nums">{formatPrice(total)} THB</span></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.totalNote}</p></section>
       <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.pay}</h2><button type="button" onClick={() => setQrOpen(true)} aria-label={c.qr} className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-xl border bg-white p-2 transition hover:ring-2 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-[300px] sm:p-3"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></button><Dialog open={qrOpen} onOpenChange={setQrOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-4 sm:p-6"><DialogTitle>{c.qr}</DialogTitle><div className="relative mx-auto aspect-square w-full max-w-[min(72vw,320px)] overflow-hidden rounded-lg border bg-white"><img src="/promptpay-qr.svg" alt={c.qr} className="h-full w-full object-contain select-none" draggable={false}/></div><Button type="button" className="w-full" onClick={() => setQrOpen(false)}>{lang === "th" ? "กลับไปชำระเงิน" : lang === "ro" ? "Înapoi la plată" : "Back to checkout"}</Button></DialogContent></Dialog><Dialog open={shareOpen} onOpenChange={setShareOpen}><DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-5"><DialogTitle>{lang === "th" ? "แชร์รูป QR PromptPay" : lang === "ro" ? "Partajează imaginea QR PromptPay" : "Share PromptPay QR image"}</DialogTitle><p className="text-sm text-muted-foreground">{lang === "th" ? "แชร์ลิงก์ที่เปิดหน้ารหัส QR PromptPay ผู้รับสามารถเปิดลิงก์เพื่อดู QR ได้" : lang === "ro" ? "Partajează un link către pagina QR PromptPay. Destinatarul poate deschide linkul pentru a vedea codul QR." : "Share a link that opens the PromptPay QR viewer page. Recipients can open the link to see the QR."}</p><div className="grid grid-cols-2 gap-2"><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("facebook")}>Facebook</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("whatsapp")}>WhatsApp</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("line")}>LINE</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("telegram")}>Telegram</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void openSocialShare("x")}>X</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void copyQrLink()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอกลิงก์ QR" : lang === "ro" ? "Copiază linkul QR" : "Copy QR link"}</Button><Button type="button" variant="outline" className="min-h-11" onClick={() => void copyQrImage()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอกรูปภาพ" : lang === "ro" ? "Copiază imaginea" : "Copy image"}</Button><Button type="button" className="col-span-2 min-h-11" onClick={() => { setShareOpen(false); void downloadQr(); }}><Download className="mr-2 h-4 w-4"/>{lang === "th" ? "ดาวน์โหลดรูป PNG" : lang === "ro" ? "Descarcă imaginea PNG" : "Download PNG image"}</Button></div></DialogContent></Dialog><div className="mx-auto grid w-full max-w-[280px] grid-cols-2 gap-2 sm:max-w-sm"><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void downloadQr()}><Download className="mr-1.5 h-4 w-4 shrink-0"/>{c.saveQr}</Button><Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal px-2 py-2 text-xs sm:text-sm" onClick={() => void shareQr()}><Share2 className="mr-1.5 h-4 w-4 shrink-0"/>{c.shareQr}</Button></div>{qrMessage && <p role="status" className="text-center text-xs text-muted-foreground">{qrMessage}</p>}<p className="text-sm leading-relaxed">{c.scan}<strong>{formatPrice(total)}</strong>. {c.staticQr}</p><p className="rounded-lg bg-amber-500/10 p-3 text-sm leading-relaxed text-amber-700 dark:text-amber-300">{c.warning}</p></section>
-      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Button className="min-h-11 whitespace-normal" variant="outline" disabled={!name.trim() || !contact.trim()} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4 shrink-0"/>{copied ? c.copied : c.copy}</Button><Button className="min-h-11 whitespace-normal" disabled={!name.trim() || !contact.trim() || placing} onClick={() => void openLine()}>{placing ? (lang === "th" ? "กำลังบันทึกคำสั่งซื้อ…" : lang === "ro" ? "Se salvează comanda…" : "Saving order…") : createdOrderNumber ? (lang === "th" ? "ดำเนินการต่อใน LINE" : lang === "ro" ? "Continuă în LINE" : "Continue to LINE") : c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
+      <section className="space-y-4 rounded-xl border border-border/70 p-3 sm:p-5"><h2 className="text-lg font-semibold sm:text-xl">{c.send}</h2><div className="space-y-2"><Label htmlFor="buyer-name">{c.name}</Label><Input id="buyer-name" value={name} onChange={e => setName(e.target.value)} placeholder={c.namePlaceholder} required/></div><div className="space-y-2"><Label htmlFor="buyer-contact">{c.contact}</Label><Input id="buyer-contact" value={contact} onChange={e => setContact(e.target.value)} placeholder={c.contactPlaceholder} required/></div><div className="space-y-2"><Label htmlFor="shipping-address">{c.shippingAddress}</Label><Textarea id="shipping-address" value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} placeholder={c.shippingAddressPlaceholder} minLength={10} maxLength={1000} rows={3} required/></div><p className="text-sm text-muted-foreground">{c.instructions}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2"><Button className="min-h-11 whitespace-normal" variant="outline" disabled={!name.trim() || !contact.trim() || shippingAddress.trim().length < 10} onClick={() => void copyOrder()}><Copy className="mr-2 h-4 w-4 shrink-0"/>{copied ? c.copied : c.copy}</Button><Button className="min-h-11 whitespace-normal" disabled={!name.trim() || !contact.trim() || shippingAddress.trim().length < 10 || placing} onClick={() => void openLine()}>{placing ? (lang === "th" ? "กำลังบันทึกคำสั่งซื้อ…" : lang === "ro" ? "Se salvează comanda…" : "Saving order…") : createdOrderNumber ? (lang === "th" ? "ดำเนินการต่อใน LINE" : lang === "ro" ? "Continuă în LINE" : "Continue to LINE") : c.openLine}</Button></div><p className="text-xs text-muted-foreground">{c.lineNote}</p></section>
     </>}
     <p className="text-xs text-muted-foreground">{c.pending}</p>
   </main>;
