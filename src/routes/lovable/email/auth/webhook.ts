@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "iBuzz"
+const SITE_NAME = "iBuzz.wtf"
 const SENDER_DOMAIN = "notify.ibuzz.wtf"
 const ROOT_DOMAIN = "ibuzz.wtf"
 const FROM_DOMAIN = "notify.ibuzz.wtf"
