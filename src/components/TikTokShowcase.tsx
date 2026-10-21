@@ -65,7 +65,7 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
       >
         <div className="flex w-max min-w-0 items-start justify-center gap-3">
           {TIKTOK_VIDEOS.map((video) => (
-            <div key={video.id} className="w-[190px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[240px] lg:w-[280px] xl:w-[300px]">
+            <div key={video.id} className="w-[172px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[192px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[260px] xl:max-w-[280px]">
               <iframe
                 title={`iBuzz.wtf TikTok video ${video.id}`}
                 src={`https://www.tiktok.com/player/v1/${video.id}?controls=1&description=0&music_info=0&loop=0`}
