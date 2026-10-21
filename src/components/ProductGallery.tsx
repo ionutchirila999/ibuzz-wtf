@@ -49,11 +49,11 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   return (
     <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
       <div className="min-w-0">
-        <div className="relative overflow-hidden rounded-lg border bg-muted">
-          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-square w-full border-0 bg-black" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
-            <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-lg p-0 hover:bg-muted" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
-              <img src={image} alt={photoLabel(currentImageIndex)} className="aspect-square w-full object-contain" />
-              <span className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-md border bg-background text-foreground"><ZoomIn aria-hidden="true" /></span>
+        <div className="relative isolate overflow-hidden rounded-xl border border-white/10 bg-[#080d1b] shadow-inner shadow-black/30 sm:rounded-2xl">
+          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-[4/5] w-full border-0 bg-black sm:aspect-[5/4] lg:aspect-[4/5]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
+            <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-xl p-0 hover:bg-muted sm:rounded-2xl" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
+              <img src={image} alt={photoLabel(currentImageIndex)} className="aspect-[4/5] w-full bg-[#080d1b] object-contain sm:aspect-[5/4] lg:aspect-[4/5]" />
+              <span className="absolute bottom-3 right-3 grid size-10 place-items-center rounded-xl border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur"><ZoomIn aria-hidden="true" /></span>
             </Button>
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
           {videoActive && <Button type="button" variant="secondary" size="icon" onClick={() => setZoomOpen(true)} title={text("open")} aria-label={text("open")} className="absolute bottom-2 right-2 size-10 rounded-full border bg-background/90 text-foreground shadow-md"><ZoomIn aria-hidden="true" /></Button>}
@@ -67,8 +67,8 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
           </>}
         </div>
         {!videoActive && captions[currentImageIndex] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[currentImageIndex]}</p>}
-        {images.length > 1 && <div className="mt-2 flex gap-2 overflow-x-auto py-1" role="group" aria-label={text("photo")}>
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index + (hasVideo ? 1 : 0))} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === currentImageIndex && !videoActive ? "border-primary" : "border-transparent"}` }>
+        {images.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto px-0.5 py-1.5" role="group" aria-label={text("photo")}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index + (hasVideo ? 1 : 0))} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-14 shrink-0 overflow-hidden rounded-xl border p-0 sm:size-16 ${index === currentImageIndex && !videoActive ? "border-cyan-300 ring-2 ring-cyan-300/20" : "border-white/10 opacity-75 hover:opacity-100"}` }>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
