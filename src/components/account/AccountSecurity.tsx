@@ -1,0 +1,191 @@
+import { useCallback, useEffect, useState } from "react";
+import { MonitorSmartphone, ShieldCheck, ShieldOff, Trash2, KeyRound, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+const COPY = {
+  en: {
+    title: "Account security", sessions: "Session management", currentSession: "This device / current session",
+    browser: "Browser", expires: "Session expires", signOutAll: "Sign out all devices",
+    signOutWarning: "This will invalidate sessions on other devices. You will need to sign in again here too.",
+    signOutConfirm: "Sign out on all devices, including this one?", signedOut: "Signed out on all devices.",
+    securityError: "Security action failed. Please try again.", mfa: "Two-factor authentication (2FA)",
+    mfaDesc: "Add an authenticator app for an extra sign-in check.", enableMfa: "Set up authenticator",
+    verifyMfa: "Verify and enable 2FA", code: "6-digit authenticator code", secret: "Manual setup key",
+    mfaEnabled: "Two-factor authentication is enabled.", disableMfa: "Turn off 2FA",
+    mfaDisabled: "Two-factor authentication disabled.", mfaSetupError: "Could not set up 2FA. Please try again.",
+    mfaVerifyError: "That code could not be verified. Check the code and try again.",
+    deleteTitle: "Delete account", deleteWarning: "Permanently delete your sign-in account and personal profile. Orders are retained for accounting, but customer-identifying fields are anonymized. Support tickets, saved addresses, wishlist entries, and notifications are deleted.",
+    typeDelete: "Type DELETE to confirm", deleteButton: "Permanently delete account",
+    deleteConfirm: "This is permanent and cannot be undone. Delete your account now?",
+    deleteError: "Account deletion could not be completed. Please try again or contact support.",
+    deleteNotConfigured: "Account deletion is not configured on the server yet. No account was deleted.",
+    deleting: "Deleting account…", loading: "Loading security settings…", noSession: "No active session found.",
+    currentDevice: "This browser session", setupHint: "Scan the QR code with an authenticator app, then enter the current 6-digit code.",
+  },
+  th: {
+    title: "ความปลอดภัยของบัญชี", sessions: "การจัดการเซสชัน", currentSession: "อุปกรณ์นี้ / เซสชันปัจจุบัน",
+    browser: "เบราว์เซอร์", expires: "เซสชันหมดอายุ", signOutAll: "ออกจากระบบทุกอุปกรณ์",
+    signOutWarning: "เซสชันบนอุปกรณ์อื่นจะถูกยกเลิก และคุณจะต้องเข้าสู่ระบบใหม่บนอุปกรณ์นี้ด้วย",
+    signOutConfirm: "ต้องการออกจากระบบทุกอุปกรณ์ รวมถึงอุปกรณ์นี้หรือไม่", signedOut: "ออกจากระบบทุกอุปกรณ์แล้ว",
+    securityError: "ดำเนินการด้านความปลอดภัยไม่สำเร็จ โปรดลองอีกครั้ง", mfa: "การยืนยันตัวตนสองขั้นตอน (2FA)",
+    mfaDesc: "เพิ่มแอปยืนยันตัวตนเพื่อความปลอดภัยในการเข้าสู่ระบบ", enableMfa: "ตั้งค่าแอปยืนยันตัวตน",
+    verifyMfa: "ยืนยันและเปิดใช้ 2FA", code: "รหัส 6 หลักจากแอป", secret: "คีย์ตั้งค่าด้วยตนเอง",
+    mfaEnabled: "เปิดใช้การยืนยันตัวตนสองขั้นตอนแล้ว", disableMfa: "ปิด 2FA",
+    mfaDisabled: "ปิดการยืนยันตัวตนสองขั้นตอนแล้ว", mfaSetupError: "ตั้งค่า 2FA ไม่สำเร็จ โปรดลองอีกครั้ง",
+    mfaVerifyError: "ยืนยันรหัสไม่สำเร็จ โปรดตรวจสอบรหัสแล้วลองใหม่",
+    deleteTitle: "ลบบัญชี", deleteWarning: "ลบบัญชีเข้าสู่ระบบและโปรไฟล์ส่วนตัวอย่างถาวร โดยเก็บประวัติคำสั่งซื้อไว้เพื่อการบัญชีและลบข้อมูลที่ระบุตัวลูกค้าออก คำขอช่วยเหลือ ที่อยู่ที่บันทึก รายการโปรด และการแจ้งเตือนจะถูกลบ",
+    typeDelete: "พิมพ์ DELETE เพื่อยืนยัน", deleteButton: "ลบบัญชีอย่างถาวร",
+    deleteConfirm: "การดำเนินการนี้ไม่สามารถย้อนกลับได้ ต้องการลบบัญชีตอนนี้หรือไม่",
+    deleteError: "ลบบัญชีไม่สำเร็จ โปรดลองอีกครั้งหรือติดต่อฝ่ายช่วยเหลือ",
+    deleteNotConfigured: "เซิร์ฟเวอร์ยังไม่ได้ตั้งค่าการลบบัญชี จึงไม่มีการลบบัญชีใดๆ",
+    deleting: "กำลังลบบัญชี…", loading: "กำลังโหลดการตั้งค่าความปลอดภัย…", noSession: "ไม่พบเซสชันที่ใช้งานอยู่",
+    currentDevice: "เซสชันของเบราว์เซอร์นี้", setupHint: "สแกน QR ด้วยแอปยืนยันตัวตน แล้วกรอกรหัส 6 หลักปัจจุบัน",
+  },
+  ro: {
+    title: "Securitatea contului", sessions: "Gestionarea sesiunilor", currentSession: "Acest dispozitiv / sesiunea curentă",
+    browser: "Browser", expires: "Sesiunea expiră", signOutAll: "Deconectează toate dispozitivele",
+    signOutWarning: "Sesiunile de pe celelalte dispozitive vor fi invalidate. Va trebui să te autentifici din nou și aici.",
+    signOutConfirm: "Deconectezi toate dispozitivele, inclusiv acesta?", signedOut: "Deconectare de pe toate dispozitivele reușită.",
+    securityError: "Acțiunea de securitate a eșuat. Încearcă din nou.", mfa: "Autentificare în doi pași (2FA)",
+    mfaDesc: "Adaugă o aplicație de autentificare pentru un control suplimentar la conectare.", enableMfa: "Configurează aplicația",
+    verifyMfa: "Verifică și activează 2FA", code: "Codul de 6 cifre din aplicație", secret: "Cheie de configurare manuală",
+    mfaEnabled: "Autentificarea în doi pași este activată.", disableMfa: "Dezactivează 2FA",
+    mfaDisabled: "Autentificarea în doi pași a fost dezactivată.", mfaSetupError: "Configurarea 2FA a eșuat. Încearcă din nou.",
+    mfaVerifyError: "Codul nu a putut fi verificat. Verifică-l și încearcă din nou.",
+    deleteTitle: "Șterge contul", deleteWarning: "Șterge definitiv contul de conectare și profilul personal. Comenzile sunt păstrate pentru contabilitate, dar datele care identifică clientul sunt anonimizate. Solicitările de asistență, adresele salvate, favoritele și notificările sunt șterse.",
+    typeDelete: "Scrie DELETE pentru confirmare", deleteButton: "Șterge definitiv contul",
+    deleteConfirm: "Acțiunea este permanentă și nu poate fi anulată. Ștergi contul acum?",
+    deleteError: "Contul nu a putut fi șters. Încearcă din nou sau contactează asistența.",
+    deleteNotConfigured: "Ștergerea contului nu este configurată încă pe server. Contul nu a fost șters.",
+    deleting: "Se șterge contul…", loading: "Se încarcă setările de securitate…", noSession: "Nu există o sesiune activă.",
+    currentDevice: "Sesiunea acestui browser", setupHint: "Scanează codul QR cu o aplicație de autentificare, apoi introdu codul actual de 6 cifre.",
+  },
+} as const;
+
+type Factor = { id: string; factor_type: string; status: string; friendly_name?: string };
+type PendingTotp = { id: string; qr_code: string; secret: string };
+
+export function AccountSecurity() {
+  const { lang } = useT();
+  const w = COPY[lang];
+  const [loading, setLoading] = useState(true);
+  const [sessionExpires, setSessionExpires] = useState<number | null>(null);
+  const [browser, setBrowser] = useState("");
+  const [factors, setFactors] = useState<Factor[]>([]);
+  const [pending, setPending] = useState<PendingTotp | null>(null);
+  const [code, setCode] = useState("");
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [working, setWorking] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [{ data: sessionData }, { data: factorData, error: factorError }] = await Promise.all([
+      supabase.auth.getSession(),
+      supabase.auth.mfa.listFactors(),
+    ]);
+    setSessionExpires(sessionData.session?.expires_at ?? null);
+    if (typeof navigator !== "undefined") setBrowser(navigator.userAgent);
+    if (!factorError && factorData) setFactors((factorData.totp ?? []) as Factor[]);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const verifiedFactors = factors.filter(factor => factor.status === "verified");
+  const enabled = verifiedFactors.length > 0;
+
+  async function signOutAll() {
+    if (!window.confirm(w.signOutConfirm)) return;
+    setWorking(true);
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    setWorking(false);
+    if (error) { toast.error(w.securityError); return; }
+    toast.success(w.signedOut);
+    window.location.assign("/account");
+  }
+
+  async function beginMfa() {
+    setWorking(true);
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "iBuzz.wtf authenticator" });
+    setWorking(false);
+    if (error || !data?.totp) { toast.error(w.mfaSetupError); return; }
+    setPending({ id: data.id, qr_code: data.totp.qr_code, secret: data.totp.secret });
+    setCode("");
+  }
+
+  async function verifyMfa(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!pending || !/^\d{6}$/.test(code.trim())) { toast.error(w.mfaVerifyError); return; }
+    setWorking(true);
+    const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: pending.id });
+    if (challengeError || !challenge?.id) { setWorking(false); toast.error(w.mfaVerifyError); return; }
+    const { error } = await supabase.auth.mfa.verify({ factorId: pending.id, challengeId: challenge.id, code: code.trim() });
+    setWorking(false);
+    if (error) { toast.error(w.mfaVerifyError); return; }
+    setPending(null); setCode("");
+    toast.success(w.mfaEnabled);
+    await load();
+  }
+
+  async function disableMfa() {
+    const factor = verifiedFactors[0];
+    if (!factor || !window.confirm(w.disableMfa + "?")) return;
+    setWorking(true);
+    const { error } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+    setWorking(false);
+    if (error) { toast.error(w.securityError); return; }
+    toast.success(w.mfaDisabled);
+    await load();
+  }
+
+  async function deleteAccount() {
+    if (confirmText !== "DELETE" || !window.confirm(w.deleteConfirm)) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("delete-account", { body: { confirmation: "DELETE" } });
+    setDeleting(false);
+    if (error || !data?.success) {
+      const message = typeof data?.error === "string" && data.error.toLowerCase().includes("not configured") ? w.deleteNotConfigured : w.deleteError;
+      toast.error(message);
+      return;
+    }
+    await supabase.auth.signOut({ scope: "local" });
+    window.location.assign("/");
+  }
+
+  return <section id="account-security" className="mb-7 scroll-mt-6 rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
+    <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><ShieldCheck className="h-5 w-5" /></span><div><h2 className="text-xl font-semibold">{w.title}</h2><p className="mt-1 text-sm text-muted-foreground">{w.sessions}</p></div></div>
+    {loading ? <p className="mt-4 text-sm text-muted-foreground">{w.loading}</p> : <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="rounded-xl border border-border/50 p-4">
+        <h3 className="flex items-center gap-2 font-semibold"><MonitorSmartphone className="h-4 w-4" />{w.currentSession}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{w.currentDevice}</p>
+        <p className="mt-2 break-words text-xs text-muted-foreground">{w.browser}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{w.expires}: {sessionExpires ? new Date(sessionExpires * 1000).toLocaleString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US") : w.noSession}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{w.signOutWarning}</p>
+        <Button type="button" variant="outline" className="mt-3" disabled={working} onClick={() => void signOutAll()}><LogOut className="mr-2 h-4 w-4" />{w.signOutAll}</Button>
+      </div>
+      <div className="rounded-xl border border-border/50 p-4">
+        <h3 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4" />{w.mfa}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{w.mfaDesc}</p>
+        {enabled ? <><p className="mt-3 text-sm text-emerald-600">{w.mfaEnabled}</p><Button type="button" variant="outline" className="mt-3" disabled={working} onClick={() => void disableMfa()}><ShieldOff className="mr-2 h-4 w-4" />{w.disableMfa}</Button></> : pending ? <form onSubmit={verifyMfa} className="mt-3 space-y-3">
+          <p className="text-sm text-muted-foreground">{w.setupHint}</p>
+          <img className="mx-auto max-h-52 w-52 rounded-md bg-white p-2" alt="Authenticator QR code" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(pending.qr_code)}`} />
+          <div><Label>{w.secret}</Label><p className="mt-1 break-all rounded-md bg-muted p-2 font-mono text-xs">{pending.secret}</p></div>
+          <div className="space-y-1"><Label htmlFor="mfa-code">{w.code}</Label><Input id="mfa-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} pattern="[0-9]{6}" maxLength={6} required /></div>
+          <div className="flex flex-wrap gap-2"><Button type="submit" disabled={working || code.length !== 6}><KeyRound className="mr-2 h-4 w-4" />{w.verifyMfa}</Button><Button type="button" variant="ghost" disabled={working} onClick={async () => { await supabase.auth.mfa.unenroll({ factorId: pending.id }); setPending(null); setCode(""); }}>{lang === "th" ? "ยกเลิก" : lang === "ro" ? "Anulează" : "Cancel"}</Button></div>
+        </form> : <Button type="button" className="mt-3" disabled={working} onClick={() => void beginMfa()}><KeyRound className="mr-2 h-4 w-4" />{w.enableMfa}</Button>}
+      </div>
+    </div>}
+    <div className="mt-5 rounded-xl border border-destructive/30 p-4">
+      <h3 className="flex items-center gap-2 font-semibold text-destructive"><Trash2 className="h-4 w-4" />{w.deleteTitle}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{w.deleteWarning}</p>
+      <div className="mt-3 max-w-sm space-y-1"><Label htmlFor="delete-account-confirm">{w.typeDelete}</Label><Input id="delete-account-confirm" autoComplete="off" value={confirmText} onChange={event => setConfirmText(event.target.value)} /></div>
+      <Button type="button" variant="destructive" className="mt-3" disabled={deleting || confirmText !== "DELETE"} onClick={() => void deleteAccount()}><Trash2 className="mr-2 h-4 w-4" />{deleting ? w.deleting : w.deleteButton}</Button>
+    </div>
+  </section>;
+}
