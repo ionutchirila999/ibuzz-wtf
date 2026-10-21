@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ChevronLeft, ChevronRight, ImageOff, Play, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
@@ -10,6 +10,7 @@ import { galleryText, photoCaption } from "@/lib/gallery-copy";
 export function ProductGallery({ images, title, videoUrl }: { images: string[]; title: string; videoUrl?: string | null }) {
   const [active, setActive] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
+  const thumbnailStrip = useRef<HTMLDivElement>(null);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const captions = images.map((src) => photoCaption(lang, src));
@@ -28,6 +29,10 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
   const currentImageIndex = active - (hasVideo ? 1 : 0);
   const image = videoActive ? undefined : images[currentImageIndex];
   const move = (direction: number) => setActive((current) => (current + direction + totalItems) % totalItems);
+  const selectPhoto = (index: number) => {
+    setActive(index + (hasVideo ? 1 : 0));
+    thumbnailStrip.current?.querySelectorAll<HTMLButtonElement>("button")[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  };
   const movePhoto = (direction: number) => {
     if (!images.length) return;
     const index = videoActive ? 0 : currentImageIndex;
@@ -58,17 +63,17 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
           {videoActive && <Button type="button" variant="secondary" size="icon" onClick={() => setZoomOpen(true)} title={text("open")} aria-label={text("open")} className="absolute bottom-2 right-2 size-10 rounded-full border bg-background/90 text-foreground shadow-md"><ZoomIn aria-hidden="true" /></Button>}
           {totalItems > 1 && <>
-            <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
+            <Button variant="ghost" size="icon" onClick={() => move(-1)} title={text("previous")} aria-label={text("previous")} type="button" onPointerDown={(event) => event.stopPropagation()} className="absolute left-2 top-1/2 size-9 -translate-y-1/2 rounded-full border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur transition hover:bg-background sm:left-3 sm:size-10">
               <ChevronLeft aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => move(1)} title={text("next")} aria-label={text("next")} className="absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full border bg-background/90 text-foreground shadow-md">
+            <Button variant="ghost" size="icon" onClick={() => move(1)} title={text("next")} aria-label={text("next")} type="button" onPointerDown={(event) => event.stopPropagation()} className="absolute right-2 top-1/2 size-9 -translate-y-1/2 rounded-full border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur transition hover:bg-background sm:right-3 sm:size-10">
               <ChevronRight aria-hidden="true" />
             </Button>
           </>}
         </div>
         {!videoActive && captions[currentImageIndex] && <p className="mt-1 text-center text-xs text-muted-foreground">{captions[currentImageIndex]}</p>}
-        {images.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto px-0.5 py-1.5" role="group" aria-label={text("photo")}>
-          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index + (hasVideo ? 1 : 0))} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-14 shrink-0 overflow-hidden rounded-xl border p-0 sm:size-16 ${index === currentImageIndex && !videoActive ? "border-cyan-300 ring-2 ring-cyan-300/20" : "border-white/10 opacity-75 hover:opacity-100"}` }>
+        {images.length > 1 && <div ref={thumbnailStrip} onWheel={(event) => { if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) { event.preventDefault(); event.currentTarget.scrollLeft += event.deltaY; } }} className="mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 py-2 touch-pan-x scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(103,232,249,.45)_transparent]" role="group" aria-label={text("photo")}>
+          {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => selectPhoto(index)} aria-label={thumbLabel(index)} aria-current={index === currentImageIndex && !videoActive} className={`size-14 shrink-0 snap-start overflow-hidden rounded-xl border p-0 transition-all duration-200 sm:size-16 ${index === currentImageIndex && !videoActive ? "border-cyan-300 ring-2 ring-cyan-300/20" : "border-white/10 opacity-75 hover:opacity-100"}` }>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
         </div>}
