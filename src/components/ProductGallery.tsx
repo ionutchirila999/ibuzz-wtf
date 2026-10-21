@@ -55,9 +55,9 @@ export function ProductGallery({ images, title, videoUrl }: { images: string[]; 
     <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
       <div className="min-w-0">
         <div className="relative isolate mx-auto min-w-0 max-w-xl overflow-hidden rounded-xl border border-border/70 bg-[#080d1b] sm:rounded-2xl">
-          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block h-[clamp(240px,62vw,420px)] w-full border-0 bg-black sm:h-[clamp(280px,44vw,460px)] xl:h-[min(58vh,520px)]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
+          {videoActive ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block h-[clamp(220px,38vw,380px)] w-full border-0 bg-black sm:h-[clamp(260px,34vw,420px)] xl:h-[min(54vh,480px)]" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /> : image ? <DialogTrigger asChild>
             <Button variant="ghost" className="relative h-auto w-full overflow-hidden rounded-xl p-0 hover:bg-muted sm:rounded-2xl" aria-label={`${text("open")} — ${photoLabel(currentImageIndex)}`}>
-              <img src={image} alt={photoLabel(currentImageIndex)} className="h-[clamp(240px,62vw,420px)] w-full bg-[#080d1b] object-contain sm:h-[clamp(280px,44vw,460px)] xl:h-[min(58vh,520px)]" />
+              <img src={image} alt={photoLabel(currentImageIndex)} className="h-[clamp(220px,38vw,380px)] w-full bg-[#080d1b] object-contain sm:h-[clamp(260px,34vw,420px)] xl:h-[min(54vh,480px)]" />
               <span className="absolute bottom-3 right-3 grid size-10 place-items-center rounded-xl border border-white/15 bg-background/85 text-foreground shadow-lg backdrop-blur"><ZoomIn aria-hidden="true" /></span>
             </Button>
           </DialogTrigger> : <div className="grid aspect-square place-items-center"><ImageOff aria-label={title} /></div>}
