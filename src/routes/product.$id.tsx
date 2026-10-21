@@ -83,11 +83,11 @@ function ProductPage() {
   ];
 
   return (
-    <div className="relative mx-auto w-full min-w-0 max-w-6xl overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+    <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-clip px-3 pb-24 pt-3 sm:px-5 sm:py-6 sm:pb-28 lg:px-8 lg:py-8 lg:pb-8">
       <Link to="/shop" className="mb-4 inline-flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
-      <div className="grid min-w-0 items-start gap-5 md:gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] xl:gap-8">
+      <div className="grid min-w-0 items-start gap-4 sm:gap-5 md:grid-cols-[minmax(0,1.08fr)_minmax(290px,0.92fr)] md:gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] xl:gap-10">
         <section className="min-w-0 bg-transparent p-0"><ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} /><div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1.5"><PackageCheck className="h-3.5 w-3.5 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>{p.authenticity_verified && <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-emerald-600"><ShieldCheck className="h-3.5 w-3.5" />{t("p.auth")}</span>}</div></section>
-        <div className="min-w-0 space-y-4 sm:space-y-5 xl:sticky xl:top-24 xl:self-start">
+        <div className="min-w-0 space-y-3 sm:space-y-4 md:sticky md:top-20 md:self-start xl:top-24">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
             {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
@@ -126,6 +126,26 @@ function ProductPage() {
           </div></section>
         </div>
       </div>
+      {!sold && !p.negotiable && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.12)] backdrop-blur-md md:hidden">
+        <div className="mx-auto flex max-w-xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-muted-foreground">{localizedTitle(p, lang)}</p>
+            <p className="font-display text-lg font-extrabold leading-tight text-primary">{formatPrice(p.price)}</p>
+          </div>
+          <Button size="lg" className="min-h-12 shrink-0 gap-2 rounded-xl px-5 font-semibold" onClick={() => {
+            try {
+              const key = "ibuzz-cart-v1";
+              const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
+              const found = current.find((item) => item.id === p.id);
+              const next = found
+                ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
+                : [...current, { id: p.id, quantity: 1 }];
+              localStorage.setItem(key, JSON.stringify(next));
+              void navigate({ to: "/checkout" });
+            } catch { void navigate({ to: "/checkout" }); }
+          }}><ShoppingCart className="h-4 w-4" /> {t("p.addCartCheckout")}</Button>
+        </div>
+      </div>}
     </div>
   );
 }
