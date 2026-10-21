@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, CheckCheck, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/use-admin";
+import { useT } from "@/lib/i18n";
 import { CATEGORY_LABEL, formatPrice, SHOP_NAME, type Category, type Product } from "@/lib/shop";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
@@ -44,6 +45,8 @@ function Admin() {
 }
 
 function Dashboard() {
+  const { lang } = useT();
+  const tabLabels = lang === "th" ? { overview:"ภาพรวม", inventory:"สต็อก", repairs:"งานซ่อม", support:"ช่วยเหลือลูกค้า", audit:"บันทึกตรวจสอบ", finance:"กำไรและค่าใช้จ่าย" } : lang === "ro" ? { overview:"Prezentare", inventory:"Inventar", repairs:"Reparații", support:"Asistență", audit:"Audit", finance:"Profit și cheltuieli" } : { overview:"Overview", inventory:"Inventory", repairs:"Repairs", support:"Support", audit:"Audit", finance:"Profit & expenses" };
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Product | null | undefined>(undefined);
 
@@ -105,18 +108,18 @@ function Dashboard() {
       </div>
       <Tabs defaultValue="overview">
         <TabsList className="h-auto flex-wrap justify-start gap-1">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="overview">{tabLabels.overview}</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
           <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
           <TabsTrigger value="calc">Profit calculator</TabsTrigger>
           <TabsTrigger value="social">Social</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="repairs">Repairs</TabsTrigger>
-          <TabsTrigger value="support">Support</TabsTrigger>
-          <TabsTrigger value="audit">Audit</TabsTrigger>
-          <TabsTrigger value="finance">Profit & expenses</TabsTrigger>
+          <TabsTrigger value="inventory">{tabLabels.inventory}</TabsTrigger>
+          <TabsTrigger value="repairs">{tabLabels.repairs}</TabsTrigger>
+          <TabsTrigger value="support">{tabLabels.support}</TabsTrigger>
+          <TabsTrigger value="audit">{tabLabels.audit}</TabsTrigger>
+          <TabsTrigger value="finance">{tabLabels.finance}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
