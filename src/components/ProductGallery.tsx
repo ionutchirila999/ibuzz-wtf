@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff, Maximize2 } from "lucide-react";
-import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
