@@ -230,10 +230,8 @@ begin
     raise exception 'Duplicate product in order';
   end if;
   for v_item in select value from jsonb_array_elements(p_items) order by value->>'id' loop
-    if coalesce(v_item.value->>'id','') !~* '^[0-9a-f-]{36}
- then raise exception 'Invalid product'; end if;
-    if coalesce(v_item.value->>'quantity','') !~ '^[0-9]{1,2}
- then raise exception 'Invalid quantity'; end if;
+    if length(coalesce(v_item.value->>'id','')) <> 36 or coalesce(v_item.value->>'id','') ~* '[^0-9a-f-]' then raise exception 'Invalid product'; end if;
+    if length(coalesce(v_item.value->>'quantity','')) not between 1 and 2 or coalesce(v_item.value->>'quantity','') ~ '[^0-9]' then raise exception 'Invalid quantity'; end if;
     v_qty := (v_item.value->>'quantity')::integer;
     if v_qty < 1 or v_qty > 99 then raise exception 'Invalid quantity'; end if;
     select * into v_product from public.products where id = (v_item.value->>'id')::uuid for update;
