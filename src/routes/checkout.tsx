@@ -33,7 +33,7 @@ const COPY = {
     copied: "คัดลอกรายการแล้ว", copy: "คัดลอกรายละเอียดคำสั่งซื้อ", openLine: "เปิด LINE เพื่อส่งคำสั่งซื้อ",
     lineNote: "การเปิด LINE จะไม่ส่งข้อความให้อัตโนมัติ โปรดวางรายละเอียดที่คัดลอกไว้และแนบสลิปด้วยตนเอง",
     pending: "สถานะการชำระเงินจะยังคงรอตรวจสอบจนกว่า iBuzz.wtf จะตรวจสอบยอดเงินจริง การส่งสลิปเพียงอย่างเดียวยังไม่ถือว่ายืนยันการชำระเงิน",
-    orderIntro: "สวัสดี iBuzz.wtf! ฉันต้องการสั่งซื้อสินค้า", orderName: "ชื่อ", orderContact: "ช่องทางติดต่อ", shippingAddress: "ที่อยู่จัดส่ง", shippingAddressPlaceholder: "บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์",
+    orderIntro: "สวัสดี iBuzz.wtf! ฉันต้องการสั่งซื้อสินค้า", orderName: "ชื่อ", orderContact: "ช่องทางติดต่อ",
     orderTotal: "ยอดรวม", payment: "การชำระเงิน: PromptPay (รอตรวจสอบด้วยตนเอง) ฉันจะแนบสลิปในแชต LINE นี้ โปรดยืนยันสต็อกและการชำระเงินก่อนดำเนินการ",
   },
   en: {
@@ -50,7 +50,7 @@ const COPY = {
     copied: "Order copied", copy: "Copy order details", openLine: "Open LINE to send order",
     lineNote: "Opening LINE does not send the message automatically. Paste the copied order details and attach your slip yourself.",
     pending: "Payment status remains pending until iBuzz.wtf manually checks the funds. Sending a slip alone does not confirm payment.",
-    orderIntro: "Hello iBuzz.wtf! I'd like to place an order.", orderName: "Name", orderContact: "Contact", shippingAddress: "Delivery address", shippingAddressPlaceholder: "Street address, district, province, postal code",
+    orderIntro: "Hello iBuzz.wtf! I'd like to place an order.", orderName: "Name", orderContact: "Contact",
     orderTotal: "TOTAL", payment: "Payment: PromptPay (pending manual verification). I will attach my payment slip in this LINE chat. Please confirm stock and payment before processing.",
   },
   ro: {
@@ -67,7 +67,7 @@ const COPY = {
     copied: "Detaliile comenzii au fost copiate", copy: "Copiază detaliile comenzii", openLine: "Deschide LINE pentru a trimite comanda",
     lineNote: "Deschiderea LINE nu trimite automat mesajul. Lipește detaliile copiate și atașează dovada plății.",
     pending: "Plata rămâne în așteptare până când iBuzz.wtf confirmă încasarea. Trimiterea dovezii de plată nu înseamnă că plata a fost confirmată.",
-    orderIntro: "Salut, iBuzz.wtf! Aș dori să plasez o comandă.", orderName: "Nume", orderContact: "Date de contact", shippingAddress: "Adresa de livrare", shippingAddressPlaceholder: "Stradă, district, provincie, cod poștal",
+    orderIntro: "Salut, iBuzz.wtf! Aș dori să plasez o comandă.", orderName: "Nume", orderContact: "Date de contact",
     orderTotal: "TOTAL", payment: "Plată prin PromptPay (în curs de verificare manuală). Voi atașa dovada plății în această conversație LINE. Vă rog să confirmați stocul și plata înainte de procesarea comenzii.",
   },
 } as const;
@@ -97,6 +97,15 @@ function Checkout() {
   useEffect(() => {
     const items = readCart();
     setCart(items);
+    void supabase.auth.getUser().then(({ data }) => {
+      const metadata = data.user?.user_metadata ?? {};
+      setName(current => current || (typeof metadata.full_name === "string" ? metadata.full_name : ""));
+      setContact(current => current || (typeof metadata.phone === "string" ? metadata.phone : ""));
+      const addresses = Array.isArray(metadata.delivery_addresses) ? metadata.delivery_addresses : [];
+      const defaultAddress = addresses.find((item: any) => item && typeof item.address === "string" && item.is_default === true);
+      const fallbackAddress = typeof metadata.delivery_address === "string" ? metadata.delivery_address : "";
+      setShippingAddress(current => current || (typeof defaultAddress?.address === "string" ? defaultAddress.address : fallbackAddress));
+    }).catch(() => { /* Checkout remains editable if profile details cannot be loaded. */ });
     if (!items.length) { setLoading(false); return; }
     void supabase.from("products").select("id,title,title_th,title_ro,price,stock,status").in("id", items.map(x => x.id))
       .then(({ data, error }) => { if (!error && data) setProducts(data as CartProduct[]); setLoading(false); });
