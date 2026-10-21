@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ImageOff, X, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff, Maximize2, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
@@ -19,53 +19,55 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
     const c = photoCaption(lang, photos[i] ?? "");
     return c ? `${title} — ${c}` : `${title} — ${text("photo")} ${i + 1} / ${photos.length}`;
   };
+  const arrowClass = "absolute top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-slate-950/85 text-cyan-100 shadow-lg shadow-black/20 backdrop-blur-md transition-colors hover:border-cyan-300/50 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300";
 
-  if (!photos.length) return <div className="grid aspect-square w-full place-items-center rounded-2xl border border-border bg-muted/40 text-muted-foreground"><ImageOff className="h-8 w-8" aria-label={title} /></div>;
+  if (!photos.length) return <div className="grid aspect-[4/3] w-full place-items-center rounded-xl border border-cyan-300/15 bg-slate-950/55 text-cyan-100/45"><ImageOff className="h-7 w-7" aria-label={title} /></div>;
 
   return (
     <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-    <div className="w-full min-w-0">
-      <div className="grid min-w-0 gap-3 sm:grid-cols-[76px_minmax(0,1fr)] lg:grid-cols-[88px_minmax(0,1fr)]">
-        {photos.length > 1 && <div className="order-2 flex min-w-0 gap-2 overflow-x-auto pb-1 sm:order-1 sm:max-h-[560px] sm:flex-col sm:overflow-x-hidden sm:overflow-y-auto sm:pr-1" role="group" aria-label={text("photo")}>
-          {photos.map((src, i) => <button key={`${src}-${i}`} type="button" onClick={() => setActive(i)} aria-label={photoName(i)} aria-pressed={i === index} className={`relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl border-2 bg-white p-0.5 outline-none focus-visible:ring-2 focus-visible:ring-primary sm:h-[76px] sm:w-[76px] lg:h-[84px] lg:w-[84px] ${i === index ? "border-primary" : "border-border/70"}`}>
-            <img src={src} alt="" loading={i === 0 ? "eager" : "lazy"} className="h-full w-full rounded-lg object-contain" />
-          </button>)}
-        </div>}
-        <div className="order-1 min-w-0 sm:order-2">
-          <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm">
-            <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary" aria-label={text("open")}>
-                <img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="block aspect-square max-h-[min(88vw,620px)] w-full select-none object-contain p-3 sm:max-h-[620px] sm:p-6" />
-                <span className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/95 px-3 py-2 text-xs font-medium text-foreground shadow-sm"><ZoomIn className="h-4 w-4" />{text("open")}</span>
-              </button>
-            {photos.length > 1 && <>
-              <Button type="button" variant="secondary" size="icon" onClick={() => step(-1)} aria-label={text("previous")} className="absolute left-3 top-1/2 z-10 size-10 -translate-y-1/2 rounded-full border border-border/70 bg-background/95 shadow-sm"><ChevronLeft className="h-5 w-5" /></Button>
-              <Button type="button" variant="secondary" size="icon" onClick={() => step(1)} aria-label={text("next")} className="absolute right-3 top-1/2 z-10 size-10 -translate-y-1/2 rounded-full border border-border/70 bg-background/95 shadow-sm"><ChevronRight className="h-5 w-5" /></Button>
-            </>}
-          </div>
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-            <p className="min-w-0 truncate">{caption ?? title}</p>
-            {photos.length > 1 && <span className="shrink-0 tabular-nums">{index + 1} / {photos.length}</span>}
+      <section className="w-full min-w-0" aria-label={title}>
+        <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/70 shadow-[0_12px_40px_-28px_rgba(34,211,238,0.4)]">
+          <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}>
+            <img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="block aspect-[4/3] max-h-[min(62vw,440px)] w-full select-none object-contain p-2.5 sm:aspect-[5/4] sm:max-h-[390px] sm:p-4 lg:max-h-[440px] xl:max-h-[480px]" />
+            <span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span>
+          </button>
+          {photos.length > 1 && <>
+            <button type="button" onClick={() => step(-1)} aria-label={text("previous")} className={`${arrowClass} left-2`}><ChevronLeft className="h-4 w-4" /></button>
+            <button type="button" onClick={() => step(1)} aria-label={text("next")} className={`${arrowClass} right-2`}><ChevronRight className="h-4 w-4" /></button>
+          </>}
+          <div className="flex min-h-8 items-center justify-between gap-3 border-t border-cyan-300/10 bg-slate-950/75 px-3 py-1.5">
+            <p className="min-w-0 truncate text-[11px] text-slate-300/75">{caption ?? title}</p>
+            {photos.length > 1 && <span className="shrink-0 rounded-md border border-cyan-300/15 bg-slate-900 px-2 py-0.5 font-mono text-[10px] tabular-nums text-cyan-100/80">{String(index + 1).padStart(2, "0")} <span className="text-slate-500">/</span> {String(photos.length).padStart(2, "0")}</span>}
           </div>
         </div>
-      </div>
+        {photos.length > 1 && <div className="mt-2 flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:thin]" role="group" aria-label={text("photo")}>
+            {photos.map((src, i) => <button key={`${src}-${i}`} type="button" onClick={() => setActive(i)} aria-label={photoName(i)} aria-pressed={i === index} className={`relative h-[50px] w-[50px] shrink-0 overflow-hidden rounded-lg border bg-slate-950 p-0.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-cyan-300 sm:h-[54px] sm:w-[54px] ${i === index ? "border-cyan-300 shadow-[0_0_0_1px_rgba(103,232,249,0.25)]" : "border-white/10 hover:border-cyan-300/40"}`}>
+              <img src={src} alt="" loading={i === 0 ? "eager" : "lazy"} draggable={false} className="h-full w-full rounded-md object-contain" />
+              {i === index && <span className="absolute inset-x-1 bottom-1 h-0.5 rounded-full bg-cyan-300" />}
+            </button>)}
+          </div>
+          <span className="shrink-0 text-[10px] font-medium tracking-wide text-slate-400">{text("photo").toUpperCase()}</span>
+        </div>}
+      </section>
       <DialogPortal>
-          <DialogOverlay className="bg-black/90" />
-          <DialogContent className="fixed inset-0 z-50 flex h-[100dvh] max-h-[100dvh] w-full max-w-none flex-col gap-0 rounded-none border-0 bg-neutral-950 p-0 text-white sm:inset-4 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:w-auto sm:rounded-2xl sm:border sm:border-white/15">
-            <div className="flex min-h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4">
-              <DialogTitle className="min-w-0 truncate text-sm font-medium">{photoName(index)}</DialogTitle>
-              <DialogClose asChild><Button type="button" variant="ghost" size="icon" aria-label={text("close")} className="size-10 shrink-0 text-white hover:bg-white/10 hover:text-white"><X /></Button></DialogClose>
-            </div>
-            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-12 py-4 sm:px-20">
-              <img src={current} alt={photoName(index)} draggable={false} className="max-h-full max-w-full select-none object-contain" />
-              {photos.length > 1 && <>
-                <Button type="button" variant="ghost" size="icon" onClick={() => step(-1)} aria-label={text("previous")} className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full text-white hover:bg-white/10 hover:text-white sm:left-5"><ChevronLeft className="h-7 w-7" /></Button>
-                <Button type="button" variant="ghost" size="icon" onClick={() => step(1)} aria-label={text("next")} className="absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full text-white hover:bg-white/10 hover:text-white sm:right-5"><ChevronRight className="h-7 w-7" /></Button>
-              </>}
-            </div>
-            <div className="flex shrink-0 items-center justify-center border-t border-white/10 px-4 py-3 text-xs text-white/70">{index + 1} / {photos.length}</div>
-          </DialogContent>
-        </DialogPortal>
-    </div>
+        <DialogOverlay className="bg-slate-950/95 backdrop-blur-xl" />
+        <DialogContent className="fixed inset-2 z-50 flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-none flex-col gap-0 rounded-xl border border-cyan-300/20 bg-slate-950 p-0 text-white shadow-[0_0_80px_-30px_rgba(34,211,238,0.25)] sm:inset-5 sm:h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-2xl">
+          <div className="flex min-h-12 shrink-0 items-center justify-between gap-3 border-b border-cyan-300/15 px-3 sm:px-4">
+            <DialogTitle className="min-w-0 truncate text-xs font-medium text-slate-200 sm:text-sm">{photoName(index)}</DialogTitle>
+            <DialogClose asChild><Button type="button" variant="ghost" size="icon" aria-label={text("close")} className="size-8 shrink-0 text-slate-300 hover:bg-white/10 hover:text-cyan-100"><X className="h-4 w-4" /></Button></DialogClose>
+          </div>
+          <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-3 sm:p-6">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.07),transparent_65%)]" />
+            <img src={current} alt={photoName(index)} draggable={false} className="relative max-h-full max-w-full select-none object-contain" />
+            {photos.length > 1 && <>
+              <button type="button" onClick={() => step(-1)} aria-label={text("previous")} className={`${arrowClass} left-2 sm:left-4`}><ChevronLeft className="h-5 w-5" /></button>
+              <button type="button" onClick={() => step(1)} aria-label={text("next")} className={`${arrowClass} right-2 sm:right-4`}><ChevronRight className="h-5 w-5" /></button>
+            </>}
+          </div>
+          <div className="flex shrink-0 items-center justify-center border-t border-cyan-300/15 px-4 py-2 text-[11px] font-medium tracking-wide text-slate-400">{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</div>
+        </DialogContent>
+      </DialogPortal>
     </Dialog>
   );
 }
