@@ -179,10 +179,6 @@ export function CustomerAccountExtras() {
       </ul>}
     </section>
 
-    <section className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
-      <h2 className="flex items-center gap-2 text-lg font-semibold"><ShieldCheck className="h-5 w-5 text-primary" />{w.security}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">{w.signOutConfirm}</p>
-      <Button type="button" variant="outline" className="mt-4" onClick={() => void signOutAll()}>{w.signOutAll}</Button>
-    </section>
+    
   </div>;
 }
