@@ -12,6 +12,7 @@ import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 import { OrderSupport } from '@/components/account/OrderSupport';
 import { CustomerNotifications } from '@/components/account/CustomerNotifications';
+import { AccountSecurity } from '@/components/account/AccountSecurity';
 import { CustomerAccountExtras } from '@/components/account/CustomerAccountExtras';
 import { safeTrackingUrl } from '@/lib/tracking';
 import { WishlistButton } from '@/components/WishlistButton';
@@ -356,6 +357,7 @@ function Account() {
         </button>
       </div>
       <CustomerNotifications />
+      <AccountSecurity />
       <div id="customer-orders" className="mb-6 flex scroll-mt-6 flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{w.orders}</h2>
         <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
