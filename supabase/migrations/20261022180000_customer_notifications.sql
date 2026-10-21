@@ -88,7 +88,7 @@ begin
      and new.admin_reply is distinct from old.admin_reply then
     insert into public.customer_notifications (user_id, order_id, ticket_id, event_type, metadata)
     values (new.user_id, new.order_id, new.id, 'support_reply',
-      jsonb_build_object('ticket_number', new.ticket_number, 'subject', new.subject));
+      jsonb_build_object('ticket_number', new.ticket_number, 'subject', new.subject, 'reply', left(new.admin_reply, 2000)));
   end if;
   return new;
 end;
