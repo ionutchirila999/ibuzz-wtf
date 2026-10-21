@@ -1,18 +1,27 @@
 import { useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { ChevronLeft, ChevronRight, ImageOff, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, ImageOff, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
-export function ProductGallery({ images, title }: { images: string[]; title: string }) {
+export function ProductGallery({ images, title, videoUrl }: { images: string[]; title: string; videoUrl?: string | null }) {
   const [active, setActive] = useState(0);
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const image = images[active];
   const captions = images.map((src) => photoCaption(lang, src));
+  let videoId: string | null = null;
+  if (videoUrl) {
+    try {
+      const parsed = new URL(videoUrl);
+      if (parsed.protocol === "https:" && (parsed.hostname === "tiktok.com" || parsed.hostname.endsWith(".tiktok.com"))) {
+        videoId = parsed.pathname.match(/\/video\/(\d+)/)?.[1] ?? parsed.pathname.match(/\/player\/v1\/(\d+)/)?.[1] ?? null;
+      }
+    } catch { /* Ignore malformed URLs; the image gallery remains available. */ }
+  }
   const move = (direction: number) => setActive((current) => (current + direction + images.length) % images.length);
   const photoLabel = (index: number) => {
     const caption = captions[index];
@@ -50,6 +59,17 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           {images.map((src, index) => <Button key={`${src}-${index}`} variant="ghost" onClick={() => setActive(index)} aria-label={thumbLabel(index)} aria-current={index === active} className={`size-16 shrink-0 overflow-hidden rounded-md border-2 p-0 ${index === active ? "border-primary" : "border-transparent"}`}>
             <img src={src} alt="" className="h-full w-full object-cover" />
           </Button>)}
+        </div>}
+        {videoUrl && <div className="mt-4 overflow-hidden rounded-xl border bg-card">
+          <div className="flex items-center justify-between gap-3 border-b px-3 py-2">
+            <p className="text-sm font-semibold">{text("productVideo")}</p>
+            <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 text-sm text-primary underline-offset-4 hover:underline">
+              {text("openTikTok")} <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </a>
+          </div>
+          {videoId
+            ? <iframe title={title + " — " + text("productVideo")} src={"https://www.tiktok.com/player/v1/" + videoId + "?controls=1&description=0&music_info=0&loop=0"} className="block aspect-[9/16] max-h-[560px] w-full border-0 bg-black" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
+            : <p className="p-3 text-sm text-muted-foreground">{text("openTikTok")}</p>}
         </div>}
       </div>
       <DialogPortal>
