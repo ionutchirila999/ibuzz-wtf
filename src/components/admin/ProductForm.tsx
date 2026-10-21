@@ -131,8 +131,6 @@ export function ProductForm({ product, onDone }: { product: (Product & { product
       </div>
 
       <div>
->
-      <div>
         <Label>Photos</Label>
         <ImageManager images={f.images} onChange={(v) => set("images", v)} onBusy={setBusy} />
       </div>
