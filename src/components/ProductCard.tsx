@@ -11,7 +11,7 @@ export function ProductCard({ p }: { p: MarketCardProduct }) {
   const { t, lang } = useT();
   const sold = p.status === "sold" || p.stock <= 0;
   return (
-    <Link to="/product/$id" params={{ id: p.id }} className="group overflow-hidden rounded-xl border bg-card transition hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:border-primary/60">
+    <Link to="/product/$id" params={{ id: p.id }} className="group relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-slate-950/90 via-card to-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_16px_38px_-24px_rgba(34,211,238,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
       <div className="relative aspect-square bg-muted">
         {p.images[0] ? (
           <img src={p.images[0]} alt={p.title} loading="lazy" className={`h-full w-full object-cover transition group-hover:scale-105 group-focus-visible:scale-105 ${sold ? "opacity-40" : ""}`} />
