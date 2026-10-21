@@ -18,7 +18,7 @@ type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 
 const empty: Form = {
   market_category: "technology", market_condition: "pre_owned", audience: "all", category: "technology", subcategory: SUBCATEGORIES.technology[0] ?? "", title: "", brand: "", model: "", description: "",
-  images: [], share_image: null, price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
+  images: [], share_image: null, video_url: null, price: 0, negotiable: false, stock: 1, condition: "pre_owned", shoe_size: "", size_system: "EU",
   title_th: "", title_ro: "", description_th: "", description_ro: "",
   translation_status_th: "needs_review", translation_status_ro: "needs_review",
   color: "", material: "", authenticity_verified: false, authenticity_notes: "", delivery_options: "", return_policy: "",
@@ -130,6 +130,11 @@ export function ProductForm({ product, onDone }: { product: (Product & { product
         </div>
       </div>
 
+      <div>
+        <Label>TikTok video URL (optional)</Label>
+        <Input type="url" placeholder="https://www.tiktok.com/@username/video/1234567890" value={f.video_url ?? ""} onChange={(e) => set("video_url", e.target.value.trim() || null)} />
+        <p className="mt-1 text-xs text-muted-foreground">Adds a playable TikTok embed to this product page and a link to open the original video.</p>
+      </div>
       <div>
         <Label>Photos</Label>
         <ImageManager images={f.images} onChange={(v) => set("images", v)} onBusy={setBusy} />
