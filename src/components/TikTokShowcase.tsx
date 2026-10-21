@@ -48,29 +48,29 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
 
   return (
     <section className={owner ? 'min-w-0 space-y-5' : 'section-space min-w-0 overflow-hidden border-y border-border/25 bg-card/20'} aria-labelledby={owner ? 'owner-social-title' : 'public-social-title'}>
-      <div className={owner ? 'min-w-0' : 'mx-auto min-w-0 max-w-6xl px-4 sm:px-6 lg:px-8'}>
+      <div className={owner ? 'min-w-0' : 'mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6 lg:px-8'}>
         <p className="section-eyebrow">{text.eyebrow}</p>
-        <div className="mt-3 flex min-w-0 flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-end">
-          <div className="max-w-2xl">
+        <div className="mt-3 flex min-w-0 flex-col items-stretch justify-between gap-4 lg:flex-row lg:items-end">
+          <div className="min-w-0 max-w-2xl">
             <h2 id={owner ? 'owner-social-title' : 'public-social-title'} className="section-heading">{text.title}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{text.lead}</p>
           </div>
-          <div className="flex min-w-0 flex-wrap gap-2 [&>button]:max-w-full [&>button]:whitespace-normal">
-            <Button type="button" variant="outline" onClick={() => setRefreshKey((value) => value + 1)}><RefreshCw className="mr-1 h-4 w-4" />{text.refresh}</Button>
+          <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap lg:w-auto lg:justify-end [&>button]:max-w-full [&>button]:whitespace-normal">
+            <Button type="button" variant="outline" className="w-full min-w-0 sm:w-auto" onClick={() => setRefreshKey((value) => value + 1)}><RefreshCw className="mr-1 h-4 w-4" />{text.refresh}</Button>
             <Button asChild variant="glow">
-              <a href={owner ? 'https://www.tiktok.com/creator-center' : TIKTOK_URL} target="_blank" rel="noopener noreferrer">
+              <a className="flex w-full min-w-0 items-center justify-center whitespace-normal text-center sm:w-auto" href={owner ? 'https://www.tiktok.com/creator-center' : TIKTOK_URL} target="_blank" rel="noopener noreferrer">
                 {owner ? <Play className="mr-1 h-4 w-4" /> : null}{owner ? text.studio : text.tiktok}<ArrowUpRight className="ml-1 h-4 w-4" />
               </a>
             </Button>
             <Button asChild variant="outline">
-              <a href={owner ? 'https://studio.youtube.com/' : YOUTUBE_URL} target="_blank" rel="noopener noreferrer">
+              <a className="flex w-full min-w-0 items-center justify-center whitespace-normal text-center sm:w-auto" href={owner ? 'https://studio.youtube.com/' : YOUTUBE_URL} target="_blank" rel="noopener noreferrer">
                 <Youtube className="mr-1 h-4 w-4" />{owner ? text.youtubeStudio : text.youtube}<ExternalLink className="ml-1 h-4 w-4" />
               </a>
             </Button>
           </div>
         </div>
-        <div className="mt-6 w-full min-w-0 overflow-hidden rounded-xl border border-border/40 bg-background/70 p-2 sm:p-4">
-          <blockquote key={refreshKey} className="tiktok-embed" cite={TIKTOK_URL} data-unique-id="ibuzz.wtf" data-embed-type="creator" style={{ width: '100%', maxWidth: '780px', minWidth: '0', margin: '0 auto' }}>
+        <div className="mt-6 w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-border/40 bg-background/70 p-2 sm:p-4 [&_iframe]:!max-w-full">
+          <blockquote key={refreshKey} className="tiktok-embed !mx-auto !w-full !min-w-0 !max-w-full" cite={TIKTOK_URL} data-unique-id="ibuzz.wtf" data-embed-type="creator" style={{ width: '100%', maxWidth: '780px', minWidth: 0, margin: '0 auto' }}>
             <section><a target="_blank" rel="noopener noreferrer" href={TIKTOK_URL}>@ibuzz.wtf</a></section>
           </blockquote>
         </div>
