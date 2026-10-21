@@ -164,3 +164,27 @@
 .google-mark { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: white; color: #4285f4; font-weight: 800; font-size: .9rem; }
 @keyframes auth-float { from { transform: translate3d(0, -8px, 0) scale(.96); } to { transform: translate3d(12px, 14px, 0) scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .auth-orb { animation: none; } .auth-panel, .auth-panel input, .auth-panel button { transition: none; } }
+
+
+/* TikTok's official embed ships fixed desktop dimensions; constrain it to its parent on every viewport. */
+.tiktok-embed,
+blockquote.tiktok-embed {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 780px !important;
+  min-width: 0 !important;
+  margin-inline: auto !important;
+}
+.tiktok-embed iframe,
+blockquote.tiktok-embed iframe {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+@media (max-width: 639px) {
+  .tiktok-embed,
+  blockquote.tiktok-embed {
+    padding: 0 !important;
+  }
+}
