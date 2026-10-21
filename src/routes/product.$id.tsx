@@ -86,7 +86,7 @@ function ProductPage() {
     <div className="mx-auto max-w-6xl px-4 py-6">
       <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
       <div className="grid gap-8 md:grid-cols-2">
-        <ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} />
+        <ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} />
         <div className="space-y-5">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
