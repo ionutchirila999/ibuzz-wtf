@@ -83,17 +83,17 @@ function ProductPage() {
   ];
 
   return (
-    <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+    <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-clip px-4 py-5 sm:px-6 sm:py-8">
       <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:gap-10">
+      <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10">
         <section className="min-w-0 rounded-2xl border border-border/70 bg-card/70 p-3 shadow-xl shadow-black/5 backdrop-blur sm:p-5"><ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} /><div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1.5"><PackageCheck className="h-3.5 w-3.5 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>{p.authenticity_verified && <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-emerald-600"><ShieldCheck className="h-3.5 w-3.5" />{t("p.auth")}</span>}</div></section>
         <div className="min-w-0 space-y-5 lg:sticky lg:top-24 lg:self-start">
           <div className="flex flex-wrap gap-2">
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
             {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
           </div>
-          <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{localizedTitle(p, lang)}</h1>
-          <p className="border-b border-border/70 pb-5 font-display text-4xl font-extrabold tracking-tight text-primary sm:text-5xl">
+          <h1 className="min-w-0 max-w-full break-words text-pretty text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-4xl">{localizedTitle(p, lang)}</h1>
+          <p className="min-w-0 max-w-full break-words border-b border-border/70 pb-5 font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl lg:text-5xl">
             {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
           </p>
           {sold && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4"><div className="flex items-center gap-2 text-warning"><Ban className="h-5 w-5 shrink-0" /><p className="font-display text-base font-bold">{t("p.soldOut")}</p></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{t("p.soldNotice")}</p></div>}
