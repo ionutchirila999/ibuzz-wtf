@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2 } from 'lucide-react';
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 import { CustomerAccountExtras } from '@/components/account/CustomerAccountExtras';
 import { safeTrackingUrl } from '@/lib/tracking';
+import { WishlistButton } from '@/components/WishlistButton';
 
 export const Route = createFileRoute('/account')({
   staticData: { sitemap: 'exclude-subtree' },
@@ -24,8 +25,8 @@ type Order = { id: string; order_number: string; buyer_name: string; buyer_conta
 
 const WORDS = {
   th: { changeEmail:'เปลี่ยนอีเมล', newEmail:'อีเมลใหม่', saveEmail:'ส่งคำขอเปลี่ยนอีเมล', emailChangeSent:'ส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว โปรดเปิดลิงก์เพื่อยืนยันการเปลี่ยนแปลง', emailChangeError:'ไม่สามารถส่งคำขอเปลี่ยนอีเมลได้', forgotPassword:'ลืมรหัสผ่าน?', resetSent:'ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลแล้ว โปรดตรวจสอบกล่องจดหมาย', resetError:'ไม่สามารถส่งลิงก์รีเซ็ตรหัสผ่านได้', changePassword:'เปลี่ยนรหัสผ่าน', newPassword:'รหัสผ่านใหม่', confirmPassword:'ยืนยันรหัสผ่านใหม่', savePassword:'บันทึกรหัสผ่าน', passwordUpdated:'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', passwordMismatch:'รหัสผ่านไม่ตรงกัน', passwordMin:'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', title:'บัญชีของฉัน', profileTitle:'ข้อมูลส่วนตัวและที่อยู่', fullName:'ชื่อ-นามสกุล', phone:'โทรศัพท์', preferredLanguage:'ภาษาที่ต้องการ', addresses:'ที่อยู่จัดส่งที่บันทึกไว้', addressLabel:'ชื่อที่อยู่ เช่น บ้าน/ที่ทำงาน', addressText:'ที่อยู่จัดส่ง', addAddress:'เพิ่มที่อยู่', saveProfile:'บันทึกข้อมูล', profileSaved:'บันทึกข้อมูลส่วนตัวแล้ว', profileError:'บันทึกข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง', setDefault:'ตั้งเป็นที่อยู่หลัก', defaultAddress:'ที่อยู่หลัก', removeAddress:'ลบที่อยู่', addressRequired:'กรุณากรอกชื่อและที่อยู่ให้ครบ', privacyNote:'ข้อมูลนี้เป็นข้อมูลส่วนตัวของบัญชีคุณ', lead:'เข้าสู่ระบบหรือสร้างบัญชีเพื่อติดตามคำสั่งซื้อ', email:'อีเมล', password:'รหัสผ่าน', signIn:'เข้าสู่ระบบ', signUp:'สร้างบัญชี', create:'สร้างบัญชีลูกค้า', switchIn:'มีบัญชีแล้ว? เข้าสู่ระบบ', switchUp:'ยังไม่มีบัญชี? สร้างบัญชี', sent:'โปรดตรวจสอบอีเมลเพื่อยืนยันบัญชี ก่อนเข้าสู่ระบบ', orders:'คำสั่งซื้อของฉัน', empty:'ยังไม่มีคำสั่งซื้อ', shop:'เลือกซื้อสินค้า', signOut:'ออกจากระบบ', order:'คำสั่งซื้อ', date:'วันที่', total:'ยอดรวม', payment:'การชำระเงิน', status:'สถานะคำสั่งซื้อ', tracking:'เลขติดตามพัสดุ', track:'ติดตามพัสดุ', items:'รายการสินค้า', pending:'รอตรวจสอบ', submitted:'ส่งหลักฐานแล้ว', paid:'ชำระแล้ว', failed:'ชำระไม่สำเร็จ', refunded:'คืนเงินแล้ว', received:'ได้รับคำสั่งซื้อ', confirmed:'ยืนยันแล้ว', processing:'กำลังดำเนินการ', shipped:'จัดส่งแล้ว', ready_for_pickup:'พร้อมรับสินค้า', completed:'เสร็จสิ้น', cancelled:'ยกเลิกแล้ว', loading:'กำลังโหลด…', error:'ไม่สามารถโหลดคำสั่งซื้อได้ กรุณาลองใหม่', signInRequired:'เข้าสู่ระบบเพื่อดูคำสั่งซื้อของคุณ' },
-  en: { changeEmail:'Change email', newEmail:'New email address', saveEmail:'Request email change', emailChangeSent:'A confirmation link was sent to your new email. Open it to confirm the change.', emailChangeError:'Could not request an email change. Please try again.', forgotPassword:'Forgot password?', resetSent:'Password reset link sent. Check your email inbox.', resetError:'Could not send the password reset email. Please try again.', changePassword:'Change password', newPassword:'New password', confirmPassword:'Confirm new password', savePassword:'Update password', passwordUpdated:'Password updated successfully.', passwordMismatch:'Passwords do not match.', passwordMin:'Password must be at least 8 characters.', title:'My Account', profileTitle:'Personal profile & addresses', fullName:'Full name', phone:'Phone', preferredLanguage:'Preferred language', addresses:'Saved delivery addresses', addressLabel:'Address label, e.g. Home or Work', addressText:'Delivery address', addAddress:'Add address', saveProfile:'Save profile', profileSaved:'Profile saved successfully.', profileError:'Could not save your profile. Please try again.', setDefault:'Set as default', defaultAddress:'Default address', removeAddress:'Remove address', addressRequired:'Enter both an address label and delivery address.', privacyNote:'This information is private to your account.', lead:'Sign in or create an account to track your orders.', email:'Email', password:'Password', signIn:'Sign in', signUp:'Create account', create:'Create customer account', switchIn:'Already have an account? Sign in', switchUp:'New here? Create an account', sent:'Check your email to confirm your account before signing in.', orders:'My Orders', empty:'No orders yet.', shop:'Browse Market', signOut:'Sign out', order:'Order', date:'Date', total:'Total', payment:'Payment', status:'Order status', tracking:'Tracking number', track:'Track shipment', items:'Items', pending:'Pending verification', submitted:'Proof submitted', paid:'Paid', failed:'Payment failed', refunded:'Refunded', received:'Order received', confirmed:'Confirmed', processing:'Processing', shipped:'Shipped', ready_for_pickup:'Ready for pickup', completed:'Completed', cancelled:'Cancelled', loading:'Loading orders…', error:'Could not load orders. Please try again.', signInRequired:'Sign in to view your orders.' },
-  ro: { changeEmail:'Schimbă e-mailul', newEmail:'Adresă de e-mail nouă', saveEmail:'Solicită schimbarea e-mailului', emailChangeSent:'Un link de confirmare a fost trimis la noua adresă. Deschide-l pentru a confirma schimbarea.', emailChangeError:'Nu s-a putut solicita schimbarea e-mailului. Încearcă din nou.', forgotPassword:'Ai uitat parola?', resetSent:'Linkul de resetare a fost trimis. Verifică e-mailul.', resetError:'Nu s-a putut trimite e-mailul de resetare. Încearcă din nou.', changePassword:'Schimbă parola', newPassword:'Parolă nouă', confirmPassword:'Confirmă parola nouă', savePassword:'Actualizează parola', passwordUpdated:'Parola a fost actualizată cu succes.', passwordMismatch:'Parolele nu coincid.', passwordMin:'Parola trebuie să aibă cel puțin 8 caractere.', title:'Contul meu', profileTitle:'Profil personal și adrese', fullName:'Nume complet', phone:'Telefon', preferredLanguage:'Limba preferată', addresses:'Adrese de livrare salvate', addressLabel:'Eticheta adresei, ex. Acasă sau Serviciu', addressText:'Adresa de livrare', addAddress:'Adaugă adresă', saveProfile:'Salvează profilul', profileSaved:'Profilul a fost salvat.', profileError:'Profilul nu a putut fi salvat. Încearcă din nou.', setDefault:'Setează ca implicită', defaultAddress:'Adresă implicită', removeAddress:'Elimină adresa', addressRequired:'Introdu atât eticheta, cât și adresa de livrare.', privacyNote:'Aceste informații sunt private pentru contul tău.', lead:'Autentifică-te sau creează un cont pentru a urmări comenzile.', email:'E-mail', password:'Parolă', signIn:'Autentificare', signUp:'Creează cont', create:'Creează cont de client', switchIn:'Ai deja un cont? Autentifică-te', switchUp:'Cont nou? Creează unul', sent:'Verifică e-mailul pentru a confirma contul înainte de autentificare.', orders:'Comenzile mele', empty:'Nu ai încă nicio comandă.', shop:'Vezi produsele', signOut:'Deconectare', order:'Comandă', date:'Data', total:'Total', payment:'Plată', status:'Starea comenzii', tracking:'Număr de urmărire', track:'Urmărește coletul', items:'Produse', pending:'În așteptarea verificării', submitted:'Dovadă trimisă', paid:'Plătit', failed:'Plată eșuată', refunded:'Rambursat', received:'Comandă primită', confirmed:'Confirmată', processing:'În procesare', shipped:'Expediată', ready_for_pickup:'Pregătită pentru ridicare', completed:'Finalizată', cancelled:'Anulată', loading:'Se încarcă comenzile…', error:'Comenzile nu au putut fi încărcate. Încearcă din nou.', signInRequired:'Autentifică-te pentru a vedea comenzile.' },
+  en: { changeEmail:'Change email', newEmail:'New email address', saveEmail:'Request email change', emailChangeSent:'A confirmation link was sent to your new email. Open it to confirm the change.', emailChangeError:'Could not request an email change. Please try again.', forgotPassword:'Forgot password?', resetSent:'Password reset link sent. Check your email inbox.', resetError:'Could not send the password reset email. Please try again.', changePassword:'Change password', newPassword:'New password', confirmPassword:'Confirm new password', savePassword:'Update password', passwordUpdated:'Password updated successfully.', passwordMismatch:'Passwords do not match.', passwordMin:'Password must be at least 8 characters.', title:'My Account', profileTitle:'Personal profile & addresses', fullName:'Full name', phone:'Phone', preferredLanguage:'Preferred language', addresses:'Saved delivery addresses', addressLabel:'Address label, e.g. Home or Work', addressText:'Delivery address', addAddress:'Add address', saveProfile:'Save profile', profileSaved:'Profile saved successfully.', profileError:'Could not save your profile. Please try again.', setDefault:'Set as default', defaultAddress:'Default address', removeAddress:'Remove address', addressRequired:'Enter both an address label and delivery address.', privacyNote:'This information is private to your account.', lead:'Sign in or create an account to track your orders.', email:'Email', password:'Password', signIn:'Sign in', signUp:'Create account', create:'Create customer account', switchIn:'Already have an account? Sign in', switchUp:'New here? Create an account', sent:'Check your email to confirm your account before signing in.', orders:'My Orders', empty:'No orders yet.', shop:'Browse Market', signOut:'Sign out', order:'Order', date:'Date', total:'Total', payment:'Payment', status:'Order status', tracking:'Tracking number', track:'Track shipment', items:'Items', pending:'Pending verification', submitted:'Proof submitted', paid:'Paid', failed:'Payment failed', refunded:'Refunded', received:'Order received', confirmed:'Confirmed', processing:'Processing', shipped:'Shipped', ready_for_pickup:'Ready for pickup', completed:'Completed', cancelled:'Cancelled', loading:'Loading orders…', error:'Could not load orders. Please try again.', signInRequired:'Sign in to view your orders.', wishlist:'My wishlist', wishlistEmpty:'No saved products yet.', removeSaved:'Remove', available:'In stock', soldOut:'Sold out', },
+  ro: { changeEmail:'Schimbă e-mailul', newEmail:'Adresă de e-mail nouă', saveEmail:'Solicită schimbarea e-mailului', emailChangeSent:'Un link de confirmare a fost trimis la noua adresă. Deschide-l pentru a confirma schimbarea.', emailChangeError:'Nu s-a putut solicita schimbarea e-mailului. Încearcă din nou.', forgotPassword:'Ai uitat parola?', resetSent:'Linkul de resetare a fost trimis. Verifică e-mailul.', resetError:'Nu s-a putut trimite e-mailul de resetare. Încearcă din nou.', changePassword:'Schimbă parola', newPassword:'Parolă nouă', confirmPassword:'Confirmă parola nouă', savePassword:'Actualizează parola', passwordUpdated:'Parola a fost actualizată cu succes.', passwordMismatch:'Parolele nu coincid.', passwordMin:'Parola trebuie să aibă cel puțin 8 caractere.', title:'Contul meu', profileTitle:'Profil personal și adrese', fullName:'Nume complet', phone:'Telefon', preferredLanguage:'Limba preferată', addresses:'Adrese de livrare salvate', addressLabel:'Eticheta adresei, ex. Acasă sau Serviciu', addressText:'Adresa de livrare', addAddress:'Adaugă adresă', saveProfile:'Salvează profilul', profileSaved:'Profilul a fost salvat.', profileError:'Profilul nu a putut fi salvat. Încearcă din nou.', setDefault:'Setează ca implicită', defaultAddress:'Adresă implicită', removeAddress:'Elimină adresa', addressRequired:'Introdu atât eticheta, cât și adresa de livrare.', privacyNote:'Aceste informații sunt private pentru contul tău.', lead:'Autentifică-te sau creează un cont pentru a urmări comenzile.', email:'E-mail', password:'Parolă', signIn:'Autentificare', signUp:'Creează cont', create:'Creează cont de client', switchIn:'Ai deja un cont? Autentifică-te', switchUp:'Cont nou? Creează unul', sent:'Verifică e-mailul pentru a confirma contul înainte de autentificare.', orders:'Comenzile mele', empty:'Nu ai încă nicio comandă.', shop:'Vezi produsele', signOut:'Deconectare', order:'Comandă', date:'Data', total:'Total', payment:'Plată', status:'Starea comenzii', tracking:'Număr de urmărire', track:'Urmărește coletul', items:'Produse', pending:'În așteptarea verificării', submitted:'Dovadă trimisă', paid:'Plătit', failed:'Plată eșuată', refunded:'Rambursat', received:'Comandă primită', confirmed:'Confirmată', processing:'În procesare', shipped:'Expediată', ready_for_pickup:'Pregătită pentru ridicare', completed:'Finalizată', cancelled:'Anulată', loading:'Se încarcă comenzile…', error:'Comenzile nu au putut fi încărcate. Încearcă din nou.', signInRequired:'Autentifică-te pentru a vedea comenzile.', wishlist:'Favoritele mele', wishlistEmpty:'Nu ai produse salvate încă.', removeSaved:'Elimină', available:'În stoc', soldOut:'Stoc epuizat', },
 } as const;
 
 function Account() {
@@ -39,6 +40,9 @@ function Account() {
   const [resetMode, setResetMode] = useState(false);
   const [userEmail, setUserEmail] = useState<string|null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  type WishlistProduct = { id: string; title: string; title_th: string | null; title_ro: string | null; brand: string | null; images: string[]; price: number | null; stock: number; status: string; };
+  const [wishlist, setWishlist] = useState<WishlistProduct[]>([]);
+  const [loadingWishlist, setLoadingWishlist] = useState(false);
   type SavedAddress = { id: string; label: string; address: string; is_default: boolean };
   const [profileName, setProfileName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
@@ -154,6 +158,29 @@ function Account() {
     setLoadingOrders(false);
   }
 
+  async function loadWishlist(userId?: string) {
+    setLoadingWishlist(true);
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const ownerId = userId ?? authData.user?.id;
+    if (authError || !ownerId) { setWishlist([]); setLoadingWishlist(false); return; }
+    const { data: saved, error: savedError } = await (supabase as any).from('wishlist_items').select('product_id').eq('user_id', ownerId).order('created_at', { ascending: false });
+    if (savedError || !saved?.length) { setWishlist([]); setLoadingWishlist(false); return; }
+    const ids = saved.map((row: { product_id: string }) => row.product_id);
+    const { data: products, error: productsError } = await (supabase as any).from('products').select('id,title,title_th,title_ro,brand,images,price,stock,status').in('id', ids);
+    if (productsError) { setWishlist([]); } else {
+      const byId = new Map((products ?? []).map((p: WishlistProduct) => [p.id, p]));
+      setWishlist(ids.map((id: string) => byId.get(id)).filter(Boolean) as WishlistProduct[]);
+    }
+    setLoadingWishlist(false);
+  }
+
+  async function removeWishlist(productId: string) {
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) return;
+    const { error: removeError } = await (supabase as any).from('wishlist_items').delete().eq('user_id', authData.user.id).eq('product_id', productId);
+    if (!removeError) setWishlist(current => current.filter(product => product.id !== productId));
+  }
+
   useEffect(() => {
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -161,12 +188,12 @@ function Account() {
       setUserEmail(data.session?.user.email ?? null);
       if (data.session?.user) loadProfile(data.session.user);
       setSessionLoading(false);
-      if (data.session?.user) void loadOrders(data.session.user.id);
+      if (data.session?.user) { void loadOrders(data.session.user.id); void loadWishlist(data.session.user.id); }
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user.email ?? null);
-      if (session?.user) { loadProfile(session.user); void loadOrders(session.user.id); }
-      else { setOrders([]); setProfileName(''); setProfilePhone(''); setSavedAddresses([]); }
+      if (session?.user) { loadProfile(session.user); void loadOrders(session.user.id); void loadWishlist(session.user.id); }
+      else { setOrders([]); setWishlist([]); setProfileName(''); setProfilePhone(''); setSavedAddresses([]); }
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, [lang]);
@@ -189,6 +216,7 @@ function Account() {
     setUserEmail(result.data.user?.email ?? email.trim());
     loadProfile(result.data.user);
     await loadOrders(result.data.user?.id);
+    await loadWishlist(result.data.user?.id);
   }
 
   async function signInWithProvider(provider: 'google') {
@@ -203,6 +231,7 @@ function Account() {
     setUserEmail(signedInUser?.email ?? null);
     loadProfile(signedInUser);
     await loadOrders(signedInUser?.id);
+    await loadWishlist(signedInUser?.id);
     setBusy(false);
   }
 
@@ -281,6 +310,27 @@ function Account() {
           <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4"><Button type="submit" disabled={busy}>{busy ? w.loading : w.saveProfile}</Button>{notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}</div>
           {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
         </form>
+      </section>
+      <section className="mb-7 rounded-2xl border border-border/50 bg-card/30 p-5 sm:p-6" id="customer-wishlist">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div><p className="section-eyebrow">{lang === 'th' ? 'บันทึกไว้' : lang === 'ro' ? 'SALVATE' : 'SAVED'}</p><h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><Heart className="h-5 w-5 text-primary" />{w.wishlist} <Badge variant="secondary">{wishlist.length}</Badge></h2></div>
+          <Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
+        </div>
+        {loadingWishlist ? <p className="py-6 text-center text-sm text-muted-foreground">{w.loading}</p> : wishlist.length === 0 ? <div className="rounded-xl border border-dashed p-8 text-center"><Heart className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{w.wishlistEmpty}</p><Button asChild className="mt-4"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div> : <div className="grid gap-3 sm:grid-cols-2">
+          {wishlist.map(product => {
+            const sold = product.status === 'sold' || product.stock <= 0;
+            const title = (lang === 'th' ? product.title_th : lang === 'ro' ? product.title_ro : null) || product.title;
+            return <article key={product.id} className="flex min-w-0 gap-3 rounded-xl border border-border/50 bg-background/50 p-3">
+              <Link to="/product/$id" params={{ id: product.id }} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">{product.images?.[0] ? <img src={product.images[0]} alt={title} loading="lazy" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div>}</Link>
+              <div className="min-w-0 flex-1">
+                <Link to="/product/$id" params={{ id: product.id }} className="line-clamp-2 font-semibold hover:text-primary">{title}</Link>
+                <p className="mt-1 text-sm font-bold text-primary">{typeof product.price === 'number' ? `฿${product.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : ''}</p>
+                <p className={`mt-1 text-xs ${sold ? 'text-destructive' : 'text-emerald-600'}`}>{sold ? w.soldOut : `${w.available} · ${product.stock}`}</p>
+                <Button type="button" variant="ghost" size="sm" className="mt-1 h-8 px-2 text-muted-foreground" onClick={() => void removeWishlist(product.id)}><Trash2 className="mr-1 h-3.5 w-3.5" />{w.removeSaved}</Button>
+              </div>
+            </article>;
+          })}
+        </div>}
       </section>
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-border/50 bg-card/40 p-4">
