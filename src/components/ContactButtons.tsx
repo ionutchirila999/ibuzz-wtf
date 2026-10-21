@@ -3,7 +3,12 @@ import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { SHOP_CONTACT, type Product } from "@/lib/shop";
 
-export function ContactButtons({ product: _product, disabled }: { product?: Product; disabled?: boolean }) {
+export function ContactButtons({
+  disabled,
+}: {
+  product?: Product;
+  disabled?: boolean;
+}) {
   if (disabled) {
     return (
       <Button
