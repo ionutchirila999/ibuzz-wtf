@@ -122,7 +122,7 @@ function Checkout() {
     ...items.map(item => `${item.displayTitle} × ${item.quantity} — ${formatPrice(item.price * item.quantity)}`),
     `${c.orderTotal}: ${formatPrice(total)} THB`,
     c.payment,
-  ].filter((line): line is string => line !== null).join("\\n");
+  ].filter((line): line is string => line !== null).join("\n");
   const copyOrder = async () => { try { await navigator.clipboard.writeText(orderText()); setCopied(true); } catch { setCopied(false); } };
   const makeQrPng = async () => {
     const response = await fetch("/promptpay-qr.svg");
