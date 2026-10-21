@@ -48,7 +48,7 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
           <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap lg:w-auto lg:justify-end [&>button]:max-w-full [&>button]:whitespace-normal">
             <Button asChild variant="glow">
               <a className="flex w-full min-w-0 items-center justify-center whitespace-normal text-center sm:w-auto" href={owner ? 'https://www.tiktok.com/creator-center' : TIKTOK_URL} target="_blank" rel="noopener noreferrer">
-                {owner ? <Play className="mr-1 h-4 w-4" /> : null}{owner ? text.studio : text.tiktok}<ArrowUpRight className="ml-1 h-4 w-4" />
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="mr-1 h-4 w-4 shrink-0" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.1V2h-3.55v13.67a2.9 2.9 0 0 1-2.9 2.75 2.9 2.9 0 1 1 0-5.8c.3 0 .59.05.86.13V9.13a6.5 6.5 0 1 0 5.59 6.44V8.6a8.35 8.35 0 0 0 4.88 1.57V6.64a4.84 4.84 0 0 1-1.11.05Z"/></svg>{owner ? text.studio : text.tiktok}<ArrowUpRight className="ml-1 h-4 w-4" />
               </a>
             </Button>
             <Button asChild variant="outline">
@@ -60,7 +60,7 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         </div>
       </div>
       <div
-        className="mx-auto flex w-full max-w-6xl justify-center overflow-x-auto overflow-y-hidden scroll-smooth px-3 pb-3"
+        className="mx-auto mt-8 flex w-full max-w-6xl justify-center overflow-x-auto overflow-y-hidden scroll-smooth px-3 pb-3 sm:mt-10"
         style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(34, 211, 238, 0.75) transparent', WebkitOverflowScrolling: 'touch' }}
       >
         <div className="flex w-max min-w-0 items-start justify-center gap-3">
