@@ -10,6 +10,8 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const photos = images.filter((src): src is string => typeof src === "string" && src.trim().length > 0);
+  const isVideo = (src: string) => /\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
+  const currentIsVideo = photos[active] ? isVideo(photos[active]) : false;
   const index = photos.length ? Math.min(active, photos.length - 1) : 0;
   const current = photos[index];
   const caption = current ? photoCaption(lang, current) : null;
@@ -27,7 +29,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
       <section className="w-full min-w-0" aria-label={title}>
         <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/70 shadow-[0_12px_40px_-28px_rgba(34,211,238,0.4)]">
           <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}>
-            <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]"><img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="h-full w-full select-none object-contain" /></div>
+            <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]">{currentIsVideo ? <video src={current} controls playsInline preload="metadata" className="h-full w-full select-none object-contain" aria-label={photoName(index)} /> : <img src={current} alt={photoName(index)} fetchPriority="high" draggable={false} className="h-full w-full select-none object-contain" />}</div>
             <span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span>
           </button>
           {photos.length > 1 && <>
@@ -42,7 +44,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
         {photos.length > 1 && <div className="mt-2 flex min-w-0 items-center gap-2">
           <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:thin]" role="group" aria-label={text("photo")}>
             {photos.map((src, i) => <button key={`${src}-${i}`} type="button" onClick={() => setActive(i)} aria-label={photoName(i)} aria-pressed={i === index} className={`relative h-[50px] w-[50px] shrink-0 overflow-hidden rounded-lg border bg-slate-950 p-0.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-cyan-300 sm:h-[54px] sm:w-[54px] ${i === index ? "border-cyan-300 shadow-[0_0_0_1px_rgba(103,232,249,0.25)]" : "border-white/10 hover:border-cyan-300/40"}`}>
-              <img src={src} alt="" loading={i === 0 ? "eager" : "lazy"} draggable={false} className="h-full w-full rounded-md object-contain" />
+              {isVideo(src) ? <video src={src} muted playsInline preload="metadata" className="h-full w-full rounded-md object-contain" /> : <img src={src} alt="" loading={i === 0 ? "eager" : "lazy"} draggable={false} className="h-full w-full rounded-md object-contain" />}
               {i === index && <span className="absolute inset-x-1 bottom-1 h-0.5 rounded-full bg-cyan-300" />}
             </button>)}
           </div>
@@ -56,7 +58,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           </div>
           <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.07),transparent_65%)]" />
-            <img src={current} alt={photoName(index)} draggable={false} className="relative max-h-full max-w-full select-none object-contain" />
+            {currentIsVideo ? <video src={current} controls autoPlay playsInline className="relative max-h-full max-w-full select-none object-contain" aria-label={photoName(index)} /> : <img src={current} alt={photoName(index)} draggable={false} className="relative max-h-full max-w-full select-none object-contain" />}
             {photos.length > 1 && <>
               <button type="button" onClick={() => step(-1)} aria-label={text("previous")} className={`${arrowClass} left-2 sm:left-4`}><ChevronLeft className="h-5 w-5" /></button>
               <button type="button" onClick={() => step(1)} aria-label={text("next")} className={`${arrowClass} right-2 sm:right-4`}><ChevronRight className="h-5 w-5" /></button>
