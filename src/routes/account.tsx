@@ -13,7 +13,6 @@ import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails'
 import { OrderSupport } from '@/components/account/OrderSupport';
 import { CustomerNotifications } from '@/components/account/CustomerNotifications';
 import { AccountSecurity } from '@/components/account/AccountSecurity';
-import { CustomerAccountExtras } from '@/components/account/CustomerAccountExtras';
 import { safeTrackingUrl } from '@/lib/tracking';
 import { WishlistButton } from '@/components/WishlistButton';
 
@@ -78,7 +77,8 @@ function Account() {
     const savedLanguage = profile.preferred_language;
     if (savedLanguage === 'th' || savedLanguage === 'en' || savedLanguage === 'ro') {
       setProfileLanguage(savedLanguage);
-      setLang(savedLanguage);
+      const browserLanguage = typeof window !== 'undefined' ? window.localStorage.getItem('lang') : null;
+      if (browserLanguage !== 'th' && browserLanguage !== 'en' && browserLanguage !== 'ro') setLang(savedLanguage);
     } else {
       setProfileLanguage(lang);
     }
@@ -199,7 +199,7 @@ function Account() {
       else { setOrders([]); setWishlist([]); setProfileName(''); setProfilePhone(''); setSavedAddresses([]); }
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
-  }, [lang]);
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setBusy(true); setError(''); setNotice('');
@@ -290,31 +290,50 @@ function Account() {
         {error && <p role="alert" className="mt-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}{notice && <p role="status" className="mt-4 rounded-xl border border-border/60 bg-muted/30 p-3 text-sm text-muted-foreground">{notice}</p>}
         {!resetMode && <p className="mt-6 border-t border-border/60 pt-5 text-center text-sm text-muted-foreground">{mode === 'in' ? w.switchUp : w.switchIn} <button type="button" className="ml-1 font-semibold text-primary underline-offset-4 hover:underline" onClick={()=>{setMode(mode==='in'?'up':'in');setError('');setNotice('');}}>{mode === 'in' ? w.signUp : w.signIn}</button></p>}
       </div>
-    </section> : <section className="mt-8"><div className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/50 bg-card/30 p-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
-      <section className="mb-7 rounded-2xl border border-border/50 bg-card/30 p-5 sm:p-6">
-        <div className="mb-5"><p className="section-eyebrow">{lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'PROFIL' : 'PROFILE'}</p><h2 className="mt-1 text-xl font-semibold">{w.profileTitle}</h2><p className="mt-2 text-sm text-muted-foreground">{w.privacyNote}</p></div>
-        <form onSubmit={saveProfile} className="space-y-5">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="profile-full-name">{w.fullName}</Label><Input id="profile-full-name" value={profileName} onChange={e => setProfileName(e.target.value)} maxLength={100} autoComplete="name" required /></div>
-            <div className="space-y-2"><Label htmlFor="profile-phone">{w.phone}</Label><Input id="profile-phone" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} maxLength={150} autoComplete="tel" /></div>
-            <div className="space-y-2 sm:col-span-2"><Label htmlFor="profile-language">{w.preferredLanguage}</Label><select id="profile-language" value={profileLanguage} onChange={e => setProfileLanguage(e.target.value as Lang)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="th">ไทย</option><option value="en">English</option><option value="ro">Română</option></select></div>
-          </div>
-          <div className="space-y-3 border-t border-border/40 pt-5">
-            <div><h3 className="font-semibold">{w.addresses}</h3><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'เลือกที่อยู่หลักที่จะใช้เติมอัตโนมัติในหน้าชำระเงิน' : lang === 'ro' ? 'Adresa implicită va fi completată automat la finalizarea comenzii.' : 'Your default address will be prefilled at checkout.'}</p></div>
-            {savedAddresses.map(address => <div key={address.id} className="rounded-xl border border-border/50 bg-background/50 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-medium">{address.label}</p>{address.is_default && <Badge variant="secondary">{w.defaultAddress}</Badge>}</div><p className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground">{address.address}</p></div><div className="flex flex-wrap gap-2"><Button type="button" size="sm" variant="outline" onClick={() => { setEditingAddressId(address.id); setAddressLabel(address.label); setAddressText(address.address); }}>{lang === 'th' ? 'แก้ไข' : lang === 'ro' ? 'Editează' : 'Edit'}</Button>{!address.is_default && <Button type="button" size="sm" variant="outline" onClick={() => setSavedAddresses(current => current.map(item => ({ ...item, is_default: item.id === address.id })))}>{w.setDefault}</Button>}<Button type="button" size="sm" variant="ghost" onClick={() => setSavedAddresses(current => { const next = current.filter(item => item.id !== address.id); if (address.is_default && next.length) next[0] = { ...next[0], is_default: true }; return next; })}>{w.removeAddress}</Button></div></div>
-            </div>)}
-            <div className="grid gap-3 rounded-xl border border-dashed border-border/60 p-4">
-              <div className="space-y-2"><Label htmlFor="saved-address-label">{w.addressLabel}</Label><Input id="saved-address-label" value={addressLabel} onChange={e => setAddressLabel(e.target.value)} maxLength={60} /></div>
-              <div className="space-y-2"><Label htmlFor="saved-address-text">{w.addressText}</Label><Textarea id="saved-address-text" value={addressText} onChange={e => setAddressText(e.target.value)} minLength={10} maxLength={1000} rows={3} /></div>
-              <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={addOrUpdateAddress}>{editingAddressId ? (lang === 'th' ? 'บันทึกการแก้ไขที่อยู่' : lang === 'ro' ? 'Salvează modificările adresei' : 'Update address') : w.addAddress}</Button>{editingAddressId && <Button type="button" variant="ghost" onClick={() => { setEditingAddressId(null); setAddressLabel(''); setAddressText(''); }}>{lang === 'th' ? 'ยกเลิก' : lang === 'ro' ? 'Anulează' : 'Cancel'}</Button>}</div>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4"><Button type="submit" disabled={busy}>{busy ? w.loading : w.saveProfile}</Button>{notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}</div>
-          {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
-        </form>
-      </section>
-      <section className="mb-7 rounded-2xl border border-border/50 bg-card/30 p-5 sm:p-6" id="customer-wishlist">
+    </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
+      <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="mb-4 flex gap-2 overflow-x-auto rounded-xl border border-cyan-300/15 bg-slate-950/35 p-2 [scrollbar-width:thin]">
+        {[
+          { id: 'customer-orders', label: lang === 'th' ? 'คำสั่งซื้อ' : lang === 'ro' ? 'Comenzi' : 'Orders' },
+          { id: 'customer-wishlist', label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Saved' },
+          { id: 'customer-profile', label: lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'Profil' : 'Profile' },
+          { id: 'customer-notifications', label: lang === 'th' ? 'แจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Alerts' },
+          { id: 'customer-security', label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security' },
+          { id: 'customer-settings', label: lang === 'th' ? 'ตั้งค่า' : lang === 'ro' ? 'Setări' : 'Settings' },
+        ].map(item => <a key={item.id} href={'#' + item.id} className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-transparent px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-cyan-300/20 hover:bg-cyan-300/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{item.label}</a>)}
+      </nav>
+<div className="mb-4 grid scroll-mt-24 grid-cols-2 gap-3 xl:grid-cols-4">
+        <div className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4">
+          <p className="text-sm text-muted-foreground">{w.orders}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อทั้งหมด' : lang === 'ro' ? 'Comenzi în total' : 'All your orders'}</p>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'กำลังดำเนินการ' : lang === 'ro' ? 'În curs' : 'In progress'}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => !['completed', 'cancelled'].includes(order.status)).length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อที่ยังไม่เสร็จสิ้น' : lang === 'ro' ? 'Comenzi nefinalizate' : 'Orders not yet completed'}</p>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'จัดส่งแล้ว' : lang === 'ro' ? 'Expediate' : 'Shipped'}</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => ['shipped', 'ready_for_pickup', 'completed'].includes(order.status)).length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'รวมคำสั่งซื้อที่เสร็จสิ้น' : lang === 'ro' ? 'Inclusiv comenzile finalizate' : 'Including completed orders'}</p>
+        </div>
+        <button type="button" onClick={() => document.getElementById('customer-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4 text-left transition-colors hover:border-primary/60 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ไปที่คำสั่งซื้อเพื่อเปิดคำขอช่วยเหลือ' : lang === 'ro' ? 'Mergi la comenzi pentru a contacta asistența' : 'Go to your orders to open a support request'}</p></div>
+          <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ดูคำสั่งซื้อและขอความช่วยเหลือ' : lang === 'ro' ? 'Vezi comenzile și cere ajutor' : 'View orders and get support'} <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></span>
+        </button>
+      </div>
+      <div id="customer-orders" className="mb-4 flex scroll-mt-24 flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">{w.orders}</h2>
+        <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
+      </div>
+      {error && <p role="alert" className="mb-4 rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
+      {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-3">{orders.map(order => <article key={order.id} className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4 shadow-[0_12px_36px_-30px_rgba(34,211,238,0.35)]"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
+        <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{safeTrackingUrl(order.tracking_url) && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={safeTrackingUrl(order.tracking_url)!} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border/30 pt-4 text-xs text-muted-foreground"><CheckCircle2 className="h-4 w-4"/>{w.status}: {label(order.status)}</div>
+        <OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} />
+        <CustomerOrderDetails order={order} />
+      </article>)}</div>}
+      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div><p className="section-eyebrow">{lang === 'th' ? 'บันทึกไว้' : lang === 'ro' ? 'SALVATE' : 'SAVED'}</p><h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><Heart className="h-5 w-5 text-primary" />{w.wishlist} <Badge variant="secondary">{wishlist.length}</Badge></h2></div>
           <Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
@@ -335,42 +354,32 @@ function Account() {
           })}
         </div>}
       </section>
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
-          <p className="text-sm text-muted-foreground">{w.orders}</p>
-          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.length}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อทั้งหมด' : lang === 'ro' ? 'Comenzi în total' : 'All your orders'}</p>
-        </div>
-        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
-          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'กำลังดำเนินการ' : lang === 'ro' ? 'În curs' : 'In progress'}</p>
-          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => !['completed', 'cancelled'].includes(order.status)).length}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'คำสั่งซื้อที่ยังไม่เสร็จสิ้น' : lang === 'ro' ? 'Comenzi nefinalizate' : 'Orders not yet completed'}</p>
-        </div>
-        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
-          <p className="text-sm text-muted-foreground">{lang === 'th' ? 'จัดส่งแล้ว' : lang === 'ro' ? 'Expediate' : 'Shipped'}</p>
-          <p className="mt-2 text-3xl font-semibold tabular-nums">{orders.filter(order => ['shipped', 'ready_for_pickup', 'completed'].includes(order.status)).length}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'รวมคำสั่งซื้อที่เสร็จสิ้น' : lang === 'ro' ? 'Inclusiv comenzile finalizate' : 'Including completed orders'}</p>
-        </div>
-        <button type="button" onClick={() => document.getElementById('customer-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex flex-col justify-between rounded-xl border border-primary/30 bg-primary/5 p-4 text-left transition-colors hover:border-primary/60 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-          <div><p className="text-sm font-medium">{lang === 'th' ? 'ต้องการความช่วยเหลือ?' : lang === 'ro' ? 'Ai nevoie de ajutor?' : 'Need help?'}</p><p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'ไปที่คำสั่งซื้อเพื่อเปิดคำขอช่วยเหลือ' : lang === 'ro' ? 'Mergi la comenzi pentru a contacta asistența' : 'Go to your orders to open a support request'}</p></div>
-          <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ดูคำสั่งซื้อและขอความช่วยเหลือ' : lang === 'ro' ? 'Vezi comenzile și cere ajutor' : 'View orders and get support'} <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></span>
-        </button>
-      </div>
-      <CustomerNotifications />
-      <AccountSecurity />
-      <div id="customer-orders" className="mb-6 flex scroll-mt-6 flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">{w.orders}</h2>
-        <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
-      </div>
-      {error && <p role="alert" className="mb-4 rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
-      {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-4">{orders.map(order => <article key={order.id} className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
-        <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{safeTrackingUrl(order.tracking_url) && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={safeTrackingUrl(order.tracking_url)!} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border/30 pt-4 text-xs text-muted-foreground"><CheckCircle2 className="h-4 w-4"/>{w.status}: {label(order.status)}</div>
-        <OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} />
-        <CustomerOrderDetails order={order} />
-      </article>)}</div>}
-      <CustomerAccountExtras />
-      <div className="mt-12 rounded-2xl border border-border/50 bg-muted/15 p-5 sm:p-6"><div className="mb-5 flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut className="h-5 w-5 rotate-180" /></div><div><p className="section-eyebrow">{lang === 'th' ? 'การตั้งค่า' : lang === 'ro' ? 'Setări' : 'SETTINGS'}</p><h2 className="mt-1 text-xl font-semibold">{lang === 'th' ? 'บัญชีและความปลอดภัย' : lang === 'ro' ? 'Cont și securitate' : 'Account & security'}</h2><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'จัดการอีเมลและรหัสผ่านของคุณ' : lang === 'ro' ? 'Gestionează adresa de e-mail și parola.' : 'Manage your email address and password.'}</p></div></div>
+      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-profile">
+        <div className="mb-5"><p className="section-eyebrow">{lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'PROFIL' : 'PROFILE'}</p><h2 className="mt-1 text-xl font-semibold">{w.profileTitle}</h2><p className="mt-2 text-sm text-muted-foreground">{w.privacyNote}</p></div>
+        <form onSubmit={saveProfile} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2"><Label htmlFor="profile-full-name">{w.fullName}</Label><Input id="profile-full-name" value={profileName} onChange={e => setProfileName(e.target.value)} maxLength={100} autoComplete="name" required /></div>
+            <div className="space-y-2"><Label htmlFor="profile-phone">{w.phone}</Label><Input id="profile-phone" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} maxLength={150} autoComplete="tel" /></div>
+            <div className="space-y-2 sm:col-span-2"><Label htmlFor="profile-language">{w.preferredLanguage}</Label><select id="profile-language" value={profileLanguage} onChange={e => setProfileLanguage(e.target.value as Lang)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="th">ไทย</option><option value="en">English</option><option value="ro">Română</option></select></div>
+          </div>
+          <div className="space-y-3 border-t border-border/40 pt-5">
+            <div><h3 className="font-semibold">{w.addresses}</h3><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'เลือกที่อยู่หลักที่จะใช้เติมอัตโนมัติในหน้าชำระเงิน' : lang === 'ro' ? 'Adresa implicită va fi completată automat la finalizarea comenzii.' : 'Your default address will be prefilled at checkout.'}</p></div>
+            {savedAddresses.map(address => <div key={address.id} className="rounded-xl border border-border/50 bg-background/50 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-medium">{address.label}</p>{address.is_default && <Badge variant="secondary">{w.defaultAddress}</Badge>}</div><p className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground">{address.address}</p></div><div className="flex flex-wrap gap-2"><Button type="button" size="sm" variant="outline" onClick={() => { setEditingAddressId(address.id); setAddressLabel(address.label); setAddressText(address.address); }}>{lang === 'th' ? 'แก้ไข' : lang === 'ro' ? 'Editează' : 'Edit'}</Button>{!address.is_default && <Button type="button" size="sm" variant="outline" onClick={() => setSavedAddresses(current => current.map(item => ({ ...item, is_default: item.id === address.id })))}>{w.setDefault}</Button>}<Button type="button" size="sm" variant="ghost" onClick={() => setSavedAddresses(current => { const next = current.filter(item => item.id !== address.id); if (address.is_default && next.length) next[0] = { ...next[0], is_default: true }; return next; })}>{w.removeAddress}</Button></div></div>
+            </div>)}
+            <div className="grid gap-3 rounded-xl border border-dashed border-border/60 p-4">
+              <div className="space-y-2"><Label htmlFor="saved-address-label">{w.addressLabel}</Label><Input id="saved-address-label" value={addressLabel} onChange={e => setAddressLabel(e.target.value)} maxLength={60} /></div>
+              <div className="space-y-2"><Label htmlFor="saved-address-text">{w.addressText}</Label><Textarea id="saved-address-text" value={addressText} onChange={e => setAddressText(e.target.value)} minLength={10} maxLength={1000} rows={3} /></div>
+              <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={addOrUpdateAddress}>{editingAddressId ? (lang === 'th' ? 'บันทึกการแก้ไขที่อยู่' : lang === 'ro' ? 'Salvează modificările adresei' : 'Update address') : w.addAddress}</Button>{editingAddressId && <Button type="button" variant="ghost" onClick={() => { setEditingAddressId(null); setAddressLabel(''); setAddressText(''); }}>{lang === 'th' ? 'ยกเลิก' : lang === 'ro' ? 'Anulează' : 'Cancel'}</Button>}</div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4"><Button type="submit" disabled={busy}>{busy ? w.loading : w.saveProfile}</Button>{notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}</div>
+          {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
+        </form>
+      </section>
+      <div id="customer-notifications" className="scroll-mt-24"><CustomerNotifications /></div>
+      <div id="customer-security" className="scroll-mt-24"><AccountSecurity /></div>
+      <div id="customer-settings" className="mt-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-muted/15 p-4 sm:p-5"><div className="mb-5 flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut className="h-5 w-5 rotate-180" /></div><div><p className="section-eyebrow">{lang === 'th' ? 'การตั้งค่า' : lang === 'ro' ? 'Setări' : 'SETTINGS'}</p><h2 className="mt-1 text-xl font-semibold">{lang === 'th' ? 'บัญชีและความปลอดภัย' : lang === 'ro' ? 'Cont și securitate' : 'Account & security'}</h2><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'จัดการอีเมลและรหัสผ่านของคุณ' : lang === 'ro' ? 'Gestionează adresa de e-mail și parola.' : 'Manage your email address and password.'}</p></div></div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
       <div className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-5">
         <p className="mb-3 text-sm text-muted-foreground">{userEmail}</p>
