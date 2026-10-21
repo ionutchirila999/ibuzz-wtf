@@ -57,27 +57,35 @@ function Account() {
   const [emailPanelOpen, setEmailPanelOpen] = useState(false);
   const [passwordPanelOpen, setPasswordPanelOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('resetPassword') === '1');
 
-  function loadProfile(user: { user_metadata?: Record<string, unknown> } | null | undefined) {
-    const metadata = user?.user_metadata ?? {};
-    setProfileName(typeof metadata.full_name === 'string' ? metadata.full_name : '');
-    setProfilePhone(typeof metadata.phone === 'string' ? metadata.phone : '');
-    const savedLanguage = metadata.preferred_language;
+  async function loadProfile(user: { id: string; user_metadata?: Record<string, unknown> } | null | undefined) {
+    if (!user?.id) return;
+    const { data, error: profileError } = await (supabase as any)
+      .from('customer_profiles')
+      .select('full_name,phone,preferred_language,delivery_addresses')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const metadata = user.user_metadata ?? {};
+    const profile = !profileError && data ? data : metadata;
+    setProfileName(typeof profile.full_name === 'string' ? profile.full_name : '');
+    setProfilePhone(typeof profile.phone === 'string' ? profile.phone : '');
+    const savedLanguage = profile.preferred_language;
     if (savedLanguage === 'th' || savedLanguage === 'en' || savedLanguage === 'ro') {
       setProfileLanguage(savedLanguage);
       setLang(savedLanguage);
     } else {
       setProfileLanguage(lang);
     }
-    const rawAddresses = metadata.delivery_addresses;
+    const rawAddresses = profile.delivery_addresses;
     let addresses: SavedAddress[] = Array.isArray(rawAddresses)
       ? rawAddresses.filter((item): item is SavedAddress => !!item && typeof item === 'object'
           && typeof (item as SavedAddress).id === 'string'
           && typeof (item as SavedAddress).label === 'string'
-          && typeof (item as SavedAddress).address === 'string')
+          && typeof (item as SavedAddress).address === 'string'
+          && (item as SavedAddress).address.trim().length >= 10)
           .map((item) => ({ id: item.id, label: item.label, address: item.address, is_default: item.is_default === true }))
       : [];
     const legacyAddress = typeof metadata.delivery_address === 'string' ? metadata.delivery_address : '';
-    if (addresses.length === 0 && legacyAddress.trim()) {
+    if (addresses.length === 0 && legacyAddress.trim().length >= 10) {
       addresses = [{ id: 'legacy-default', label: 'Home', address: legacyAddress, is_default: true }];
     }
     if (addresses.length && !addresses.some(item => item.is_default)) addresses[0] = { ...addresses[0], is_default: true };
@@ -115,17 +123,17 @@ function Account() {
       return;
     }
     const normalized = savedAddresses.map((item, index) => ({ ...item, is_default: item.is_default || (index === 0 && !savedAddresses.some(a => a.is_default)) }));
-    const defaultAddress = normalized.find(item => item.is_default)?.address ?? '';
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError || !authData.user) { setError(w.profileError); return; }
     setBusy(true);
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: {
-        full_name: profileName.trim(),
-        phone: profilePhone.trim(),
-        preferred_language: profileLanguage,
-        delivery_addresses: normalized,
-        delivery_address: defaultAddress,
-      },
-    });
+    const { error: updateError } = await (supabase as any).from('customer_profiles').upsert({
+      user_id: authData.user.id,
+      full_name: profileName.trim(),
+      phone: profilePhone.trim(),
+      preferred_language: profileLanguage,
+      delivery_addresses: normalized,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
     setBusy(false);
     if (updateError) { setError(w.profileError); return; }
     setSavedAddresses(normalized);
