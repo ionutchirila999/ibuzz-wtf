@@ -23,19 +23,19 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
       eyebrow: owner ? 'เครื่องมือโซเชียลสำหรับเจ้าของ' : 'ติดตาม iBuzz.wtf',
       title: owner ? 'จัดการช่องทางโซเชียล' : 'วิดีโอล่าสุดจาก TikTok',
       lead: owner ? 'ดูโปรไฟล์และวิดีโอสาธารณะของ TikTok พร้อมเปิดเครื่องมือจัดการช่องทางของคุณ' : 'ดูวิดีโอและติดตาม iBuzz.wtf บน TikTok พร้อมชมช่อง YouTube ของเรา',
-      tiktok: 'เปิด TikTok', youtube: 'เปิด YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio',
+      tiktok: 'เปิด TikTok', youtube: 'เปิด YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio', watch: 'ชมวิดีโอบน TikTok',
     },
     en: {
       eyebrow: owner ? 'OWNER SOCIAL TOOLS' : 'FOLLOW iBuzz.wtf',
       title: owner ? 'Social channel manager' : 'Latest from TikTok',
       lead: owner ? 'View your public TikTok profile and videos, with shortcuts to manage your social channels.' : 'Watch our TikTok videos, follow iBuzz.wtf, and visit our YouTube channel.',
-      tiktok: 'Open TikTok', youtube: 'Open YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio',
+      tiktok: 'Open TikTok', youtube: 'Open YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio', watch: 'Watch video on TikTok',
     },
     ro: {
       eyebrow: owner ? 'INSTRUMENTE SOCIALE PENTRU PROPRIETAR' : 'URMĂREȘTE iBuzz.wtf',
       title: owner ? 'Administrare canale sociale' : 'Cele mai noi videoclipuri TikTok',
       lead: owner ? 'Vezi profilul și videoclipurile publice TikTok și accesează instrumentele de administrare.' : 'Urmărește videoclipurile iBuzz.wtf pe TikTok și vizitează canalul nostru YouTube.',
-      tiktok: 'Deschide TikTok', youtube: 'Deschide YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio',
+      tiktok: 'Deschide TikTok', youtube: 'Deschide YouTube', studio: 'TikTok Studio', youtubeStudio: 'YouTube Studio', watch: 'Vezi videoclipul pe TikTok',
     },
   }[lang];
 
@@ -88,15 +88,20 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         <div className="flex w-max min-w-0 items-start justify-center gap-3">
           {TIKTOK_VIDEOS.map((video) => (
             <div key={video.id} className="w-[172px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[192px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[260px] xl:max-w-[280px]">
-              <iframe
-                title={`iBuzz.wtf TikTok video ${video.id}`}
-                src={`https://www.tiktok.com/player/v1/${video.id}?controls=1&description=0&music_info=0&loop=0`}
-                className="block aspect-[9/16] w-full border-0 bg-transparent"
-                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
+              <a
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={text.watch}
+                className="group relative flex aspect-[9/16] w-full flex-col items-center justify-center gap-4 overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-4 text-center outline-none transition duration-300 hover:from-slate-900 hover:to-violet-950 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-inset"
+              >
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(34,211,238,0.22),transparent_55%)]" />
+                <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-cyan-200/50 bg-cyan-300/10 text-cyan-100 shadow-[0_0_35px_rgba(34,211,238,0.18)] transition duration-300 group-hover:scale-110 group-hover:bg-cyan-300/20">
+                  <Play className="ml-1 h-7 w-7 fill-current" />
+                </span>
+                <span className="relative text-sm font-semibold text-white">{text.watch}</span>
+                <span aria-hidden="true" className="relative text-xs text-cyan-100/70">iBuzz.wtf ↗</span>
+              </a>
             </div>
           ))}
         </div>
