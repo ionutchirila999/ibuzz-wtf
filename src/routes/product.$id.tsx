@@ -82,70 +82,93 @@ function ProductPage() {
     [t("p.avail"), sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`],
   ];
 
+  const addToCart = () => {
+    try {
+      const key = "ibuzz-cart-v1";
+      const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
+      const found = current.find((item) => item.id === p.id);
+      const next = found
+        ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
+        : [...current, { id: p.id, quantity: 1 }];
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch { /* Checkout can still open if browser storage is unavailable. */ }
+    void navigate({ to: "/checkout" });
+  };
+
   return (
-    <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-clip px-3 pb-24 pt-3 sm:px-5 sm:py-6 sm:pb-28 lg:px-8 lg:py-8 lg:pb-8">
-      <Link to="/shop" className="mb-4 inline-flex min-h-9 items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> {t("nav.shop")}</Link>
-      <div className="grid min-w-0 items-start gap-4 sm:gap-5 md:grid-cols-[minmax(0,1.08fr)_minmax(290px,0.92fr)] md:gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] xl:gap-10">
-        <section className="min-w-0 bg-transparent p-0"><ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} videoUrl={p.video_url} /><div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1.5"><PackageCheck className="h-3.5 w-3.5 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>{p.authenticity_verified && <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-emerald-600"><ShieldCheck className="h-3.5 w-3.5" />{t("p.auth")}</span>}</div></section>
-        <div className="min-w-0 space-y-3 sm:space-y-4 md:sticky md:top-20 md:self-start xl:top-24">
-          <div className="flex flex-wrap gap-2">
+    <main className="mx-auto w-full min-w-0 max-w-[1440px] px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-10 lg:pb-12">
+      <nav className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link to="/shop" className="inline-flex min-h-10 items-center gap-2 rounded-lg pr-2 hover:text-foreground"><ArrowLeft className="h-4 w-4" />{t("nav.shop")}</Link>
+        <span aria-hidden="true">/</span><span className="max-w-[65vw] truncate text-foreground">{localizedTitle(p, lang)}</span>
+      </nav>
+
+      <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] xl:gap-14">
+        <section className="min-w-0">
+          <ProductGallery key={p.id} images={p.images} title={localizedTitle(p, lang)} />
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-3 py-2"><PackageCheck className="h-4 w-4 text-primary" />{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>
+            {p.authenticity_verified && <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-emerald-600"><ShieldCheck className="h-4 w-4" />{t("p.auth")}</span>}
             {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
-            {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
           </div>
-          <h1 className="min-w-0 max-w-full break-words text-balance text-xl font-bold leading-tight tracking-tight sm:text-2xl lg:text-3xl">{localizedTitle(p, lang)}</h1>
-          <p className="min-w-0 max-w-full break-words border-b border-border/70 pb-3 font-display text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">
-            {formatPrice(p.price)} {p.negotiable && <span className="text-sm font-normal text-muted-foreground">{t("p.neg")}</span>}
-          </p>
-          {sold && <div className="rounded-xl border border-warning/40 bg-warning/10 p-4"><div className="flex items-center gap-2 text-warning"><Ban className="h-5 w-5 shrink-0" /><p className="font-display text-base font-bold">{t("p.soldOut")}</p></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{t("p.soldNotice")}</p></div>}
-          {!sold && !p.negotiable && <Button size="default" className="min-h-12 w-full justify-center gap-2 rounded-lg text-base font-semibold sm:min-h-12" onClick={() => {
-            try {
-              const key = "ibuzz-cart-v1";
-              const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
-              const found = current.find((item) => item.id === p.id);
-              const next = found
-                ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
-                : [...current, { id: p.id, quantity: 1 }];
-              localStorage.setItem(key, JSON.stringify(next));
-              void navigate({ to: "/checkout" });
-            } catch { void navigate({ to: "/checkout" }); }
-          }}><ShoppingCart className="h-4 w-4" /> {t("p.addCartCheckout")}</Button>}
-          <ContactButtons product={p} disabled={sold} />
-          {sold && <Button asChild variant="outline" size="lg" className="w-full justify-center gap-1.5 px-3 text-sm"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="h-4 w-4" /></Link></Button>}
-          <section className="overflow-hidden rounded-xl border border-border/70 bg-card/40"><div className="border-b border-white/10 px-4 py-3 sm:px-5"><h2 className="font-semibold tracking-tight">{t("p.details")}</h2></div><dl className="grid grid-cols-1 divide-y divide-border/60 text-sm sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
-            {rows.filter(([, v]) => v).map(([k, v]) => (
-              <div key={k} className="flex min-w-0 items-start gap-3 px-4 py-3 sm:px-5"><span className="mt-0.5 text-primary">{k === t("p.category") ? <Layers className="h-4 w-4" /> : k === t("p.brand") ? <Tag className="h-4 w-4" /> : k === t("p.size") ? <Ruler className="h-4 w-4" /> : k === t("p.color") ? <Palette className="h-4 w-4" /> : <PackageCheck className="h-4 w-4" />}</span><div className="min-w-0 flex-1"><dt className="text-xs text-muted-foreground">{k}</dt><dd className="mt-1 break-words font-medium">{v}</dd></div></div>
-            ))}
-          </dl></section>
-          {p.description && <section className="space-y-3 rounded-xl border border-border/70 bg-card/40 p-4 sm:p-5"><h2 className="font-semibold tracking-tight">{t("p.about")}</h2><p className="whitespace-pre-line break-words text-sm leading-7 text-muted-foreground">{localizedDescription(p, lang)}</p></section>}
-          <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-5"><h2 className="font-semibold tracking-tight">{t("p.confidence")}</h2><div className="space-y-3 text-sm">
-            {p.authenticity_verified && (
-              <div className="flex gap-2"><ShieldCheck className="h-5 w-5 shrink-0 text-success" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>
-            )}
-            {p.delivery_options && <div className="flex gap-2"><Truck className="h-5 w-5 shrink-0 text-primary" /><span>{p.delivery_options}</span></div>}
-            {p.return_policy && <div className="flex gap-2"><RotateCcw className="h-5 w-5 shrink-0 text-primary" /><span>{p.return_policy}</span></div>}
-          </div></section>
-        </div>
+          {p.description && <section className="mt-8 rounded-2xl border border-border/70 bg-card p-5 sm:p-7">
+            <h2 className="text-lg font-semibold tracking-tight">{t("p.about")}</h2>
+            <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-muted-foreground sm:text-base">{localizedDescription(p, lang)}</p>
+          </section>}
+          <section className="mt-5 overflow-hidden rounded-2xl border border-border/70 bg-card">
+            <div className="border-b border-border/70 px-5 py-4"><h2 className="font-semibold tracking-tight">{t("p.details")}</h2></div>
+            <dl className="grid grid-cols-1 divide-y divide-border/60 text-sm sm:grid-cols-2 sm:divide-y-0">
+              {rows.filter(([, v]) => v).map(([k, v]) => (
+                <div key={k} className="flex min-w-0 items-start gap-3 border-border/60 px-5 py-4 sm:even:border-l">
+                  <span className="mt-0.5 text-primary">{k === t("p.category") ? <Layers className="h-4 w-4" /> : k === t("p.brand") ? <Tag className="h-4 w-4" /> : k === t("p.size") ? <Ruler className="h-4 w-4" /> : k === t("p.color") ? <Palette className="h-4 w-4" /> : <PackageCheck className="h-4 w-4" />}</span>
+                  <div className="min-w-0 flex-1"><dt className="text-xs text-muted-foreground">{k}</dt><dd className="mt-1 break-words font-medium text-foreground">{v}</dd></div>
+                </div>
+              ))}
+            </dl>
+          </section>
+          {(p.authenticity_verified || p.delivery_options || p.return_policy) && <section className="mt-5 rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
+            <h2 className="font-semibold tracking-tight">{t("p.confidence")}</h2>
+            <div className="mt-4 space-y-4 text-sm leading-6 text-muted-foreground">
+              {p.authenticity_verified && <div className="flex gap-3"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>}
+              {p.delivery_options && <div className="flex gap-3"><Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.delivery_options}</span></div>}
+              {p.return_policy && <div className="flex gap-3"><RotateCcw className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.return_policy}</span></div>}
+            </div>
+          </section>}
+        </section>
+
+        <aside className="min-w-0 lg:sticky lg:top-24">
+          <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-7">
+            <div className="flex flex-wrap gap-2">
+              {p.is_demo && <Badge variant="destructive">{t("p.demo")}</Badge>}
+              {sold && <Badge variant="outline" className="gap-1 border-warning/50 bg-warning/15 text-warning shadow-none"><Ban className="h-3 w-3" />{t("p.soldOut")}</Badge>}
+              {p.market_condition && <Badge variant="secondary">{rows.find(([k]) => k === t("shop.condition"))?.[1]}</Badge>}
+            </div>
+            <h1 className="mt-4 break-words text-balance text-2xl font-bold leading-tight tracking-tight sm:text-3xl xl:text-4xl">{localizedTitle(p, lang)}</h1>
+            <div className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1 border-b border-border/70 pb-5">
+              <p className="font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">{formatPrice(p.price)}</p>
+              {p.negotiable && <span className="pb-1 text-sm text-muted-foreground">{t("p.neg")}</span>}
+            </div>
+            <div className="mt-5 flex items-center justify-between gap-3 text-sm">
+              <span className="text-muted-foreground">{t("p.avail")}</span>
+              <span className={sold ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>{sold ? t("p.soldOut") : `${p.stock} ${t("p.inStock")}`}</span>
+            </div>
+            {sold && <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-4"><p className="font-semibold">{t("p.soldNotice")}</p></div>}
+            {!sold && !p.negotiable && <Button size="lg" className="mt-5 min-h-12 w-full gap-2 rounded-xl text-base font-semibold" onClick={addToCart}><ShoppingCart className="h-5 w-5" />{t("p.addCartCheckout")}</Button>}
+            <div className="mt-3"><ContactButtons product={p} disabled={sold} /></div>
+            {sold && <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}
+            <div className="mt-5 rounded-xl bg-muted/50 p-4">
+              <p className="text-sm font-semibold">{lang === "th" ? "มีคำถามเกี่ยวกับสินค้านี้?" : lang === "ro" ? "Ai întrebări despre acest produs?" : "Have a question about this item?"}</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">{lang === "th" ? "ติดต่อเราเพื่อยืนยันรายละเอียด การจัดส่ง หรือขอสินค้าใกล้เคียง" : lang === "ro" ? "Scrie-ne pentru detalii, livrare sau pentru a găsi un produs similar." : "Message us to confirm details, delivery, or find a similar item."}</p>
+            </div>
+          </div>
+        </aside>
       </div>
-      {!sold && !p.negotiable && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.12)] backdrop-blur-md md:hidden">
-        <div className="mx-auto flex max-w-xl items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs text-muted-foreground">{localizedTitle(p, lang)}</p>
-            <p className="font-display text-lg font-extrabold leading-tight text-primary">{formatPrice(p.price)}</p>
-          </div>
-          <Button size="lg" className="min-h-12 shrink-0 gap-2 rounded-xl px-5 font-semibold" onClick={() => {
-            try {
-              const key = "ibuzz-cart-v1";
-              const current = JSON.parse(localStorage.getItem(key) || "[]") as { id: string; quantity: number }[];
-              const found = current.find((item) => item.id === p.id);
-              const next = found
-                ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
-                : [...current, { id: p.id, quantity: 1 }];
-              localStorage.setItem(key, JSON.stringify(next));
-              void navigate({ to: "/checkout" });
-            } catch { void navigate({ to: "/checkout" }); }
-          }}><ShoppingCart className="h-4 w-4" /> {t("p.addCartCheckout")}</Button>
+
+      {!sold && !p.negotiable && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.10)] backdrop-blur-md lg:hidden">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
+          <div className="min-w-0 flex-1"><p className="truncate text-xs text-muted-foreground">{localizedTitle(p, lang)}</p><p className="font-display text-lg font-extrabold leading-tight text-primary">{formatPrice(p.price)}</p></div>
+          <Button size="lg" className="min-h-12 shrink-0 gap-2 rounded-xl px-5 font-semibold" onClick={addToCart}><ShoppingCart className="h-4 w-4" />{t("p.addCartCheckout")}</Button>
         </div>
       </div>}
-    </div>
+    </main>
   );
 }
