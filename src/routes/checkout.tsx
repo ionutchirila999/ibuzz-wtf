@@ -97,15 +97,23 @@ function Checkout() {
   useEffect(() => {
     const items = readCart();
     setCart(items);
-    void supabase.auth.getUser().then(({ data }) => {
-      const metadata = data.user?.user_metadata ?? {};
-      setName(current => current || (typeof metadata.full_name === "string" ? metadata.full_name : ""));
-      setContact(current => current || (typeof metadata.phone === "string" ? metadata.phone : ""));
-      const addresses = Array.isArray(metadata.delivery_addresses) ? metadata.delivery_addresses : [];
+    void (async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) return;
+      const { data: savedProfile } = await (supabase as any)
+        .from("customer_profiles")
+        .select("full_name,phone,delivery_addresses")
+        .eq("user_id", authData.user.id)
+        .maybeSingle();
+      const metadata = authData.user.user_metadata ?? {};
+      const profile = savedProfile ?? metadata;
+      setName(current => current || (typeof profile.full_name === "string" ? profile.full_name : ""));
+      setContact(current => current || (typeof profile.phone === "string" ? profile.phone : ""));
+      const addresses = Array.isArray(profile.delivery_addresses) ? profile.delivery_addresses : [];
       const defaultAddress = addresses.find((item: any) => item && typeof item.address === "string" && item.is_default === true);
       const fallbackAddress = typeof metadata.delivery_address === "string" ? metadata.delivery_address : "";
       setShippingAddress(current => current || (typeof defaultAddress?.address === "string" ? defaultAddress.address : fallbackAddress));
-    }).catch(() => { /* Checkout remains editable if profile details cannot be loaded. */ });
+    })().catch(() => { /* Checkout remains editable if profile details cannot be loaded. */ });
     if (!items.length) { setLoading(false); return; }
     void supabase.from("products").select("id,title,title_th,title_ro,price,stock,status").in("id", items.map(x => x.id))
       .then(({ data, error }) => { if (!error && data) setProducts(data as CartProduct[]); setLoading(false); });
