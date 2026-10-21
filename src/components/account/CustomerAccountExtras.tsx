@@ -78,6 +78,17 @@ export function CustomerAccountExtras() {
       return (data ?? []) as Product[];
     }
   });
+  const orderUpdates = useQuery({
+    queryKey: ["customer-order-notifications", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from("orders")
+        .select("id,order_number,status,payment_status,updated_at")
+        .eq("user_id", userId).order("updated_at", { ascending: false }).limit(5);
+      if (error) throw error;
+      return data ?? [];
+    }
+  });
   const tickets = useQuery({
     queryKey: ["customer-account-updates", userId],
     enabled: !!userId,
@@ -162,7 +173,10 @@ export function CustomerAccountExtras() {
 
     <section className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
       <h2 className="flex items-center gap-2 text-lg font-semibold"><Bell className="h-5 w-5 text-primary" />{w.updates}</h2>
-      {tickets.isLoading ? <p className="mt-3 text-sm text-muted-foreground">{w.loading}</p> : tickets.error ? <p role="alert" className="mt-3 text-sm text-destructive">{w.noUpdates}</p> : !tickets.data?.length ? <p className="mt-3 text-sm text-muted-foreground">{w.noUpdates}</p> : <ul className="mt-3 space-y-3">{tickets.data.map((ticket: any) => <li key={ticket.id} className="rounded-lg bg-muted/30 p-3"><p className="text-sm font-medium">{w.ticketUpdate}: {ticket.subject}</p><p className="mt-1 text-sm text-muted-foreground">{ticket.admin_reply}</p><p className="mt-1 text-xs text-muted-foreground">{ticket.replied_at ? new Date(ticket.replied_at).toLocaleString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US") : ""}</p></li>)}</ul>}
+      {orderUpdates.isLoading || tickets.isLoading ? <p className="mt-3 text-sm text-muted-foreground">{w.loading}</p> : orderUpdates.error || tickets.error ? <p role="alert" className="mt-3 text-sm text-destructive">{w.noUpdates}</p> : !(orderUpdates.data?.length || tickets.data?.length) ? <p className="mt-3 text-sm text-muted-foreground">{w.noUpdates}</p> : <ul className="mt-3 space-y-3">
+        {(orderUpdates.data ?? []).map((order: any) => <li key={order.id} className="rounded-lg bg-muted/30 p-3"><p className="text-sm font-medium">{w.orderUpdate}: {order.order_number}</p><p className="mt-1 text-sm text-muted-foreground">{order.status.replaceAll("_", " ")} · {order.payment_status.replaceAll("_", " ")}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(order.updated_at).toLocaleString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US")}</p></li>)}
+        {(tickets.data ?? []).map((ticket: any) => <li key={ticket.id} className="rounded-lg bg-muted/30 p-3"><p className="text-sm font-medium">{w.ticketUpdate}: {ticket.subject}</p><p className="mt-1 text-sm text-muted-foreground">{ticket.admin_reply}</p><p className="mt-1 text-xs text-muted-foreground">{ticket.replied_at ? new Date(ticket.replied_at).toLocaleString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US") : ""}</p></li>)}
+      </ul>}
     </section>
 
     <section className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
