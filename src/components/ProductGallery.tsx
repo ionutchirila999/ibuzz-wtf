@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ImageOff, Maximize2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff, Maximize2 } from "lucide-react";
 import { Button } from "./ui/button";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 
@@ -53,7 +53,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
       <DialogContent className="fixed inset-2 z-50 flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-xl border border-cyan-300/20 bg-slate-950 p-0 text-white shadow-[0_0_80px_-30px_rgba(34,211,238,0.25)] data-[state=open]:animate-none data-[state=closed]:animate-none sm:inset-5 sm:h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-2.5rem)] sm:w-[calc(100%-2.5rem)] sm:rounded-2xl">
           <div className="flex min-h-12 shrink-0 items-center justify-between gap-3 border-b border-cyan-300/15 px-3 sm:px-4">
             <DialogTitle className="min-w-0 truncate text-xs font-medium text-slate-200 sm:text-sm">{photoName(index)}</DialogTitle>
-            <DialogClose asChild><Button type="button" variant="ghost" size="icon" aria-label={text("close")} className="size-8 shrink-0 text-slate-300 hover:bg-white/10 hover:text-cyan-100"><X className="h-4 w-4" /></Button></DialogClose>
+            
           </div>
           <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.07),transparent_65%)]" />
