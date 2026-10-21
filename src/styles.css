@@ -188,3 +188,26 @@ blockquote.tiktok-embed iframe {
     padding: 0 !important;
   }
 }
+
+
+/* iBuzz Cosmic UI system — shared visual language across every route. */
+:root { --space-ink:#070b18; --space-panel:#0d1428; --space-cyan:#67e8f9; --space-violet:#a78bfa; --space-pink:#e879f9; }
+html { scroll-behavior:smooth; }
+body {
+  background-image: radial-gradient(ellipse at 12% 0%,color-mix(in oklab,var(--azure) 8%,transparent),transparent 36rem),radial-gradient(ellipse at 92% 12%,color-mix(in oklab,var(--primary) 10%,transparent),transparent 34rem);
+  background-attachment:fixed;
+}
+::selection { background:color-mix(in oklab,var(--azure) 48%,transparent); color:white; }
+:focus-visible { outline-color:var(--space-cyan); }
+header.sticky { background:color-mix(in oklab,#080d1c 88%,transparent); border-bottom-color:color-mix(in oklab,var(--space-cyan) 18%,var(--border)); box-shadow:0 8px 32px -24px rgba(103,232,249,.5); }
+.section-eyebrow { letter-spacing:.14em; text-transform:uppercase; }
+.section-heading,.hero-heading { text-wrap:balance; text-shadow:0 0 32px color-mix(in oklab,var(--primary) 14%,transparent); }
+.service-card,.buying-band { border:1px solid color-mix(in oklab,var(--space-cyan) 17%,var(--border)); box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 18px 55px -42px rgba(103,232,249,.28); transition:border-color 240ms ease,box-shadow 240ms ease,transform 240ms ease; }
+.service-card:hover { border-color:color-mix(in oklab,var(--space-cyan) 48%,var(--border)); box-shadow:0 18px 48px -32px rgba(103,232,249,.3),inset 0 1px 0 rgba(255,255,255,.06); transform:translateY(-3px); }
+.auth-panel,.service-card,.buying-band { backdrop-filter:blur(14px); }
+input,textarea,select,[role="combobox"] { transition:border-color 180ms ease,box-shadow 180ms ease,background-color 180ms ease; }
+input:focus,textarea:focus,select:focus,[role="combobox"]:focus-visible { border-color:color-mix(in oklab,var(--space-cyan) 70%,var(--primary)) !important; box-shadow:0 0 0 3px rgba(103,232,249,.11),0 0 20px -12px rgba(103,232,249,.55); }
+.cosmic-surface { border:1px solid color-mix(in oklab,var(--space-cyan) 18%,var(--border)); background:linear-gradient(145deg,rgba(14,22,43,.92),rgba(10,13,29,.94)); box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 20px 60px -48px rgba(103,232,249,.35); }
+.cosmic-link { transition:color 180ms ease,text-shadow 180ms ease; }
+.cosmic-link:hover { color:var(--space-cyan); text-shadow:0 0 18px rgba(103,232,249,.3); }
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .service-card,.buying-band { transition:none; } }
