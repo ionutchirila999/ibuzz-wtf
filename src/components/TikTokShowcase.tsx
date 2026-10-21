@@ -43,14 +43,14 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
     <section className={owner ? 'min-w-0 space-y-5' : 'section-space min-w-0 overflow-hidden border-y border-border/25 bg-card/20'} aria-labelledby={owner ? 'owner-social-title' : 'public-social-title'}>
       <div className={owner ? 'min-w-0' : 'mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6 lg:px-8'}>
         <p className="section-eyebrow">{text.eyebrow}</p>
-        <div className="mt-3 flex min-w-0 flex-col items-stretch justify-between gap-4 lg:flex-row lg:items-end">
-          <div className="min-w-0 max-w-2xl">
+        <div className="mt-3 flex min-w-0 flex-col items-stretch gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 max-w-2xl sm:flex-1">
             <h2 id={owner ? 'owner-social-title' : 'public-social-title'} className="section-heading">{text.title}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{text.lead}</p>
           </div>
-          <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap lg:w-auto lg:justify-end [&>button]:max-w-full [&>button]:whitespace-normal">
+          <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:ml-auto sm:flex sm:w-auto sm:shrink-0 sm:flex-nowrap sm:justify-end [&>button]:max-w-full [&>button]:whitespace-nowrap">
             <Button asChild variant="glow">
-              <a className="flex w-full min-w-0 items-center justify-center whitespace-normal text-center sm:w-auto" href={owner ? 'https://www.tiktok.com/creator-center' : TIKTOK_URL} target="_blank" rel="noopener noreferrer">
+              <a className="flex w-full min-w-0 items-center justify-center whitespace-nowrap text-center sm:w-auto" href={owner ? 'https://www.tiktok.com/creator-center' : TIKTOK_URL} target="_blank" rel="noopener noreferrer">
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="mr-1 h-4 w-4 shrink-0" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.1V2h-3.55v13.67a2.9 2.9 0 0 1-2.9 2.75 2.9 2.9 0 1 1 0-5.8c.3 0 .59.05.86.13V9.13a6.5 6.5 0 1 0 5.59 6.44V8.6a8.35 8.35 0 0 0 4.88 1.57V6.64a4.84 4.84 0 0 1-1.11.05Z"/></svg>{owner ? text.studio : text.tiktok}<ArrowUpRight className="ml-1 h-4 w-4" />
               </a>
             </Button>
@@ -85,9 +85,9 @@ export function TikTokShowcase({ owner = false }: TikTokShowcaseProps) {
         onPointerCancel={() => { dragState.current.active = false; if (videoScroller.current) videoScroller.current.style.cursor = 'grab'; }}
         style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(34, 211, 238, 0.75) transparent', WebkitOverflowScrolling: 'touch', cursor: 'grab' }}
       >
-        <div className="flex w-max min-w-0 items-start justify-center gap-3">
+        <div className="flex w-max min-w-0 items-start justify-center gap-2.5">
           {TIKTOK_VIDEOS.map((video) => (
-            <div key={video.id} className="w-[172px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[192px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[260px] xl:max-w-[280px]">
+            <div key={video.id} className="w-[170px] shrink-0 overflow-hidden rounded-xl border border-cyan-400/20 bg-transparent shadow-[0_0_18px_rgba(34,211,238,0.08)] sm:w-[190px] lg:w-[calc((100vw-10rem)/4)] lg:max-w-[256px] xl:max-w-[276px]">
               <iframe
                 title={`iBuzz.wtf TikTok video ${video.id}`}
                 src={`https://www.tiktok.com/player/v1/${video.id}?controls=1&description=0&music_info=0&loop=0`}
