@@ -133,7 +133,7 @@ function Dashboard() {
           {rows.length === 0 && <p className="py-8 text-center text-muted-foreground">No products yet.</p>}
           {rows.map((p) => (
             <div key={p.id} className="flex items-center gap-3 rounded-lg border bg-card p-3">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">{p.images[0] && <img src={p.images[0]} alt="" className="h-full w-full object-cover" />}</div>
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">{(() => { const thumb = p.images.find((src) => !/\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src)) ?? p.images[0]; if (!thumb) return <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">No image</div>; return /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(thumb) ? <video src={thumb} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : <img src={thumb} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover" />; })()}</div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{p.title}</p>
                 <p className="text-xs text-muted-foreground">{CATEGORY_LABEL[p.market_category as Category]} · {formatPrice(p.price)} · stock {p.stock}</p>
