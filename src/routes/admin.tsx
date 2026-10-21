@@ -116,6 +116,7 @@ function Dashboard() {
           <TabsTrigger value="repairs">Repairs</TabsTrigger>
           <TabsTrigger value="support">Support</TabsTrigger>
           <TabsTrigger value="audit">Audit</TabsTrigger>
+          <TabsTrigger value="finance">Profit & expenses</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
@@ -124,6 +125,7 @@ function Dashboard() {
         <TabsContent value="repairs" className="mt-4"><AdminOperations section="repairs" /></TabsContent>
         <TabsContent value="support" className="mt-4"><AdminOperations section="support" /></TabsContent>
         <TabsContent value="audit" className="mt-4"><AdminOperations section="audit" /></TabsContent>
+        <TabsContent value="finance" className="mt-4"><AdminOperations section="finance" /></TabsContent>
 
         <TabsContent value="listings" className="mt-4 space-y-2">
           <Button variant="glow" onClick={() => setEditing(null)}><Plus /> Add product</Button>
