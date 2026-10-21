@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2 } from 'lucide-react';
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 import { OrderSupport } from '@/components/account/OrderSupport';
+import { CustomerNotifications } from '@/components/account/CustomerNotifications';
 import { CustomerAccountExtras } from '@/components/account/CustomerAccountExtras';
 import { safeTrackingUrl } from '@/lib/tracking';
 import { WishlistButton } from '@/components/WishlistButton';
@@ -354,6 +355,7 @@ function Account() {
           <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ดูคำสั่งซื้อและขอความช่วยเหลือ' : lang === 'ro' ? 'Vezi comenzile și cere ajutor' : 'View orders and get support'} <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></span>
         </button>
       </div>
+      <CustomerNotifications />
       <div id="customer-orders" className="mb-6 flex scroll-mt-6 flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{w.orders}</h2>
         <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
