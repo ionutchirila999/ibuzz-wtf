@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const migration = (name: string) =>
-  readFileSync(new URL(`../../supabase/migrations/${name}`, import.meta.url), "utf8").toLowerCase();
+  readFileSync(resolve(process.cwd(), "supabase", "migrations", name), "utf8").toLowerCase();
 
 describe("database security regression guards", () => {
   it("requires an authenticated user and validates stock in the authoritative checkout RPC", () => {
