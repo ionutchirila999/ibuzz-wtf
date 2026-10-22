@@ -90,10 +90,7 @@ function Dashboard() {
   }
 
   const rows = products.data ?? [];
-  const soldProfit = rows.filter((p) => p.status === "sold").reduce((sum, p) => {
-    const c = p.product_costs;
-    return sum + Number(p.price) - (c ? Number(c.purchase_cost) + Number(c.repair_cost) + Number(c.shipping_cost) + Number(c.platform_fees) + Number(c.other_expenses) : 0);
-  }, 0);
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -101,10 +98,9 @@ function Dashboard() {
         <h1 className="text-2xl font-bold">Owner dashboard</h1>
         <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}><LogOut /> Sign out</Button>
       </div>
-      <div className="mb-6 grid grid-cols-3 gap-3">
-        <Stat label="Listed" value={String(rows.filter((p) => p.status === "available").length)} />
-        <Stat label="Sold" value={String(rows.filter((p) => p.status === "sold").length)} />
-        <Stat label="Profit from sold" value={formatPrice(soldProfit)} />
+      <div className="mb-6 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+        <Stat label="Available listings" value={String(rows.filter((p) => p.status === "available").length)} />
+        <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
       </div>
       <Tabs defaultValue="overview">
         <TabsList className="h-auto flex-wrap justify-start gap-1">
