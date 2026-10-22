@@ -369,7 +369,6 @@ function Account() {
           <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4"><Button type="submit" disabled={busy}>{busy ? w.loading : w.saveProfile}</Button>{notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}</div>
           {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
         </form>
-      </section>
       </section>}
       {activeSection === 'customer-wishlist' && <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
