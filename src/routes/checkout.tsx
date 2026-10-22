@@ -20,7 +20,7 @@ const readCart = (): CartItem[] => { try { const v = JSON.parse(localStorage.get
 
 const COPY = {
   th: {
-    checkout: "ชำระเงิน", intro: "ตรวจสอบสินค้า ชำระผ่าน PromptPay แล้วส่งคำสั่งซื้อและสลิปผ่าน LINE",
+    checkout: "ชำระเงิน", intro: "ตรวจสอบสินค้า ชำระผ่าน PromptPay แล้วส่งคำสั่งซื้อและสลิปผ่าน LINE", accountNotice: "ก่อนสั่งซื้อ โปรดเข้าสู่ระบบหรือสร้างบัญชีเพื่อบันทึกและติดตามคำสั่งซื้อ ตะกร้าสินค้าของคุณจะยังคงอยู่บนอุปกรณ์นี้", accountAction: "เข้าสู่ระบบ / สร้างบัญชี",
     loading: "กำลังโหลดตะกร้า…", empty: "ตะกร้าของคุณว่างเปล่า", browse: "เลือกซื้อสินค้า",
     each: "ต่อชิ้น", stock: "มีในสต็อก", decrease: "ลดจำนวน", increase: "เพิ่มจำนวน", remove: "นำสินค้าออก",
     total: "ยอดที่ต้องชำระ", totalNote: "โหลดราคาและสต็อกล่าสุดจากฐานข้อมูลสินค้า โปรดยืนยันยอดก่อนชำระเงิน", discountCode:"รหัสส่วนลด", applyDiscount:"ใช้รหัส", discountSaved:"ส่วนลด", subtotal:"ยอดก่อนหักส่วนลด",
@@ -37,7 +37,7 @@ const COPY = {
     orderTotal: "ยอดรวม", payment: "การชำระเงิน: PromptPay (รอตรวจสอบด้วยตนเอง) ฉันจะแนบสลิปในแชต LINE นี้ โปรดยืนยันสต็อกและการชำระเงินก่อนดำเนินการ",
   },
   en: {
-    checkout: "Checkout", intro: "Review your items, pay with PromptPay, then send the order and payment slip through LINE.",
+    checkout: "Checkout", intro: "Review your items, pay with PromptPay, then send the order and payment slip through LINE.", accountNotice: "Before placing your order, sign in or create an account so your order can be saved and tracked. Your cart will remain on this device.", accountAction: "Sign in / Create account",
     loading: "Loading cart…", empty: "Your cart is empty", browse: "Browse Market",
     each: "each", stock: "in stock", decrease: "Decrease quantity", increase: "Increase quantity", remove: "Remove item",
     total: "Total due", totalNote: "Prices and available stock are reloaded from the product database. Confirm the total before paying.", discountCode:"Discount code", applyDiscount:"Apply code", discountSaved:"Discount", subtotal:"Subtotal",
@@ -54,7 +54,7 @@ const COPY = {
     orderTotal: "TOTAL", payment: "Payment: PromptPay (pending manual verification). I will attach my payment slip in this LINE chat. Please confirm stock and payment before processing.",
   },
   ro: {
-    checkout: "Finalizarea comenzii", intro: "Verifică produsele din coș, plătește prin PromptPay, apoi trimite comanda și dovada plății prin LINE.",
+    checkout: "Finalizarea comenzii", intro: "Verifică produsele din coș, plătește prin PromptPay, apoi trimite comanda și dovada plății prin LINE.", accountNotice: "Înainte de a plasa comanda, autentifică-te sau creează un cont pentru ca aceasta să fie salvată și urmărită. Coșul va rămâne pe acest dispozitiv.", accountAction: "Autentificare / Creează cont",
     loading: "Se încarcă coșul…", empty: "Coșul tău este gol", browse: "Vezi produsele",
     each: "pe bucată", stock: "în stoc", decrease: "Scade cantitatea", increase: "Mărește cantitatea", remove: "Elimină produsul",
     total: "Total de plată", totalNote: "Prețurile și stocul sunt actualizate din baza de date. Verifică suma înainte de a plăti.", discountCode:"Cod de reducere", applyDiscount:"Aplică", discountSaved:"Reducere", subtotal:"Subtotal",
@@ -84,6 +84,7 @@ function Checkout() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<CartProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSignedIn, setIsSignedIn] = useState<boolean | null>(null);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
@@ -101,6 +102,7 @@ function Checkout() {
     setCart(items);
     void (async () => {
       const { data: authData } = await supabase.auth.getUser();
+      setIsSignedIn(!!authData.user);
       if (!authData.user) return;
       const { data: savedProfile } = await (supabase as any)
         .from("customer_profiles")
@@ -292,6 +294,7 @@ function Checkout() {
 
   return <main className="mx-auto w-full max-w-3xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-8">
     <div className="space-y-1"><p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">iBuzz.wtf · Market</p><h1 className="text-2xl font-bold sm:text-3xl">{c.checkout}</h1><p className="text-sm leading-relaxed text-muted-foreground">{c.intro}</p></div>
+    {isSignedIn === false && <section className="flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm leading-relaxed text-muted-foreground">{c.accountNotice}</p><Button asChild className="min-h-11 shrink-0"><Link to="/account">{c.accountAction}</Link></Button></section>}
     {loading ? <p>{c.loading}</p> : !items.length ? <div className="rounded-xl border p-6 text-center"><ShoppingBag className="mx-auto mb-3 h-8 w-8"/><p className="font-semibold">{c.empty}</p><Button asChild className="mt-4"><Link to="/shop" search={{ lang }}>{c.browse}</Link></Button></div> : <>
       <section className="space-y-3">{items.map(p => <div key={p.id} className="space-y-3 rounded-xl border border-border/70 p-3 sm:flex sm:items-center sm:gap-3 sm:space-y-0 sm:p-4"><div className="min-w-0 sm:flex-1"><p className="break-words font-medium leading-snug">{p.displayTitle}</p><p className="mt-1 text-sm text-muted-foreground">{formatPrice(p.price)} {c.each} · {p.stock} {c.stock}</p></div><div className="flex items-center justify-between gap-3 sm:justify-end"><div className="flex items-center gap-2"><Button size="icon" variant="outline" aria-label={c.decrease} onClick={() => updateQty(p.id, p.quantity - 1)}><Minus className="h-4 w-4"/></Button><span className="w-5 text-center tabular-nums">{p.quantity}</span><Button size="icon" variant="outline" aria-label={c.increase} disabled={p.quantity >= p.stock} onClick={() => updateQty(p.id, p.quantity + 1)}><Plus className="h-4 w-4"/></Button><Button size="icon" variant="ghost" aria-label={c.remove} onClick={() => updateQty(p.id, 0)}><Trash2 className="h-4 w-4"/></Button></div><strong className="shrink-0 text-right">{formatPrice(Number(p.price) * p.quantity)}</strong></div></div>)}</section>
       <section className="rounded-xl border border-border/70 p-4 sm:p-5"><div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"><label className="space-y-1 text-sm text-muted-foreground">{c.discountCode}<Input value={discountCode} maxLength={40} disabled={!!createdOrderNumber} onChange={e=>{setDiscountCode(e.target.value.toUpperCase());setAppliedDiscount(null);}} placeholder="IBUZZ10"/></label><Button type="button" variant="outline" className="self-end" disabled={!!createdOrderNumber||!discountCode.trim()} onClick={()=>void applyDiscount()}>{c.applyDiscount}</Button></div><div className="mt-4 space-y-1 border-t border-border/50 pt-3 text-sm"><div className="flex items-center justify-between gap-3"><span>{c.subtotal}</span><span className="tabular-nums">{formatPrice(total)} THB</span></div>{appliedDiscountAmount>0&&<div className="flex items-center justify-between gap-3 text-emerald-600"><span>{c.discountSaved} · {appliedDiscount?.code}</span><span className="tabular-nums">−{formatPrice(appliedDiscountAmount)} THB</span></div>}<div className="flex items-start justify-between gap-3 pt-1 text-base font-bold sm:text-lg"><span>{c.total}</span><span className="shrink-0 text-right tabular-nums">{formatPrice(payableTotal)} THB</span></div></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.totalNote}</p></section>
