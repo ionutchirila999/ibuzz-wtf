@@ -103,7 +103,10 @@ function Dashboard() {
         <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
       </div>
       <Tabs defaultValue="overview">
-        <TabsList className="h-auto flex-wrap justify-start gap-1">
+        <div className="mt-5 grid min-w-0 items-start gap-4 md:grid-cols-[210px_minmax(0,1fr)] lg:grid-cols-[232px_minmax(0,1fr)]">
+        <aside className="h-fit min-w-0 rounded-xl border border-border/60 bg-card/60 p-2 md:sticky md:top-24 md:p-3">
+          <div className="px-3 py-3"><p className="text-xs font-semibold tracking-wide text-muted-foreground">{lang === "th" ? "การจัดการร้าน" : lang === "ro" ? "ADMINISTRARE MAGAZIN" : "STORE MANAGEMENT"}</p></div>
+        <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-1 bg-transparent p-0 md:flex md:flex-col md:items-stretch md:rounded-lg md:bg-transparent">
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="overview"><LayoutDashboard className="h-4 w-4 shrink-0"/><span>{tabLabels.overview}</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="listings"><Package className="h-4 w-4 shrink-0"/><span>Listings</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="orders"><ShoppingBag className="h-4 w-4 shrink-0"/><span>Orders</span></TabsTrigger>
@@ -117,7 +120,8 @@ function Dashboard() {
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="finance"><Wallet className="h-4 w-4 shrink-0"/><span>{tabLabels.finance}</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="promotions"><Megaphone className="h-4 w-4 shrink-0"/><span>{tabLabels.promotions}</span></TabsTrigger>
         </TabsList>
-
+        </aside>
+        <div className="min-w-0 space-y-4">
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
 
         <TabsContent value="inventory" className="mt-4"><AdminOperations section="inventory" /></TabsContent>
@@ -171,6 +175,8 @@ function Dashboard() {
 
         <TabsContent value="enquiries"><OwnerEnquiries/></TabsContent>
         <TabsContent value="calc" className="mt-4"><ProfitCalculator /></TabsContent>
+        </div>
+        </div>
       </Tabs>
 
       <Sheet open={editing !== undefined} onOpenChange={(o) => !o && setEditing(undefined)}>
