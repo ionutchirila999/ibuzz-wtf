@@ -189,7 +189,7 @@ export function AccountSecurity() {
   return <section id="account-security" className="mb-7 scroll-mt-6 rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
     <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><ShieldCheck className="h-5 w-5" /></span><div><h2 className="text-xl font-semibold">{w.title}</h2><p className="mt-1 text-sm text-muted-foreground">{w.sessions}</p></div></div>
     {loading ? <p className="mt-4 text-sm text-muted-foreground">{w.loading}</p> : <div className="mt-4 grid gap-4 lg:grid-cols-2">
-      <div className="rounded-xl border border-border/50 p-4">
+      <div className="min-w-0 rounded-xl border border-border/50 p-3 sm:p-4">
         <h3 className="flex items-center gap-2 font-semibold"><MonitorSmartphone className="h-4 w-4" />{w.currentSession}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{w.currentDevice}</p>
         <p className="mt-2 break-words text-xs text-muted-foreground">{w.browser}</p>
@@ -212,7 +212,10 @@ export function AccountSecurity() {
               <div className="space-y-1"><Label htmlFor="mfa-code">{w.code}</Label><Input id="mfa-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} pattern="[0-9]{6}" maxLength={6} placeholder="123456" className="text-center font-mono text-lg tracking-[0.35em]" required /></div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row"><Button type="submit" className="w-full sm:w-auto" disabled={working || code.length !== 6}><KeyRound className="mr-2 h-4 w-4" />{w.verifyMfa}</Button><Button type="button" variant="outline" className="w-full sm:w-auto" disabled={working} onClick={async () => { await supabase.auth.mfa.unenroll({ factorId: pending.id }); setPending(null); setCode(""); }}>{w.cancelSetup}</Button></div>
+          <div className="grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
+            <Button type="submit" className="h-auto min-h-10 w-full whitespace-normal px-3 py-2 text-center leading-snug" disabled={working || code.length !== 6}><KeyRound className="mr-2 h-4 w-4 shrink-0" /><span>{w.verifyMfa}</span></Button>
+            <Button type="button" variant="outline" className="h-auto min-h-10 w-full whitespace-normal px-3 py-2 text-center leading-snug" disabled={working} onClick={async () => { const { error } = await supabase.auth.mfa.unenroll({ factorId: pending.id }); if (error) { toast.error(w.securityError); return; } setPending(null); setCode(""); await load(); }}>{w.cancelSetup}</Button>
+          </div>
         </form> : <Button type="button" className="mt-3" disabled={working} onClick={() => void beginMfa()}><KeyRound className="mr-2 h-4 w-4" />{w.enableMfa}</Button>}
       </div>
     </div>}
