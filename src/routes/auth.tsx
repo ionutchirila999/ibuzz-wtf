@@ -56,7 +56,7 @@ function Auth() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
       if (error) { toast.error(error.message); return; }
-      navigate({ to: "/admin" });
+      navigate({ to: "/ibuzz-dashboard" });
     } else {
       const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
       setBusy(false);
@@ -69,13 +69,13 @@ function Auth() {
   async function signInWithProvider(provider: "google") {
     setBusy(true);
     const lovableAuth = createLovableAuth();
-    const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/admin" });
+    const result = await lovableAuth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/ibuzz-dashboard" });
     if (result.redirected) return;
     if (result.error) { setBusy(false); toast.error(result.error.message); return; }
     const { error } = await supabase.auth.setSession(result.tokens);
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    navigate({ to: "/admin" });
+    navigate({ to: "/ibuzz-dashboard" });
   }
 
   const setup = ownerExists === false;
