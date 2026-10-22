@@ -123,8 +123,8 @@ export function AdminOperations({ section }: { section: Section }) {
 
   if(section==="finance") {
     const expenseTotal=(expenses.data??[]).reduce((sum:number,e:any)=>sum+Number(e.amount),0);
-    const soldIds=new Set((products.data??[]).filter((p:any)=>p.status==="sold"&&!p.is_demo).map((p:any)=>p.id));
-    const recordedCost=(costs.data??[]).filter((c:any)=>soldIds.has(c.product_id)).reduce((sum:number,c:any)=>sum+Number(c.purchase_cost)+Number(c.repair_cost)+Number(c.shipping_cost)+Number(c.platform_fees)+Number(c.other_expenses),0);
+    const completedPaidOrders=(orders.data??[]).filter((o:any)=>o.status==="completed"&&o.payment_status==="paid");
+    const recordedCost=completedPaidOrders.reduce((sum:number,o:any)=>sum+(o.order_items??[]).reduce((itemSum:number,item:any)=>itemSum+(Number(costByProduct.get(item.product_id)??0)*Number(item.quantity??0)),0),0);
     const estimated=salesTotals.paidCompletedSales-recordedCost-expenseTotal;
     return <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3"><Metric icon={<ClipboardList className="h-4 w-4"/>} label={w.paidSales} value={formatPrice(salesTotals.paidCompletedSales)}/><Metric icon={<AlertTriangle className="h-4 w-4"/>} label={w.expenses} value={formatPrice(expenseTotal)}/><Metric icon={<ShieldCheck className="h-4 w-4"/>} label={w.estimatedProfit} value={formatPrice(estimated)}/></div>
