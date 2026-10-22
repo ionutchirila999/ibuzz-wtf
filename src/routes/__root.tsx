@@ -17,6 +17,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SHOP_NAME } from "@/lib/shop";
 import { registerServiceWorker } from "@/lib/pwa";
+import { trackPageView } from "@/lib/analytics";
 
 function NotFoundComponent() {
   return (
@@ -127,9 +128,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
   useEffect(() => {
     registerServiceWorker();
   }, []);
+
+  useEffect(() => {
+    trackPageView(router.state.location.pathname + router.state.location.searchStr);
+  }, [router, router.state.location.pathname, router.state.location.searchStr]);
 
 
   return (
