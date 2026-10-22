@@ -98,8 +98,8 @@ begin
   return jsonb_build_object('valid',true,'code',discount_row.code,'discount_amount',amount,'discount_type',discount_row.discount_type,'discount_value',discount_row.discount_value);
 end;
 $$;
-revoke all on function public.validate_discount_code(text, numeric) from public, anon;
-grant execute on function public.validate_discount_code(text, numeric) to authenticated;
+revoke all on function public.validate_discount_code(text, numeric) from public;
+grant execute on function public.validate_discount_code(text, numeric) to anon, authenticated;
 
 create or replace function public.create_customer_order(
   p_buyer_name text,
