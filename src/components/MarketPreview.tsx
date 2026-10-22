@@ -10,7 +10,7 @@ import { ProductCard } from '@/components/ProductCard';
 
 export const previewQuery = queryOptions({queryKey:['homepage-market'],staleTime:30000,queryFn:async()=>{
  // Sold items stay public on the homepage too: available stock leads, sold follows, hidden stays out.
- const {data,error}=await supabase.from('products').select('*').neq('status','hidden').order('status',{ascending:true}).order('created_at',{ascending:false}).limit(4);
+ const {data,error}=await (supabase as any).from('products').select('*').neq('status','hidden').order('is_featured',{ascending:false}).order('status',{ascending:true}).order('created_at',{ascending:false}).limit(4);
  return {products:data??[],failed:!!error};
 }});
 function Listings(){const {lang}=useT();const {data}=useSuspenseQuery(previewQuery);return data.products.length?<div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{data.products.map(p=><ProductCard key={p.id} p={p}/>)}</div>:<div className="flex flex-col items-center border-y border-border/50 py-10 text-center"><ShoppingBag className="mb-4 h-8 w-8 text-azure"/><p className="max-w-md text-sm leading-6 text-muted-foreground">{homeCopy(lang,data.failed?'unavailable':'empty')}</p></div>;}
