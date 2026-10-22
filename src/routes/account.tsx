@@ -291,16 +291,27 @@ function Account() {
         {!resetMode && <p className="mt-6 border-t border-border/60 pt-5 text-center text-sm text-muted-foreground">{mode === 'in' ? w.switchUp : w.switchIn} <button type="button" className="ml-1 font-semibold text-primary underline-offset-4 hover:underline" onClick={()=>{setMode(mode==='in'?'up':'in');setError('');setNotice('');}}>{mode === 'in' ? w.signUp : w.signIn}</button></p>}
       </div>
     </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
-      <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="mb-4 flex gap-2 overflow-x-auto rounded-xl border border-cyan-300/15 bg-slate-950/35 p-2 [scrollbar-width:thin]">
-        {[
-          { id: 'customer-orders', label: lang === 'th' ? 'คำสั่งซื้อ' : lang === 'ro' ? 'Comenzi' : 'Orders' },
-          { id: 'customer-wishlist', label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Saved' },
-          { id: 'customer-profile', label: lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'Profil' : 'Profile' },
-          { id: 'customer-notifications', label: lang === 'th' ? 'แจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Alerts' },
-          { id: 'customer-security', label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security' },
-          { id: 'customer-settings', label: lang === 'th' ? 'ตั้งค่า' : lang === 'ro' ? 'Setări' : 'Settings' },
-        ].map(item => <a key={item.id} href={'#' + item.id} className="inline-flex min-h-9 shrink-0 items-center rounded-lg border border-transparent px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-cyan-300/20 hover:bg-cyan-300/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{item.label}</a>)}
-      </nav>
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[232px_minmax(0,1fr)]">
+        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24">
+          <div className="px-3 pb-3 pt-2"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{lang === 'th' ? 'พื้นที่ลูกค้า' : lang === 'ro' ? 'ZONA CLIENTULUI' : 'CUSTOMER SPACE'}</p><p className="mt-1 truncate text-sm font-semibold" title={userEmail ?? ''}>{userEmail}</p></div>
+          <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="grid gap-1">
+            {[
+              { id: 'customer-orders', icon: Package, label: lang === 'th' ? 'คำสั่งซื้อและการติดตาม' : lang === 'ro' ? 'Comenzi și livrare' : 'Orders & tracking', detail: lang === 'th' ? 'ประวัติและสถานะ' : lang === 'ro' ? 'Istoric și stare' : 'History and status' },
+              { id: 'customer-profile', icon: MonitorSmartphone, label: lang === 'th' ? 'โปรไฟล์และที่อยู่' : lang === 'ro' ? 'Profil și adrese' : 'Profile & addresses', detail: lang === 'th' ? 'ข้อมูลส่วนตัว' : lang === 'ro' ? 'Date personale' : 'Personal details' },
+              { id: 'customer-wishlist', icon: Heart, label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist', detail: lang === 'th' ? 'สินค้าที่บันทึกไว้' : lang === 'ro' ? 'Produse salvate' : 'Saved products' },
+              { id: 'customer-support', icon: KeyRound, label: lang === 'th' ? 'การช่วยเหลือคำสั่งซื้อ' : lang === 'ro' ? 'Asistență comenzi' : 'Order support', detail: lang === 'th' ? 'ติดต่อเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Ajutor pentru comenzi' : 'Help with an order' },
+              { id: 'customer-notifications', icon: MonitorSmartphone, label: lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications', detail: lang === 'th' ? 'อัปเดตบัญชี' : lang === 'ro' ? 'Actualizări cont' : 'Account updates' },
+              { id: 'customer-security', icon: ShieldCheck, label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security', detail: lang === 'th' ? 'เซสชันและ 2FA' : lang === 'ro' ? 'Sesiuni și 2FA' : 'Sessions and 2FA' },
+              { id: 'customer-settings', icon: LogOut, label: lang === 'th' ? 'การตั้งค่าบัญชี' : lang === 'ro' ? 'Setări cont' : 'Account settings', detail: lang === 'th' ? 'อีเมลและรหัสผ่าน' : lang === 'ro' ? 'E-mail și parolă' : 'Email and password' },
+            ].map(item => <a key={item.id} href={'#' + item.id} className="group flex min-w-0 items-center gap-3 rounded-xl border border-transparent px-3 py-3 transition-colors hover:border-cyan-300/20 hover:bg-cyan-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary"><item.icon className="h-4 w-4" /></span>
+              <span className="min-w-0"><span className="block text-sm font-medium">{item.label}</span><span className="mt-0.5 block text-xs text-muted-foreground">{item.detail}</span></span>
+              <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-60" />
+            </a>)}
+          </nav>
+          <div className="mt-3 border-t border-border/40 p-2 pt-4"><Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
+        </aside>
+        <div className="min-w-0 space-y-4">
 <div className="mb-4 grid scroll-mt-24 grid-cols-2 gap-3 xl:grid-cols-4">
         <div className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4">
           <p className="text-sm text-muted-foreground">{w.orders}</p>
@@ -330,30 +341,9 @@ function Account() {
       {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-3">{orders.map(order => <article key={order.id} className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4 shadow-[0_12px_36px_-30px_rgba(34,211,238,0.35)]"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_220px]"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{safeTrackingUrl(order.tracking_url) && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={safeTrackingUrl(order.tracking_url)!} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border/30 pt-4 text-xs text-muted-foreground"><CheckCircle2 className="h-4 w-4"/>{w.status}: {label(order.status)}</div>
-        <OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} />
+        <div id="customer-support" className="scroll-mt-24"><OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} />
         <CustomerOrderDetails order={order} />
       </article>)}</div>}
-      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div><p className="section-eyebrow">{lang === 'th' ? 'บันทึกไว้' : lang === 'ro' ? 'SALVATE' : 'SAVED'}</p><h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><Heart className="h-5 w-5 text-primary" />{w.wishlist} <Badge variant="secondary">{wishlist.length}</Badge></h2></div>
-          <Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
-        </div>
-        {loadingWishlist ? <p className="py-6 text-center text-sm text-muted-foreground">{w.loading}</p> : wishlist.length === 0 ? <div className="rounded-xl border border-dashed p-8 text-center"><Heart className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{w.wishlistEmpty}</p><Button asChild className="mt-4"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div> : <div className="grid gap-3 sm:grid-cols-2">
-          {wishlist.map(product => {
-            const sold = product.status === 'sold' || product.stock <= 0;
-            const title = (lang === 'th' ? product.title_th : lang === 'ro' ? product.title_ro : null) || product.title;
-            return <article key={product.id} className="flex min-w-0 gap-3 rounded-xl border border-border/50 bg-background/50 p-3">
-              <Link to="/product/$id" params={{ id: product.id }} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">{product.images?.[0] ? <img src={product.images[0]} alt={title} loading="lazy" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div>}</Link>
-              <div className="min-w-0 flex-1">
-                <Link to="/product/$id" params={{ id: product.id }} className="line-clamp-2 font-semibold hover:text-primary">{title}</Link>
-                <p className="mt-1 text-sm font-bold text-primary">{typeof product.price === 'number' ? `฿${product.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : ''}</p>
-                <p className={`mt-1 text-xs ${sold ? 'text-destructive' : 'text-emerald-600'}`}>{sold ? w.soldOut : `${w.available} · ${product.stock}`}</p>
-                <Button type="button" variant="ghost" size="sm" className="mt-1 h-8 px-2 text-muted-foreground" onClick={() => void removeWishlist(product.id)}><Trash2 className="mr-1 h-3.5 w-3.5" />{w.removeSaved}</Button>
-              </div>
-            </article>;
-          })}
-        </div>}
-      </section>
       <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-profile">
         <div className="mb-5"><p className="section-eyebrow">{lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'PROFIL' : 'PROFILE'}</p><h2 className="mt-1 text-xl font-semibold">{w.profileTitle}</h2><p className="mt-2 text-sm text-muted-foreground">{w.privacyNote}</p></div>
         <form onSubmit={saveProfile} className="space-y-4">
@@ -376,6 +366,27 @@ function Account() {
           <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4"><Button type="submit" disabled={busy}>{busy ? w.loading : w.saveProfile}</Button>{notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}</div>
           {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
         </form>
+      </section>
+      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div><p className="section-eyebrow">{lang === 'th' ? 'บันทึกไว้' : lang === 'ro' ? 'SALVATE' : 'SAVED'}</p><h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><Heart className="h-5 w-5 text-primary" />{w.wishlist} <Badge variant="secondary">{wishlist.length}</Badge></h2></div>
+          <Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
+        </div>
+        {loadingWishlist ? <p className="py-6 text-center text-sm text-muted-foreground">{w.loading}</p> : wishlist.length === 0 ? <div className="rounded-xl border border-dashed p-8 text-center"><Heart className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">{w.wishlistEmpty}</p><Button asChild className="mt-4"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div> : <div className="grid gap-3 sm:grid-cols-2">
+          {wishlist.map(product => {
+            const sold = product.status === 'sold' || product.stock <= 0;
+            const title = (lang === 'th' ? product.title_th : lang === 'ro' ? product.title_ro : null) || product.title;
+            return <article key={product.id} className="flex min-w-0 gap-3 rounded-xl border border-border/50 bg-background/50 p-3">
+              <Link to="/product/$id" params={{ id: product.id }} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">{product.images?.[0] ? <img src={product.images[0]} alt={title} loading="lazy" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div>}</Link>
+              <div className="min-w-0 flex-1">
+                <Link to="/product/$id" params={{ id: product.id }} className="line-clamp-2 font-semibold hover:text-primary">{title}</Link>
+                <p className="mt-1 text-sm font-bold text-primary">{typeof product.price === 'number' ? `฿${product.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : ''}</p>
+                <p className={`mt-1 text-xs ${sold ? 'text-destructive' : 'text-emerald-600'}`}>{sold ? w.soldOut : `${w.available} · ${product.stock}`}</p>
+                <Button type="button" variant="ghost" size="sm" className="mt-1 h-8 px-2 text-muted-foreground" onClick={() => void removeWishlist(product.id)}><Trash2 className="mr-1 h-3.5 w-3.5" />{w.removeSaved}</Button>
+              </div>
+            </article>;
+          })}
+        </div>}
       </section>
       <div id="customer-notifications" className="scroll-mt-24"><CustomerNotifications /></div>
       <div id="customer-security" className="scroll-mt-24"><AccountSecurity /></div>
@@ -400,6 +411,6 @@ function Account() {
       </div>
       </div>
       </div>
-    </section>}
+        </div>\n      </div>\n    </section>}
   </main>;
 }
