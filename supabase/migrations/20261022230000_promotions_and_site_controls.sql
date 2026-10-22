@@ -29,6 +29,7 @@ create table if not exists public.discount_codes (
 );
 create index if not exists discount_codes_active_code_idx on public.discount_codes(code) where is_active;
 alter table public.discount_codes enable row level security;
+grant select, insert, update, delete on public.discount_codes to authenticated;
 drop policy if exists "Admins manage discount codes" on public.discount_codes;
 create policy "Admins read discount codes" on public.discount_codes for select to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role));
 create policy "Admins insert discount codes" on public.discount_codes for insert to authenticated with check (public.has_role(auth.uid(), 'admin'::public.app_role));
