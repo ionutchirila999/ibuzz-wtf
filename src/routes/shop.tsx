@@ -9,6 +9,7 @@ import { SHOP_NAME, SOCIAL_IMAGE, SUBCATEGORIES, productSearchConditions, type C
 import { marketShare, shareLang } from "@/lib/share-meta";
 import { useT } from "@/lib/i18n";
 import { ProductCard } from "@/components/ProductCard";
+import { trackEvent } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -125,6 +126,10 @@ function Shop() {
       }
     },
   });
+
+  useEffect(() => {
+    if (s.q?.trim()) trackEvent("search", { search_term: s.q.trim().slice(0, 100), category: s.category });
+  }, [s.q, s.category]);
 
   const subs = s.category ? SUBCATEGORIES[s.category] : [];
 
