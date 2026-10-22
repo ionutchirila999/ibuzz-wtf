@@ -390,7 +390,7 @@ function Account() {
             </article>;
           })}
         </div>}
-      </section>
+      </section>}
       {activeSection === 'customer-notifications' && <div id="customer-notifications" className="scroll-mt-24"><CustomerNotifications /></div>}
       {activeSection === 'customer-security' && <div id="customer-security" className="scroll-mt-24"><AccountSecurity /></div>}
       {activeSection === 'customer-settings' && <div id="customer-settings" className="mt-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-muted/15 p-4 sm:p-5"><div className="mb-5 flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut className="h-5 w-5 rotate-180" /></div><div><p className="section-eyebrow">{lang === 'th' ? 'การตั้งค่า' : lang === 'ro' ? 'Setări' : 'SETTINGS'}</p><h2 className="mt-1 text-xl font-semibold">{lang === 'th' ? 'บัญชีและความปลอดภัย' : lang === 'ro' ? 'Cont și securitate' : 'Account & security'}</h2><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'จัดการอีเมลและรหัสผ่านของคุณ' : lang === 'ro' ? 'Gestionează adresa de e-mail și parola.' : 'Manage your email address and password.'}</p></div></div>
