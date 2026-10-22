@@ -127,14 +127,14 @@ function ProductPage() {
               ))}
             </dl>
           </section>
-          {(p.authenticity_verified || p.delivery_options || p.return_policy) && <section className="mt-5 rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
+          <section className="mt-5 rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
             <h2 className="font-semibold tracking-tight">{t("p.confidence")}</h2>
             <div className="mt-4 space-y-4 text-sm leading-6 text-muted-foreground">
               {p.authenticity_verified && <div className="flex gap-3"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" /><span>{t("p.auth")}{p.authenticity_notes ? ` — ${p.authenticity_notes}` : ""}</span></div>}
-              {p.delivery_options && <div className="flex gap-3"><Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.delivery_options}</span></div>}
-              {p.return_policy && <div className="flex gap-3"><RotateCcw className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.return_policy}</span></div>}
+              <div className="flex gap-3"><Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.delivery_options || (lang === "th" ? "โปรดยืนยันวิธีจัดส่งและค่าใช้จ่ายกับเราก่อนชำระเงิน" : lang === "ro" ? "Confirmă metoda și costul livrării cu noi înainte de plată." : "Please confirm delivery method and cost with us before paying.")}</span></div>
+              <div className="flex gap-3"><RotateCcw className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span>{p.return_policy || (lang === "th" ? "โปรดสอบถามเงื่อนไขการคืนสินค้าสำหรับรายการนี้ก่อนชำระเงิน" : lang === "ro" ? "Întreabă despre condițiile de retur pentru acest produs înainte de plată." : "Please ask us to confirm the return terms for this item before paying.")}</span></div>
             </div>
-          </section>}
+          </section>
         </section>
 
         <aside className="min-w-0 lg:sticky lg:top-24">
