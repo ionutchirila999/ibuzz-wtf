@@ -36,6 +36,7 @@ function Account() {
   const w = WORDS[lang];
   const navigate = useNavigate();
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('customer-orders');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'in'|'up'>('in');
@@ -292,7 +293,7 @@ function Account() {
       </div>
     </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
+        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24 lg:self-start">
           <div className="px-3 pb-3 pt-2"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{lang === 'th' ? 'พื้นที่ลูกค้า' : lang === 'ro' ? 'ZONA CLIENTULUI' : 'CUSTOMER SPACE'}</p><p className="mt-1 truncate text-sm font-semibold" title={userEmail ?? ''}>{userEmail}</p></div>
           <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="grid gap-1">
             {[
@@ -303,15 +304,16 @@ function Account() {
               { id: 'customer-notifications', icon: MonitorSmartphone, label: lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications', detail: lang === 'th' ? 'อัปเดตบัญชี' : lang === 'ro' ? 'Actualizări cont' : 'Account updates' },
               { id: 'customer-security', icon: ShieldCheck, label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security', detail: lang === 'th' ? 'เซสชันและ 2FA' : lang === 'ro' ? 'Sesiuni și 2FA' : 'Sessions and 2FA' },
               { id: 'customer-settings', icon: LogOut, label: lang === 'th' ? 'การตั้งค่าบัญชี' : lang === 'ro' ? 'Setări cont' : 'Account settings', detail: lang === 'th' ? 'อีเมลและรหัสผ่าน' : lang === 'ro' ? 'E-mail și parolă' : 'Email and password' },
-            ].map(item => <a key={item.id} href={'#' + item.id} className="group flex min-w-0 items-center gap-3 rounded-xl border border-transparent px-3 py-3 transition-colors hover:border-cyan-300/20 hover:bg-cyan-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            ].map(item => <button type="button" key={item.id} onClick={() => setActiveSection(item.id === 'customer-support' ? 'customer-orders' : item.id)} aria-current={activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders') ? 'page' : undefined} className={`group flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders') ? 'border-cyan-300/30 bg-cyan-300/10' : 'border-transparent hover:border-cyan-300/20 hover:bg-cyan-300/10'}`}>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary"><item.icon className="h-4 w-4" /></span>
               <span className="min-w-0"><span className="block text-sm font-medium">{item.label}</span><span className="mt-0.5 block text-xs text-muted-foreground">{item.detail}</span></span>
               <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-60" />
-            </a>)}
+            </button>)}
           </nav>
           <div className="mt-3 border-t border-border/40 p-2 pt-4"><Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
         </aside>
-        <div className="min-w-0 space-y-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-2">
+        <div className="min-w-0 space-y-4">
+{(activeSection === 'customer-orders') && <>
 <div className="mb-4 grid scroll-mt-24 grid-cols-2 gap-3 xl:grid-cols-4">
         <div className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4">
           <p className="text-sm text-muted-foreground">{w.orders}</p>
@@ -344,7 +346,8 @@ function Account() {
         <div id={order.id === orders[0]?.id ? "customer-support" : undefined} className="scroll-mt-24"><OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} /></div>
         <CustomerOrderDetails order={order} />
       </article>)}</div>}
-      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-profile">
+      </>}
+      {activeSection === 'customer-profile' && <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-profile">
         <div className="mb-5"><p className="section-eyebrow">{lang === 'th' ? 'โปรไฟล์' : lang === 'ro' ? 'PROFIL' : 'PROFILE'}</p><h2 className="mt-1 text-xl font-semibold">{w.profileTitle}</h2><p className="mt-2 text-sm text-muted-foreground">{w.privacyNote}</p></div>
         <form onSubmit={saveProfile} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -367,7 +370,8 @@ function Account() {
           {error && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
         </form>
       </section>
-      <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
+      </section>}
+      {activeSection === 'customer-wishlist' && <section className="mb-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-card/35 p-4 sm:p-5" id="customer-wishlist">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div><p className="section-eyebrow">{lang === 'th' ? 'บันทึกไว้' : lang === 'ro' ? 'SALVATE' : 'SAVED'}</p><h2 className="mt-1 flex items-center gap-2 text-xl font-semibold"><Heart className="h-5 w-5 text-primary" />{w.wishlist} <Badge variant="secondary">{wishlist.length}</Badge></h2></div>
           <Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
@@ -388,9 +392,9 @@ function Account() {
           })}
         </div>}
       </section>
-      <div id="customer-notifications" className="scroll-mt-24"><CustomerNotifications /></div>
-      <div id="customer-security" className="scroll-mt-24"><AccountSecurity /></div>
-      <div id="customer-settings" className="mt-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-muted/15 p-4 sm:p-5"><div className="mb-5 flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut className="h-5 w-5 rotate-180" /></div><div><p className="section-eyebrow">{lang === 'th' ? 'การตั้งค่า' : lang === 'ro' ? 'Setări' : 'SETTINGS'}</p><h2 className="mt-1 text-xl font-semibold">{lang === 'th' ? 'บัญชีและความปลอดภัย' : lang === 'ro' ? 'Cont și securitate' : 'Account & security'}</h2><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'จัดการอีเมลและรหัสผ่านของคุณ' : lang === 'ro' ? 'Gestionează adresa de e-mail și parola.' : 'Manage your email address and password.'}</p></div></div>
+      {activeSection === 'customer-notifications' && <div id="customer-notifications" className="scroll-mt-24"><CustomerNotifications /></div>}
+      {activeSection === 'customer-security' && <div id="customer-security" className="scroll-mt-24"><AccountSecurity /></div>}
+      {activeSection === 'customer-settings' && <div id="customer-settings" className="mt-4 scroll-mt-24 rounded-2xl border border-cyan-300/15 bg-muted/15 p-4 sm:p-5"><div className="mb-5 flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut className="h-5 w-5 rotate-180" /></div><div><p className="section-eyebrow">{lang === 'th' ? 'การตั้งค่า' : lang === 'ro' ? 'Setări' : 'SETTINGS'}</p><h2 className="mt-1 text-xl font-semibold">{lang === 'th' ? 'บัญชีและความปลอดภัย' : lang === 'ro' ? 'Cont și securitate' : 'Account & security'}</h2><p className="mt-1 text-sm text-muted-foreground">{lang === 'th' ? 'จัดการอีเมลและรหัสผ่านของคุณ' : lang === 'ro' ? 'Gestionează adresa de e-mail și parola.' : 'Manage your email address and password.'}</p></div></div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
       <div className="rounded-xl border border-border/50 bg-card/40 p-4 sm:p-5">
         <p className="mb-3 text-sm text-muted-foreground">{userEmail}</p>
@@ -410,7 +414,9 @@ function Account() {
         {notice && <p role="status" className="mt-3 text-sm text-muted-foreground">{notice}</p>}
       </div>
       </div>
+      </div>}
+        </div>
       </div>
-        </div>\n      </div>\n    </section>}
+    </section>}
   </main>;
 }
