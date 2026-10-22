@@ -5,6 +5,7 @@ import { SHOP_CONTACT, type Product } from "@/lib/shop";
 import { trackEvent } from "@/lib/analytics";
 
 export function ContactButtons({
+  product,
   disabled,
 }: {
   product?: Product;
@@ -35,7 +36,7 @@ export function ContactButtons({
         href="https://line.me/ti/p/CcGd-nkSXZ"
         target="_blank"
         rel="noreferrer"
-        onClick={() => trackEvent("contact_line", { placement: "product", product_id: undefined })}
+        onClick={() => trackEvent("contact_line", { placement: "product", product_id: product?.id, item_name: product?.title })}
       >
         <MessageCircle /> LINE · {SHOP_CONTACT.lineLabel}
       </a>
