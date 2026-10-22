@@ -93,21 +93,21 @@ function Dashboard() {
 
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Owner dashboard</h1>
+    <div className="mx-auto w-full max-w-[1600px] px-3 py-5 sm:px-5 lg:px-8 lg:py-7">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card/50 px-4 py-3 sm:px-5">
+        <div><p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">iBuzz.wtf · Admin</p><h1 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">Owner dashboard</h1></div>
         <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}><LogOut /> Sign out</Button>
       </div>
-      <div className="mb-6 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:max-w-xl">
         <Stat label="Available listings" value={String(rows.filter((p) => p.status === "available").length)} />
         <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
       </div>
       <Tabs defaultValue="overview">
-        <div className="mt-5 grid min-w-0 items-start gap-4 md:grid-cols-[210px_minmax(0,1fr)] lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="h-fit min-w-0 rounded-xl border border-border/60 bg-card/60 p-2 md:sticky md:top-24 md:p-3">
+        <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[244px_minmax(0,1fr)]">
+        <aside className="h-fit min-w-0 rounded-2xl border border-border/60 bg-card/65 p-2 shadow-sm lg:sticky lg:top-24 lg:p-3">
           <div className="px-3 py-3"><p className="text-xs font-semibold tracking-wide text-muted-foreground">{lang === "th" ? "การจัดการร้าน" : lang === "ro" ? "ADMINISTRARE MAGAZIN" : "STORE MANAGEMENT"}</p></div>
-        <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-1 bg-transparent p-0 md:flex md:flex-col md:items-stretch md:rounded-lg md:bg-transparent">
-          <TabsTrigger className="w-full justify-start gap-2 text-left" value="overview"><LayoutDashboard className="h-4 w-4 shrink-0"/><span>{tabLabels.overview}</span></TabsTrigger>
+        <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-1.5 bg-transparent p-0 lg:flex lg:flex-col lg:items-stretch lg:rounded-lg lg:bg-transparent">
+          <TabsTrigger className="h-auto min-h-10 w-full justify-start gap-2 whitespace-normal rounded-lg px-2.5 py-2 text-left text-xs leading-snug sm:px-3 sm:text-sm lg:min-h-10" value="overview"><LayoutDashboard className="h-4 w-4 shrink-0"/><span>{tabLabels.overview}</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="listings"><Package className="h-4 w-4 shrink-0"/><span>Listings</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="orders"><ShoppingBag className="h-4 w-4 shrink-0"/><span>Orders</span></TabsTrigger>
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="offers"><Handshake className="h-4 w-4 shrink-0"/><span>Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</span></TabsTrigger>
@@ -121,7 +121,7 @@ function Dashboard() {
           <TabsTrigger className="w-full justify-start gap-2 text-left" value="promotions"><Megaphone className="h-4 w-4 shrink-0"/><span>{tabLabels.promotions}</span></TabsTrigger>
         </TabsList>
         </aside>
-        <div className="min-w-0 space-y-4">
+        <div className="min-w-0 space-y-3">
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
 
         <TabsContent value="inventory" className="mt-4"><AdminOperations section="inventory" /></TabsContent>
@@ -190,5 +190,5 @@ function Dashboard() {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-xl border bg-card p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="font-display text-xl font-bold">{value}</p></div>;
+  return <div className="rounded-xl border border-border/60 bg-card/70 p-3 shadow-sm sm:p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 font-display text-xl font-bold tabular-nums sm:text-2xl">{value}</p></div>;
 }
