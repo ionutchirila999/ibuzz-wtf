@@ -4,6 +4,8 @@ import hero from '@/assets/ibuzz-studio.jpg';
 import repairHero from '@/assets/repair-hero.png.asset.json';
 import marketHero from '@/assets/market-hero.png.asset.json';
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 // Hero background carousel. Slide 1: current studio photo; slide 2 links to the
 // Repair page; slide 3 links to the Market.
@@ -46,7 +48,20 @@ import { copy, pageHead } from '@/lib/service-copy';
 import { homeCopy } from '@/lib/home-copy';
 import { MarketPreview, previewQuery } from '@/components/MarketPreview';
 export const Route=createFileRoute('/')({staticData: { sitemap: true },head:()=>pageHead('Phone & Electronics Repair, Web Development & Market','Smartphone, camera and electronics repairs, custom websites and digital solutions, plus a Market of tech, clothing and footwear — and we buy broken devices.'),loader:({context})=>{void context.queryClient.prefetchQuery(previewQuery);},component:Home,errorComponent:()=> <div className="px-5 py-16 text-center"><Link to="/shop">iBuzz.wtf Market →</Link></div>,notFoundComponent:()=> <div className="px-5 py-16">iBuzz.wtf — Page not found</div>});
+function ActiveSiteBanner() {
+  const { data = [] } = useQuery({ queryKey: ["active-site-banners"], staleTime: 60_000, retry: false, queryFn: async () => {
+    const { data, error } = await (supabase as any).from("site_banners").select("id,title,body,image_url,link_url,sort_order").eq("is_active", true).order("sort_order", { ascending: true }).limit(1);
+    if (error) return [];
+    return data ?? [];
+  }});
+  const banner = data[0];
+  if (!banner) return null;
+  const content = <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-8">{banner.image_url && <img src={banner.image_url} alt="" loading="lazy" className="h-20 w-full rounded-lg object-cover sm:h-14 sm:w-24"/>}<div className="min-w-0 flex-1"><p className="font-semibold">{banner.title}</p>{banner.body && <p className="mt-1 text-sm text-muted-foreground">{banner.body}</p>}</div>{banner.link_url && <span className="shrink-0 text-sm font-medium text-primary">Learn more →</span>}</div>;
+  return <section aria-label="Announcement" className="border-b border-border/50 bg-card/70">{banner.link_url ? <a href={banner.link_url} className="block transition-colors hover:bg-muted/40">{content}</a> : content}</section>;
+}
+
 function Home(){const {lang}=useT();const c=(k:Parameters<typeof copy>[1])=>copy(lang,k);const h=(k:Parameters<typeof homeCopy>[1])=>homeCopy(lang,k);return <div>
+ <ActiveSiteBanner />
  <section className="premium-hero border-b border-border/20"><div className="mx-auto grid max-w-6xl items-center gap-8 px-5 pb-7 pt-9 sm:px-8 sm:py-12 lg:grid-cols-[1.08fr_1fr] lg:gap-10 lg:py-20"><div className="min-w-0"><p className="section-eyebrow text-xs">iBuzz.wtf <span className="mx-1 text-muted-foreground">|</span> TECH • DIGITAL • MARKET</p><h1 className="hero-heading mt-5 max-w-xl text-pretty font-bold">{h('headline')}</h1><p className="mt-5 max-w-xl text-pretty text-[15px] leading-7 text-muted-foreground sm:text-base">{h('lead')}</p><div className="mt-6 grid gap-3 min-[420px]:grid-cols-2"><Button asChild variant="glow" size="lg" className="min-h-12 h-auto whitespace-normal py-3"><Link to="/repair"><Wrench className="shrink-0"/>{c('book')}<ArrowUpRight className="shrink-0"/></Link></Button><Button asChild variant="secondary" size="lg" className="min-h-12 h-auto whitespace-normal py-3"><Link to="/shop"><ShoppingBag className="shrink-0"/>{h('explore')}<ArrowUpRight className="shrink-0"/></Link></Button></div><Button asChild variant="link" className="mt-3 h-auto max-w-full justify-start whitespace-normal px-0 py-2 text-sm text-primary-soft"><Link to="/sell">{h('sellLink')}<ArrowRight className="shrink-0"/></Link></Button></div><div className="relative min-w-0"><img src={hero} alt="Electronics repair tools, smartphones, laptop, digital camera and footwear" width={1536} height={1024} fetchPriority="high" className="hero-studio w-full object-cover"/><div className="mt-3 flex justify-between border-t border-border/25 pt-3 text-[10px] font-medium text-muted-foreground sm:text-xs"><span>01 / {c('repair')}</span><span>02 / {c('digital')}</span><span>03 / {c('market')}</span></div></div></div><HeroSlides /></section>
  <MarketPreview/>
  <section className="section-space mx-auto max-w-6xl px-5 sm:px-8" aria-labelledby="services-title"><p className="section-eyebrow">iBuzz.wtf / {c('tagline')}</p><h2 id="services-title" className="section-heading mt-3">{h('help')}</h2><div className="mt-7 grid gap-4 md:grid-cols-3">{([{kind:'repair',icon:Wrench,action:'repairs',to:'/repair'},{kind:'digital',icon:Code2,action:'services',to:'/digital'},{kind:'market',icon:ShoppingBag,action:'products',to:'/shop'}] as const).map(({kind,icon:Icon,action,to},i)=><article key={kind} className="service-card flex min-w-0 flex-col rounded-lg border border-border/40 p-6"><div className="flex items-center justify-between"><Icon className="h-7 w-7 text-azure"/><span className="text-xs text-muted-foreground">0{i+1}</span></div><h3 className="mt-6 text-lg font-bold uppercase">{c(kind)}</h3><p className="mb-6 mt-3 text-sm leading-6 text-muted-foreground">{h(kind)}</p><Button asChild variant="ghost" className="mt-auto h-auto justify-between whitespace-normal border-t border-border/30 px-0 py-3 text-primary-soft"><Link to={to}>{kind==='market'?c('shop'):h(action)}<ArrowUpRight className="shrink-0"/></Link></Button></article>)}</div></section>
