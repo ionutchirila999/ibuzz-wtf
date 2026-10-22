@@ -100,24 +100,31 @@ create policy "Customers and admins read order status history" on public.order_s
   );
 
 drop policy if exists "Admins manage inventory movements" on public.inventory_movements;
+drop policy if exists "Admins read inventory movements" on public.inventory_movements;
 create policy "Admins read inventory movements" on public.inventory_movements
   for select to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "Admins manage repair jobs" on public.repair_jobs;
+drop policy if exists "Admins read repair jobs" on public.repair_jobs;
 create policy "Admins read repair jobs" on public.repair_jobs
   for select to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role));
+drop policy if exists "Admins insert repair jobs" on public.repair_jobs;
 create policy "Admins insert repair jobs" on public.repair_jobs
   for insert to authenticated with check (public.has_role(auth.uid(), 'admin'::public.app_role));
+drop policy if exists "Admins update repair jobs" on public.repair_jobs;
 create policy "Admins update repair jobs" on public.repair_jobs
   for update to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role)) with check (public.has_role(auth.uid(), 'admin'::public.app_role));
+drop policy if exists "Admins delete repair jobs" on public.repair_jobs;
 create policy "Admins delete repair jobs" on public.repair_jobs
   for delete to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "Customers and admins read support tickets" on public.support_tickets;
 create policy "Customers and admins read support tickets" on public.support_tickets
   for select to authenticated using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
+drop policy if exists "Customers create own support tickets" on public.support_tickets;
 create policy "Customers create own support tickets" on public.support_tickets
   for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "Admins update support tickets" on public.support_tickets;
 create policy "Admins update support tickets" on public.support_tickets
   for update to authenticated using (public.has_role(auth.uid(), 'admin'::public.app_role)) with check (public.has_role(auth.uid(), 'admin'::public.app_role));
 
