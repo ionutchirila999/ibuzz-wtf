@@ -5,11 +5,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/shop';
-import { Check, ExternalLink, Package, Printer, Search } from 'lucide-react';
+import { Check, ExternalLink, Package, Printer, Search, RotateCcw } from 'lucide-react';
 
 const STATUSES = ['received', 'confirmed', 'processing', 'shipped', 'ready_for_pickup', 'completed', 'cancelled'];
 const PAYMENTS = ['pending', 'submitted', 'paid', 'failed', 'refunded'];
 type OrderRow = { id: string; order_number: string; buyer_name: string; buyer_contact: string; total: number; payment_status: string; status: string; tracking_number: string | null; tracking_url: string | null; created_at: string; order_items: { id: string; product_title: string; unit_price: number; quantity: number; line_total: number }[] };
+type RefundRow = { id: string; order_id: string; amount: number; reason: string; created_at: string };
 
 export function OwnerOrders() {
   const qc = useQueryClient();
@@ -18,6 +19,7 @@ export function OwnerOrders() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [printOrderId, setPrintOrderId] = useState<string | null>(null);
+  const [refundDrafts, setRefundDrafts] = useState<Record<string, { amount: string; reason: string }>>({});
   const orders = useQuery({
     queryKey: ['owner-orders'],
     queryFn: async () => {
@@ -26,6 +28,17 @@ export function OwnerOrders() {
       return (data ?? []) as OrderRow[];
     },
   });
+  const refunds = useQuery({ queryKey: ['owner-refunds'], queryFn: async () => { const { data, error } = await (supabase as any).from('order_refunds').select('id,order_id,amount,reason,created_at').order('created_at',{ascending:false}); if (error) throw error; return (data ?? []) as RefundRow[]; }, retry: false });
+  async function recordRefund(order: OrderRow) {
+    const draft = refundDrafts[order.id] ?? { amount: '', reason: '' };
+    const amount = Number(draft.amount);
+    if (!Number.isFinite(amount) || amount <= 0 || draft.reason.trim().length < 3) { toast.error('Enter a valid refund amount and reason.'); return; }
+    const { error } = await (supabase as any).rpc('record_order_refund', { p_order_id: order.id, p_amount: amount, p_reason: draft.reason.trim() });
+    if (error) { toast.error(error.message || 'Could not record refund.'); return; }
+    toast.success('Refund recorded. This records a refund already processed; it does not send money.');
+    setRefundDrafts(old => { const next = { ...old }; delete next[order.id]; return next; });
+    await Promise.all([qc.invalidateQueries({ queryKey: ['owner-orders'] }), qc.invalidateQueries({ queryKey: ['owner-refunds'] })]);
+  }
   const filteredOrders = useMemo(() => (orders.data ?? []).filter(order => {
     const q = search.trim().toLowerCase();
     const matchesSearch = !q || [order.order_number, order.buyer_name, order.buyer_contact].some(value => String(value ?? '').toLowerCase().includes(q));
@@ -71,6 +84,7 @@ export function OwnerOrders() {
     return <article key={order.id} className={`rounded-xl border bg-card p-4 sm:p-5 print:rounded-none print:border-0 print:p-0 ${printOrderId && printOrderId !== order.id ? 'hidden print:hidden' : ''}`}>
       <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">iBuzz.wtf · {order.order_number} · {new Date(order.created_at).toLocaleString()}</p><h3 className="mt-1 text-lg font-bold">{formatPrice(order.total)}</h3><p className="mt-1 text-sm">{order.buyer_name} · {order.buyer_contact}</p></div><div className="flex gap-2"><Badge variant="secondary">{order.status}</Badge><Badge variant={order.payment_status === 'paid' ? 'default' : 'outline'}>{order.payment_status}</Badge></div></div>
       <ul className="mt-4 space-y-1 border-t pt-3 text-sm">{(order.order_items ?? []).map(item => <li key={item.id} className="flex justify-between gap-3"><span>{item.product_title} × {item.quantity}</span><span>{formatPrice(item.line_total)}</span></li>)}</ul>
+      <div className="mt-4 rounded-lg border border-border/50 p-3 print:hidden"><div className="flex items-center justify-between gap-2"><h4 className="text-sm font-semibold">Refund records</h4><span className="text-xs text-muted-foreground">{formatPrice((refunds.data??[]).filter(r=>r.order_id===order.id).reduce((sum,r)=>sum+Number(r.amount),0))} of {formatPrice(order.total)} refunded</span></div>{(refunds.data??[]).filter(r=>r.order_id===order.id).map(r=><div key={r.id} className="mt-2 flex flex-wrap justify-between gap-2 border-t pt-2 text-xs"><span>{new Date(r.created_at).toLocaleString()} · {r.reason}</span><strong>{formatPrice(Number(r.amount))}</strong></div>)}{refunds.error&&<p className="mt-2 text-xs text-destructive">Refund records require the latest database migration to be applied.</p>}<form onSubmit={e=>{e.preventDefault();void recordRefund(order);}} className="mt-3 grid gap-2 sm:grid-cols-[140px_minmax(0,1fr)_auto]"><input type="number" min="0.01" max={Math.max(0,order.total-(refunds.data??[]).filter(r=>r.order_id===order.id).reduce((sum,r)=>sum+Number(r.amount),0))} step="0.01" required value={refundDrafts[order.id]?.amount??''} onChange={e=>setRefundDrafts(old=>({...old,[order.id]:{amount:e.target.value,reason:old[order.id]?.reason??''}}))} placeholder="Amount (฿)" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"/><input required minLength={3} maxLength={1000} value={refundDrafts[order.id]?.reason??''} onChange={e=>setRefundDrafts(old=>({...old,[order.id]:{amount:old[order.id]?.amount??'',reason:e.target.value}}))} placeholder="Reason (already refunded)" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"/><Button type="submit" size="sm" variant="outline" disabled={!!refunds.error}><RotateCcw className="mr-1 h-4 w-4"/>Record refund</Button></form><p className="mt-2 text-xs text-muted-foreground">Records a completed refund only; no payment is initiated from this screen.</p></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="space-y-1 text-xs text-muted-foreground">Fulfilment status<select value={d.status} onChange={e => setDraft(order,'status',e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">{STATUSES.map(s => <option key={s} value={s}>{s.replaceAll('_',' ')}</option>)}</select></label>
         <label className="space-y-1 text-xs text-muted-foreground">Payment status<select value={d.payment_status} onChange={e => setDraft(order,'payment_status',e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">{PAYMENTS.map(s => <option key={s} value={s}>{s}</option>)}</select></label>
