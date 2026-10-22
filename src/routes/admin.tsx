@@ -85,8 +85,13 @@ function Dashboard() {
     refresh();
   }
   async function setOffer(id: string, status: string) {
-    await supabase.from("resale_offers").update({ status }).eq("id", id);
-    qc.invalidateQueries({ queryKey: ["admin-offers"] });
+    const { error } = await supabase.from("resale_offers").update({ status }).eq("id", id);
+    if (error) { toast.error(error.message || "Could not update resale offer."); return; }
+    toast.success(status === "closed" ? "Offer closed." : "Offer marked as contacted.");
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["admin-offers"] }),
+      qc.invalidateQueries({ queryKey: ["ops-resale-offers"] }),
+    ]);
   }
 
   const rows = products.data ?? [];
@@ -102,6 +107,12 @@ function Dashboard() {
         <Stat label="Available listings" value={String(rows.filter((p) => p.status === "available").length)} />
         <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
       </div>
+      {(products.error || offers.error) && <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+        <p className="font-semibold">Some dashboard data could not be loaded.</p>
+        {products.error && <p className="mt-1 break-words text-muted-foreground">Listings and product costs: {products.error instanceof Error ? products.error.message : String(products.error)}</p>}
+        {offers.error && <p className="mt-1 break-words text-muted-foreground">Resale offers: {offers.error instanceof Error ? offers.error.message : String(offers.error)}</p>}
+        <Button className="mt-3" size="sm" variant="outline" onClick={() => { void qc.invalidateQueries({ queryKey: ["admin-products"] }); void qc.invalidateQueries({ queryKey: ["admin-offers"] }); }}>Retry loading dashboard data</Button>
+      </div>}
       <Tabs defaultValue="overview">
         <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[244px_minmax(0,1fr)]">
         <aside className="h-fit min-w-0 rounded-2xl border border-border/60 bg-card/65 p-2 shadow-sm lg:sticky lg:top-24 lg:p-3">
