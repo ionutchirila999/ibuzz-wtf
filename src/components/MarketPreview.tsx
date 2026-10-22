@@ -9,9 +9,19 @@ import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 
 export const previewQuery = queryOptions({queryKey:['homepage-market'],staleTime:30000,queryFn:async()=>{
- // Sold items stay public on the homepage too: available stock leads, sold follows, hidden stays out.
- const {data,error}=await (supabase as any).from('products').select('*').neq('status','hidden').order('is_featured',{ascending:false}).order('status',{ascending:true}).order('created_at',{ascending:false}).limit(4);
- return {products:data??[],failed:!!error};
+ // Avoid ordering by optional schema columns in SQL: older databases may not have
+ // is_featured yet, which would otherwise hide the entire homepage product preview.
+ const {data,error}=await (supabase as any).from('products').select('*').neq('status','hidden').order('created_at',{ascending:false});
+ if(error)return {products:[],failed:true};
+ // Promote featured, available items first; sold listings remain visible after stock.
+ const products=(data??[]).sort((a:any,b:any)=>{
+   const featured=Number(!!b.is_featured)-Number(!!a.is_featured);
+   if(featured)return featured;
+   const available=Number(a.status==="sold"||Number(a.stock)<=0)-Number(b.status==="sold"||Number(b.stock)<=0);
+   if(available)return available;
+   return new Date(b.created_at).getTime()-new Date(a.created_at).getTime();
+ }).slice(0,4);
+ return {products,failed:false};
 }});
 function Listings(){const {lang}=useT();const {data}=useSuspenseQuery(previewQuery);return data.products.length?<div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{data.products.map(p=><ProductCard key={p.id} p={p}/>)}</div>:<div className="flex flex-col items-center border-y border-border/50 py-10 text-center"><ShoppingBag className="mb-4 h-8 w-8 text-azure"/><p className="max-w-md text-sm leading-6 text-muted-foreground">{homeCopy(lang,data.failed?'unavailable':'empty')}</p></div>;}
 export function MarketPreview(){const {lang}=useT();const h=(key:Parameters<typeof homeCopy>[1])=>homeCopy(lang,key);return <section className="section-space mx-auto max-w-6xl px-5 sm:px-8" aria-labelledby="market-title">
