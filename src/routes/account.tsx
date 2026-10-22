@@ -379,8 +379,11 @@ function Account() {
           {wishlist.map(product => {
             const sold = product.status === 'sold' || product.stock <= 0;
             const title = (lang === 'th' ? product.title_th : lang === 'ro' ? product.title_ro : null) || product.title;
+            // Match the product cards: prefer a real photo over a video URL.
+            const image = product.images?.find((src) => typeof src === 'string' && src.trim() && !/\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src))
+              ?? product.images?.find((src) => typeof src === 'string' && src.trim());
             return <article key={product.id} className="flex min-w-0 gap-3 rounded-xl border border-border/50 bg-background/50 p-3">
-              <Link to="/product/$id" params={{ id: product.id }} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">{product.images?.[0] ? <img src={product.images[0]} alt={title} loading="lazy" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div>}</Link>
+              <Link to="/product/$id" params={{ id: product.id }} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">{image ? <><img src={image} alt={title} loading="lazy" className="h-full w-full object-cover" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.querySelector('[data-image-fallback]')?.classList.remove('hidden'); }} /><div data-image-fallback className="absolute inset-0 hidden place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div></> : <div className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></div>}</Link>
               <div className="min-w-0 flex-1">
                 <Link to="/product/$id" params={{ id: product.id }} className="line-clamp-2 font-semibold hover:text-primary">{title}</Link>
                 <p className="mt-1 text-sm font-bold text-primary">{typeof product.price === 'number' ? `฿${product.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : ''}</p>
