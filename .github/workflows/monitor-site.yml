@@ -4,11 +4,8 @@ on:
     - cron: "17 */6 * * *"
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - ".github/workflows/monitor-site.yml"
-      - "public/robots.txt"
-      - "src/routes/sitemap[.]xml.ts"
+    branches:
+      - main
 permissions:
   contents: read
 jobs:
@@ -18,24 +15,12 @@ jobs:
       - name: Check homepage, robots and sitemap
         env:
           SITE_URL: https://ibuzz.wtf
+        shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/" -o /tmp/home.html
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/robots.txt" -o /tmp/robots.txt
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/sitemap.xml" -o /tmp/sitemap.xml
           grep -F "Sitemap: $SITE_URL/sitemap.xml" /tmp/robots.txt
-          python - <<'PY'
-          import os
-          import xml.etree.ElementTree as ET
-          from urllib.parse import urlparse
-          root = ET.parse("/tmp/sitemap.xml").getroot()
-          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-          urls = [node.text for node in root.findall("sm:url/sm:loc", ns)]
-          if not urls:
-              raise SystemExit("Sitemap contains no URLs")
-          bad = [u for u in urls if urlparse(u).scheme != "https" or urlparse(u).netloc != "ibuzz.wtf"]
-          if bad:
-              raise SystemExit("Sitemap contains non-canonical origins: " + ", ".join(bad[:5]))
-          print(f"OK: sitemap contains {len(urls)} canonical HTTPS URLs")
-          PY
+          python -c 'import xml.etree.ElementTree as E; from urllib.parse import urlparse; r=E.parse("/tmp/sitemap.xml").getroot(); n={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}; u=[x.text for x in r.findall("sm:url/sm:loc",n)]; assert u, "Sitemap contains no URLs"; b=[x for x in u if urlparse(x).scheme!="https" or urlparse(x).netloc!="ibuzz.wtf"]; assert not b, "Non-canonical sitemap URLs: "+str(b[:5]); print("OK: sitemap contains",len(u),"canonical HTTPS URLs")'
           grep -Eiq '<title>.*iBuzz' /tmp/home.html
