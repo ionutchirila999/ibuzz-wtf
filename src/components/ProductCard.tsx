@@ -19,7 +19,7 @@ export function ProductCard({ p }: { p: MarketCardProduct }) {
       <div className="relative aspect-square bg-muted">
         <Link to="/product/$id" params={{ id: p.id }} aria-label={localizedTitle(p, lang)} className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">
           {thumbnail ? (
-            <img src={thumbnail} alt={p.title} loading="lazy" className={`h-full w-full object-cover transition group-hover:scale-105 ${sold ? "opacity-40" : ""}`} />
+            <img src={thumbnail} alt={localizedTitle(p, lang)} loading="lazy" className={`h-full w-full object-cover transition group-hover:scale-105 ${sold ? "opacity-40" : ""}`} />
           ) : (
             <div className="grid h-full place-items-center text-muted-foreground"><ImageOff /></div>
           )}
@@ -33,7 +33,7 @@ export function ProductCard({ p }: { p: MarketCardProduct }) {
       </div>
       <Link to="/product/$id" params={{ id: p.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-inset">
         <div className="space-y-1 p-3">
-          <p className="text-xs text-muted-foreground">{p.brand} · {["repaired_tested","untested","for_parts"].includes(p.market_condition) ? copy(lang,p.market_condition as "repaired_tested" | "untested" | "for_parts") : CONDITION_LABEL[p.market_condition] ? t(`cond.${p.market_condition}` as never) : p.market_condition}</p>
+          <p className="text-xs text-muted-foreground">{[p.brand, ["repaired_tested","untested","for_parts"].includes(p.market_condition) ? copy(lang,p.market_condition as "repaired_tested" | "untested" | "for_parts") : CONDITION_LABEL[p.market_condition] ? t(`cond.${p.market_condition}` as never) : p.market_condition].filter(Boolean).join(" · ")}</p>
           <h3 className="line-clamp-2 text-sm font-semibold">{localizedTitle(p, lang)}</h3>
           <p className="font-display text-lg font-bold text-primary-soft">
             {formatPrice(p.price)} {p.negotiable && <span className="text-xs font-normal text-muted-foreground">{t("card.neg")}</span>}
