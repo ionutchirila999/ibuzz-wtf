@@ -293,24 +293,30 @@ function Account() {
       </div>
     </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
       <div className="mt-5 grid min-w-0 items-start gap-4 md:grid-cols-[210px_minmax(0,1fr)] md:gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24 lg:self-start">
-          <div className="px-3 pb-3 pt-2"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{lang === 'th' ? 'พื้นที่ลูกค้า' : lang === 'ro' ? 'ZONA CLIENTULUI' : 'CUSTOMER SPACE'}</p><p className="mt-1 truncate text-sm font-semibold" title={userEmail ?? ''}>{userEmail}</p></div>
-          <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="grid gap-1">
+        <aside className="h-fit min-w-0 rounded-xl border border-border/60 bg-card/60 p-2 md:sticky md:top-24 md:p-3">
+          <div className="px-3 py-3">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground">{lang === 'th' ? 'บัญชีของฉัน' : lang === 'ro' ? 'CONTUL MEU' : 'MY ACCOUNT'}</p>
+          </div>
+          <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account navigation'} className="grid gap-1">
             {[
-              { id: 'customer-orders', icon: Package, label: lang === 'th' ? 'คำสั่งซื้อและการติดตาม' : lang === 'ro' ? 'Comenzi și livrare' : 'Orders & tracking', detail: lang === 'th' ? 'ประวัติและสถานะ' : lang === 'ro' ? 'Istoric și stare' : 'History and status' },
-              { id: 'customer-profile', icon: MonitorSmartphone, label: lang === 'th' ? 'โปรไฟล์และที่อยู่' : lang === 'ro' ? 'Profil și adrese' : 'Profile & addresses', detail: lang === 'th' ? 'ข้อมูลส่วนตัว' : lang === 'ro' ? 'Date personale' : 'Personal details' },
-              { id: 'customer-wishlist', icon: Heart, label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist', detail: lang === 'th' ? 'สินค้าที่บันทึกไว้' : lang === 'ro' ? 'Produse salvate' : 'Saved products' },
-              { id: 'customer-support', icon: KeyRound, label: lang === 'th' ? 'การช่วยเหลือคำสั่งซื้อ' : lang === 'ro' ? 'Asistență comenzi' : 'Order support', detail: lang === 'th' ? 'ติดต่อเกี่ยวกับคำสั่งซื้อ' : lang === 'ro' ? 'Ajutor pentru comenzi' : 'Help with an order' },
-              { id: 'customer-notifications', icon: MonitorSmartphone, label: lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications', detail: lang === 'th' ? 'อัปเดตบัญชี' : lang === 'ro' ? 'Actualizări cont' : 'Account updates' },
-              { id: 'customer-security', icon: ShieldCheck, label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security', detail: lang === 'th' ? 'เซสชันและ 2FA' : lang === 'ro' ? 'Sesiuni și 2FA' : 'Sessions and 2FA' },
-              { id: 'customer-settings', icon: LogOut, label: lang === 'th' ? 'การตั้งค่าบัญชี' : lang === 'ro' ? 'Setări cont' : 'Account settings', detail: lang === 'th' ? 'อีเมลและรหัสผ่าน' : lang === 'ro' ? 'E-mail și parolă' : 'Email and password' },
-            ].map(item => <button type="button" key={item.id} onClick={() => setActiveSection(item.id === 'customer-support' ? 'customer-orders' : item.id)} aria-current={activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders') ? 'page' : undefined} className={`group flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders') ? 'border-cyan-300/30 bg-cyan-300/10' : 'border-transparent hover:border-cyan-300/20 hover:bg-cyan-300/10'}`}>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary"><item.icon className="h-4 w-4" /></span>
-              <span className="min-w-0"><span className="block text-sm font-medium">{item.label}</span><span className="mt-0.5 block text-xs text-muted-foreground">{item.detail}</span></span>
-              <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-60" />
-            </button>)}
+              { id: 'customer-orders', icon: Package, label: lang === 'th' ? 'คำสั่งซื้อและการติดตาม' : lang === 'ro' ? 'Comenzi și livrare' : 'Orders & tracking' },
+              { id: 'customer-profile', icon: MonitorSmartphone, label: lang === 'th' ? 'โปรไฟล์และที่อยู่' : lang === 'ro' ? 'Profil și adrese' : 'Profile & addresses' },
+              { id: 'customer-wishlist', icon: Heart, label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist' },
+              { id: 'customer-support', icon: KeyRound, label: lang === 'th' ? 'การช่วยเหลือคำสั่งซื้อ' : lang === 'ro' ? 'Asistență comenzi' : 'Order support' },
+              { id: 'customer-notifications', icon: MonitorSmartphone, label: lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications' },
+              { id: 'customer-security', icon: ShieldCheck, label: lang === 'th' ? 'ความปลอดภัย' : lang === 'ro' ? 'Securitate' : 'Security' },
+              { id: 'customer-settings', icon: LogOut, label: lang === 'th' ? 'การตั้งค่าบัญชี' : lang === 'ro' ? 'Setări cont' : 'Account settings' },
+            ].map(item => {
+              const selected = activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders');
+              return <button type="button" key={item.id} onClick={() => setActiveSection(item.id === 'customer-support' ? 'customer-orders' : item.id)} aria-current={selected ? 'page' : undefined} className={`flex w-full min-w-0 items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected ? 'border-l-primary bg-primary/10 font-medium text-foreground' : 'border-l-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground'}`}>
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 break-words">{item.label}</span>
+              </button>;
+            })}
           </nav>
-          <div className="mt-3 border-t border-border/40 p-2 pt-4"><Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
+          <div className="mt-3 border-t border-border/50 p-2 pt-3">
+            <Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
+          </div>
         </aside>
         <div className="min-w-0 space-y-4">
 {(activeSection === 'customer-orders') && <>
