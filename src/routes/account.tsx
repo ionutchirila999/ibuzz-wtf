@@ -292,7 +292,7 @@ function Account() {
       </div>
     </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24">
+        <aside className="rounded-2xl border border-cyan-300/15 bg-slate-950/50 p-3 shadow-[0_16px_45px_-35px_rgba(34,211,238,0.5)] lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
           <div className="px-3 pb-3 pt-2"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{lang === 'th' ? 'พื้นที่ลูกค้า' : lang === 'ro' ? 'ZONA CLIENTULUI' : 'CUSTOMER SPACE'}</p><p className="mt-1 truncate text-sm font-semibold" title={userEmail ?? ''}>{userEmail}</p></div>
           <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account sections'} className="grid gap-1">
             {[
@@ -311,7 +311,7 @@ function Account() {
           </nav>
           <div className="mt-3 border-t border-border/40 p-2 pt-4"><Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
         </aside>
-        <div className="min-w-0 space-y-4">
+        <div className="min-w-0 space-y-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-2">
 <div className="mb-4 grid scroll-mt-24 grid-cols-2 gap-3 xl:grid-cols-4">
         <div className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4">
           <p className="text-sm text-muted-foreground">{w.orders}</p>
