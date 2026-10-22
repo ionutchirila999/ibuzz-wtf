@@ -2,6 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { SHOP_CONTACT, type Product } from "@/lib/shop";
+import { trackEvent } from "@/lib/analytics";
 
 export function ContactButtons({
   disabled,
@@ -34,6 +35,7 @@ export function ContactButtons({
         href="https://line.me/ti/p/CcGd-nkSXZ"
         target="_blank"
         rel="noreferrer"
+        onClick={() => trackEvent("contact_line", { placement: "product", product_id: undefined })}
       >
         <MessageCircle /> LINE · {SHOP_CONTACT.lineLabel}
       </a>
