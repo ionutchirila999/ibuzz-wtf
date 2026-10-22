@@ -103,10 +103,6 @@ function Dashboard() {
         <div><p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">iBuzz.wtf · Admin</p><h1 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">Owner dashboard</h1></div>
         <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}><LogOut /> Sign out</Button>
       </div>
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:max-w-xl">
-        <Stat label="Available listings" value={String(rows.filter((p) => p.status === "available").length)} />
-        <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
-      </div>
       {(products.error || offers.error) && <div role="alert" className="mb-5 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
         <p className="font-semibold">Some dashboard data could not be loaded.</p>
         {products.error && <p className="mt-1 break-words text-muted-foreground">Listings and product costs: {products.error instanceof Error ? products.error.message : String(products.error)}</p>}
@@ -142,7 +138,11 @@ function Dashboard() {
         <TabsContent value="finance" className="mt-4"><AdminOperations section="finance" /></TabsContent>
         <TabsContent value="promotions" className="mt-4"><AdminPromotions /></TabsContent>
 
-        <TabsContent value="listings" className="mt-4 space-y-2">
+        <TabsContent value="listings" className="mt-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3 sm:max-w-xl">
+            <Stat label="Available listings" value={String(rows.filter((p) => p.status === "available").length)} />
+            <Stat label="Sold listings" value={String(rows.filter((p) => p.status === "sold").length)} />
+          </div>
           <Button variant="glow" onClick={() => setEditing(null)}><Plus /> Add product</Button>
           {rows.length === 0 && <p className="py-8 text-center text-muted-foreground">No products yet.</p>}
           {rows.map((p) => (
