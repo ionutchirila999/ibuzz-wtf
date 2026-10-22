@@ -147,7 +147,7 @@ export function CustomerAccountExtras() {
     const { error } = await supabase.auth.signOut({ scope: "global" });
     if (error) { toast.error(w.securityError); return; }
     toast.success(w.signedOut);
-    window.location.assign("/account");
+    window.location.assign("/dashboard");
   }
 
   return <div className="mt-8 grid gap-5 lg:grid-cols-2">
