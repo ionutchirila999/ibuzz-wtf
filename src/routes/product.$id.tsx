@@ -15,6 +15,7 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ShoppingCart } from "lucide-react";
 import { WishlistButton } from "@/components/WishlistButton";
+import { trackEvent } from "@/lib/analytics";
 
 const productQuery = (id: string) => ({
   queryKey: ["product", id],
@@ -72,6 +73,10 @@ function ProductPage() {
   useEffect(() => { if (urlLang !== lang) void navigate({ to: ".", search: (prev) => ({ ...prev, lang }), replace: true }); }, [lang, urlLang, navigate]);
   const { data: p, isLoading } = useQuery(productQuery(id));
 
+  useEffect(() => {
+    if (p) trackEvent("view_item", { item_id: p.id, item_name: localizedTitle(p, lang), price: Number(p.price ?? 0), currency: "THB" });
+  }, [p?.id, lang]);
+
   if (isLoading) return <p className="p-8 text-muted-foreground">{t("loading")}</p>;
   if (!p) return <div className="p-8 text-center">{t("p.notFound")} <Link to="/shop" className="text-primary">{t("p.back")}</Link></div>;
 
@@ -93,6 +98,7 @@ function ProductPage() {
         ? current.map((item) => item.id === p.id ? { ...item, quantity: Math.min(item.quantity + 1, p.stock) } : item)
         : [...current, { id: p.id, quantity: 1 }];
       localStorage.setItem(key, JSON.stringify(next));
+      trackEvent("add_to_cart", { item_id: p.id, item_name: localizedTitle(p, lang), price: Number(p.price ?? 0), quantity: 1, currency: "THB" });
     } catch { /* Checkout can still open if browser storage is unavailable. */ }
     void navigate({ to: "/checkout" });
   };
