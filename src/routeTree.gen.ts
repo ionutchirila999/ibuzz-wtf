@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AccountRouteImport } from './routes/account'
-import { Route as AdminRouteImport } from './routes/admin'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as IbuzzDashboardRouteImport } from './routes/ibuzz-dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DigitalRouteImport } from './routes/digital'
@@ -34,14 +34,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountRoute = AccountRouteImport.update({
-  id: '/account',
-  path: '/account',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const IbuzzDashboardRoute = IbuzzDashboardRouteImport.update({
+  id: '/ibuzz-dashboard',
+  path: '/ibuzz-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -128,8 +128,8 @@ const LovableEmailTransactionalPreviewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/dashboard': typeof DashboardRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
@@ -149,8 +149,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/dashboard': typeof DashboardRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
@@ -170,8 +170,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/dashboard': typeof DashboardRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/digital': typeof DigitalRoute
@@ -193,8 +193,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/account'
-    | '/admin'
+    | '/dashboard'
+    | '/ibuzz-dashboard'
     | '/auth'
     | '/checkout'
     | '/digital'
@@ -214,8 +214,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/account'
-    | '/admin'
+    | '/dashboard'
+    | '/ibuzz-dashboard'
     | '/auth'
     | '/checkout'
     | '/digital'
@@ -234,8 +234,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/account'
-    | '/admin'
+    | '/dashboard'
+    | '/ibuzz-dashboard'
     | '/auth'
     | '/checkout'
     | '/digital'
@@ -256,8 +256,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
+  DashboardRoute: typeof DashboardRoute
+  IbuzzDashboardRoute: typeof IbuzzDashboardRoute
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
   DigitalRoute: typeof DigitalRoute
@@ -283,18 +283,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account': {
-      id: '/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AccountRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/ibuzz-dashboard': {
+      id: '/ibuzz-dashboard'
+      path: '/ibuzz-dashboard'
+      fullPath: '/ibuzz-dashboard'
+      preLoaderRoute: typeof IbuzzDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -427,8 +427,8 @@ const RepairRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
+  DashboardRoute: DashboardRoute,
+  IbuzzDashboardRoute: IbuzzDashboardRoute,
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
   DigitalRoute: DigitalRoute,
