@@ -8,18 +8,65 @@ export function useAdmin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const check = async (u: User | null) => {
-      setUser(u);
-      if (!u) { setIsAdmin(false); setLoading(false); return; }
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.id).eq("role", "admin").maybeSingle();
-      setIsAdmin(!!data);
-      setLoading(false);
+    let active = true;
+    let checkVersion = 0;
+
+    const check = async (nextUser: User | null) => {
+      const version = ++checkVersion;
+      if (!active) return;
+      setUser(nextUser);
+      setLoading(true);
+
+      if (!nextUser) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", nextUser.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        // Fail closed: an unreadable role table must never grant admin access.
+        if (error) throw error;
+        if (active && version === checkVersion) setIsAdmin(data?.role === "admin");
+      } catch (error) {
+        console.error("[Admin] Could not verify owner role:", error);
+        if (active && version === checkVersion) setIsAdmin(false);
+      } finally {
+        if (active && version === checkVersion) setLoading(false);
+      }
     };
-    supabase.auth.getUser().then(({ data }) => check(data.user));
+
+    void supabase.auth.getUser()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return check(data.user);
+      })
+      .catch((error) => {
+        console.error("[Admin] Could not verify signed-in user:", error);
+        if (active) {
+          setUser(null);
+          setIsAdmin(false);
+          setLoading(false);
+        }
+      });
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") check(session?.user ?? null);
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED" || event === "TOKEN_REFRESHED") {
+        void check(session?.user ?? null);
+      }
     });
-    return () => sub.subscription.unsubscribe();
+
+    return () => {
+      active = false;
+      checkVersion += 1;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return { user, isAdmin, loading };
