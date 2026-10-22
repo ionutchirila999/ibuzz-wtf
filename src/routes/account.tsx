@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2 } from 'lucide-react';
+import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2, MonitorSmartphone, KeyRound, ShieldCheck } from 'lucide-react';
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 import { OrderSupport } from '@/components/account/OrderSupport';
 import { CustomerNotifications } from '@/components/account/CustomerNotifications';
