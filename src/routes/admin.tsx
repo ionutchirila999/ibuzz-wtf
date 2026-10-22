@@ -12,6 +12,7 @@ import { OwnerEnquiries, OfferPhotos } from "@/components/admin/OwnerEnquiries";
 import { OwnerOrders } from "@/components/admin/OwnerOrders";
 import { ProfitCalculator } from "@/components/admin/ProfitCalculator";
 import { AdminOperations } from "@/components/admin/AdminOperations";
+import { AdminPromotions } from "@/components/admin/AdminPromotions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,7 +46,7 @@ function Admin() {
 
 function Dashboard() {
   const { lang } = useT();
-  const tabLabels = lang === "th" ? { overview:"ภาพรวม", inventory:"สต็อก", repairs:"งานซ่อม", support:"ช่วยเหลือลูกค้า", audit:"บันทึกตรวจสอบ", finance:"กำไรและค่าใช้จ่าย" } : lang === "ro" ? { overview:"Prezentare", inventory:"Inventar", repairs:"Reparații", support:"Asistență", audit:"Audit", finance:"Profit și cheltuieli" } : { overview:"Overview", inventory:"Inventory", repairs:"Repairs", support:"Support", audit:"Audit", finance:"Profit & expenses" };
+  const tabLabels = lang === "th" ? { overview:"ภาพรวม", inventory:"สต็อก", repairs:"งานซ่อม", support:"ช่วยเหลือลูกค้า", audit:"บันทึกตรวจสอบ", finance:"กำไรและค่าใช้จ่าย", promotions:"โปรโมชันและเว็บไซต์" } : lang === "ro" ? { overview:"Prezentare", inventory:"Inventar", repairs:"Reparații", support:"Asistență", audit:"Audit", finance:"Profit și cheltuieli", promotions:"Promoții și site" } : { overview:"Overview", inventory:"Inventory", repairs:"Repairs", support:"Support", audit:"Audit", finance:"Profit & expenses", promotions:"Promotions & website" };
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Product | null | undefined>(undefined);
 
@@ -118,6 +119,7 @@ function Dashboard() {
           <TabsTrigger value="support">{tabLabels.support}</TabsTrigger>
           <TabsTrigger value="audit">{tabLabels.audit}</TabsTrigger>
           <TabsTrigger value="finance">{tabLabels.finance}</TabsTrigger>
+          <TabsTrigger value="promotions">{tabLabels.promotions}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
@@ -127,6 +129,7 @@ function Dashboard() {
         <TabsContent value="support" className="mt-4"><AdminOperations section="support" /></TabsContent>
         <TabsContent value="audit" className="mt-4"><AdminOperations section="audit" /></TabsContent>
         <TabsContent value="finance" className="mt-4"><AdminOperations section="finance" /></TabsContent>
+        <TabsContent value="promotions" className="mt-4"><AdminPromotions /></TabsContent>
 
         <TabsContent value="listings" className="mt-4 space-y-2">
           <Button variant="glow" onClick={() => setEditing(null)}><Plus /> Add product</Button>
