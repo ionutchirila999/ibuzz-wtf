@@ -202,7 +202,7 @@ export function AccountSecurity() {
         <p className="mt-2 text-sm text-muted-foreground">{w.mfaDesc}</p>
         {enabled ? <><p className="mt-3 text-sm text-emerald-600">{w.mfaEnabled}</p><Button type="button" variant="outline" className="mt-3" disabled={working} onClick={() => void disableMfa()}><ShieldOff className="mr-2 h-4 w-4" />{w.disableMfa}</Button></> : pending ? <form onSubmit={verifyMfa} className="mt-4 space-y-4">
           <p className="text-sm leading-6 text-muted-foreground">{w.setupHint}</p>
-          <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid min-w-0 items-start gap-4">
             <div className="rounded-xl border border-border/50 bg-background/50 p-3 text-center">
               <img className="mx-auto block aspect-square w-full max-w-56 rounded-lg bg-white p-2 object-contain" alt={w.qrAlt} src={pending.qr_code} />
               <p className="mt-2 text-xs leading-5 text-muted-foreground">{w.qrHelp}</p>
