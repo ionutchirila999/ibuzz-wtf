@@ -94,6 +94,7 @@ function Checkout() {
   const [shareOpen, setShareOpen] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [createdOrderNumber, setCreatedOrderNumber] = useState<string | null>(null);
+  const [savedOrderText, setSavedOrderText] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{code:string;amount:number;subtotal:number}|null>(null);
 
@@ -149,7 +150,7 @@ function Checkout() {
     `${c.orderTotal}: ${formatPrice(payableTotal)} THB`,
     c.payment,
   ].filter((line): line is string => line !== null).join("\n");
-  const copyOrder = async () => { try { await navigator.clipboard.writeText(orderText()); setCopied(true); } catch { setCopied(false); } };
+  const copyOrder = async () => { try { await navigator.clipboard.writeText(savedOrderText ?? orderText(createdOrderNumber ?? undefined)); setCopied(true); } catch { setCopied(false); } };
   const makeQrPng = async () => {
     const response = await fetch("/promptpay-qr.svg");
     if (!response.ok) throw new Error("QR image unavailable");
@@ -277,10 +278,13 @@ function Checkout() {
         orderNumber = typeof data?.order_number === "string" ? data.order_number : null;
         if (!orderNumber) throw new Error("Order number was not returned");
         setCreatedOrderNumber(orderNumber);
+        setSavedOrderText(orderText(orderNumber));
         localStorage.removeItem(KEY);
         setCart([]);
       }
-      try { await navigator.clipboard.writeText(orderText(orderNumber)); setCopied(true); } catch { /* LINE can still be opened; the order is safely saved in the account. */ }
+      const message = savedOrderText ?? orderText(orderNumber);
+      setSavedOrderText(message);
+      try { await navigator.clipboard.writeText(message); setCopied(true); } catch { setCopied(false); /* LINE can still be opened; the order is safely saved in the account. */ }
       if (lineWindow) lineWindow.location.href = lineLink();
       else window.location.href = lineLink();
       toast.success(lang === "th" ? `บันทึกคำสั่งซื้อ ${orderNumber} แล้ว` : lang === "ro" ? `Comanda ${orderNumber} a fost salvată` : `Order ${orderNumber} saved`);
