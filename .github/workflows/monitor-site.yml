@@ -1,0 +1,41 @@
+name: Monitor public site
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/monitor-site.yml"
+      - "public/robots.txt"
+      - "src/routes/sitemap[.]xml.ts"
+permissions:
+  contents: read
+jobs:
+  check-public-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check homepage, robots and sitemap
+        env:
+          SITE_URL: https://ibuzz.wtf
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/" -o /tmp/home.html
+          curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/robots.txt" -o /tmp/robots.txt
+          curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/sitemap.xml" -o /tmp/sitemap.xml
+          grep -F "Sitemap: $SITE_URL/sitemap.xml" /tmp/robots.txt
+          python - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from urllib.parse import urlparse
+          root = ET.parse("/tmp/sitemap.xml").getroot()
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+          urls = [node.text for node in root.findall("sm:url/sm:loc", ns)]
+          if not urls:
+              raise SystemExit("Sitemap contains no URLs")
+          bad = [u for u in urls if urlparse(u).scheme != "https" or urlparse(u).netloc != "ibuzz.wtf"]
+          if bad:
+              raise SystemExit("Sitemap contains non-canonical origins: " + ", ".join(bad[:5]))
+          print(f"OK: sitemap contains {len(urls)} canonical HTTPS URLs")
+          PY
+          grep -Eiq '<title>.*iBuzz' /tmp/home.html
