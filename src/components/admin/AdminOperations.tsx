@@ -97,11 +97,11 @@ export function AdminOperations({ section }: { section: Section }) {
   if(products.isLoading||orders.isLoading||enquiries.isLoading)return <p className="py-6 text-muted-foreground">{w.loading}</p>;
 
   if(section==="overview")return <div className="space-y-5">
-    <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4">
-      <div className="flex items-center gap-2 text-sm font-medium"><CalendarDays className="h-4 w-4 text-muted-foreground"/>{w.period}</div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <label className="grid gap-1 text-xs text-muted-foreground"><span>{w.period}</span><select value={rangePreset} onChange={e=>setRangePreset(e.target.value as "today"|"month"|"custom")} className="h-10 min-w-36 rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="today">{w.today}</option><option value="month">{w.thisMonth}</option><option value="custom">{w.custom}</option></select></label>
-        {rangePreset==="custom"&&<><label className="grid gap-1 text-xs text-muted-foreground"><span>{w.from}</span><Input type="date" value={customStart} max={customEnd} onChange={e=>setCustomStart(e.target.value)}/></label><label className="grid gap-1 text-xs text-muted-foreground"><span>{w.to}</span><Input type="date" value={customEnd} min={customStart} onChange={e=>setCustomEnd(e.target.value)}/></label></>}
+    <div className="grid gap-4 rounded-xl border bg-card p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div className="flex items-center gap-2 text-sm font-semibold"><CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground"/><span>{w.period}</span></div>
+      <div className={`grid min-w-0 gap-3 ${rangePreset==="custom"?"sm:grid-cols-3":"sm:grid-cols-1"} lg:min-w-[220px]`}>
+        <label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.period}</span><select value={rangePreset} onChange={e=>setRangePreset(e.target.value as "today"|"month"|"custom")} className="h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="today">{w.today}</option><option value="month">{w.thisMonth}</option><option value="custom">{w.custom}</option></select></label>
+        {rangePreset==="custom"&&<><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.from}</span><Input className="w-full min-w-0" type="date" value={customStart} max={customEnd} onChange={e=>setCustomStart(e.target.value)}/></label><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.to}</span><Input className="w-full min-w-0" type="date" value={customEnd} min={customStart} onChange={e=>setCustomEnd(e.target.value)}/></label></>}
       </div>
     </div>
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
