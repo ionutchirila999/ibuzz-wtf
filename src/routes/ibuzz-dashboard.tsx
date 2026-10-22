@@ -38,9 +38,9 @@ function Admin() {
   const { user, isAdmin, loading } = useAdmin();
   if (loading) return <p className="p-8 text-muted-foreground">Loading…</p>;
   if (!user) return (
-    <div className="p-12 text-center"><p className="mb-4">Owner area.</p><Button asChild variant="glow"><Link to="/auth">Sign in</Link></Button></div>
+    <div className="p-12 text-center"><p className="mb-4">This page is unavailable.</p><Button asChild variant="glow"><Link to="/auth">Sign in</Link></Button></div>
   );
-  if (!isAdmin) return <div className="p-12 text-center text-muted-foreground">This account doesn't have owner access.</div>;
+  if (!isAdmin) return <div className="p-12 text-center text-muted-foreground">This page is unavailable.</div>;
   return <Dashboard />;
 }
 
