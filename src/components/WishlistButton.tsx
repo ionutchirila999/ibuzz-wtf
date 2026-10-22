@@ -42,7 +42,7 @@ export function WishlistButton({ productId, compact = false }: { productId: stri
   async function toggle() {
     if (!userId) {
       toast.info(labels.login);
-      void navigate({ to: "/account" });
+      void navigate({ to: "/dashboard" });
       return;
     }
     if (busy) return;
