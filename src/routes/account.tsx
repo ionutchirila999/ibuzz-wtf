@@ -269,9 +269,9 @@ function Account() {
   const label = (value: string) => (w as unknown as Record<string, string>)[value] ?? value.replaceAll('_', ' ');
   const money = (value: number) => new Intl.NumberFormat(lang === 'th' ? 'th-TH' : lang === 'ro' ? 'ro-RO' : 'en-US', { style: 'currency', currency: 'THB', maximumFractionDigits: 2 }).format(Number(value));
 
-  if (sessionLoading) return <main className="mx-auto max-w-5xl px-5 py-16"><p className="text-muted-foreground">{w.loading}</p></main>;
-  return <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="section-eyebrow">iBuzz.wtf</p><h1 className="section-heading mt-3">{w.title}</h1><p className="mt-3 text-sm text-muted-foreground">{userEmail ? (lang === 'th' ? 'จัดการบัญชีและติดตามคำสั่งซื้อของคุณได้ที่นี่' : lang === 'ro' ? 'Gestionează-ți contul și urmărește comenzile aici.' : 'Manage your account and track your orders here.') : w.lead}</p></div>{userEmail && <Button variant="outline" onClick={() => void signOut()}><LogOut className="mr-2 h-4 w-4"/>{w.signOut}</Button>}</div>
+  if (sessionLoading) return <main className="mx-auto w-full max-w-[1600px] px-3 py-8 sm:px-5 lg:px-8 lg:py-10"><p className="text-muted-foreground">{w.loading}</p></main>;
+  return <main className="mx-auto w-full max-w-[1600px] px-3 py-5 sm:px-5 lg:px-8 lg:py-7">
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card/50 px-4 py-3 sm:px-5"><div><p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">iBuzz.wtf · Customer</p><h1 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">{w.title}</h1><p className="mt-1 text-sm text-muted-foreground">{userEmail ? (lang === 'th' ? 'จัดการบัญชีและติดตามคำสั่งซื้อของคุณได้ที่นี่' : lang === 'ro' ? 'Gestionează-ți contul și urmărește comenzile aici.' : 'Manage your account and track your orders here.') : w.lead}</p></div>{userEmail && <Button variant="outline" onClick={() => void signOut()}><LogOut className="mr-2 h-4 w-4"/>{w.signOut}</Button>}</div>
     {!userEmail ? <section className="auth-panel mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-border/60 bg-card/70 shadow-xl shadow-black/5">
       {!resetMode && <div className="grid grid-cols-2 gap-1 border-b border-border/60 bg-muted/35 p-2" role="tablist" aria-label={lang === 'th' ? 'การเข้าถึงบัญชี' : lang === 'ro' ? 'Acces la cont' : 'Account access'}>
         <button type="button" role="tab" aria-selected={mode === 'in'} className={`relative overflow-hidden rounded-xl border px-4 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 hover:-translate-y-0.5 active:translate-y-0 ${mode === 'in' ? 'border-cyan-300/70 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.22),inset_0_0_12px_rgba(99,102,241,0.18)] hover:shadow-[0_0_26px_rgba(34,211,238,0.38)]' : 'border-border/70 bg-slate-950/70 text-slate-300 hover:border-cyan-300/50 hover:bg-slate-900 hover:text-cyan-100 hover:shadow-[0_0_16px_rgba(34,211,238,0.16)]'}`} onClick={() => {setMode('in');setError('');setNotice('');}}>{w.signIn}</button>
@@ -292,12 +292,12 @@ function Account() {
         {!resetMode && <p className="mt-6 border-t border-border/60 pt-5 text-center text-sm text-muted-foreground">{mode === 'in' ? w.switchUp : w.switchIn} <button type="button" className="ml-1 font-semibold text-primary underline-offset-4 hover:underline" onClick={()=>{setMode(mode==='in'?'up':'in');setError('');setNotice('');}}>{mode === 'in' ? w.signUp : w.signIn}</button></p>}
       </div>
     </section> : <section className="mt-8"><div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-300/15 bg-card/40 p-4 shadow-[0_12px_36px_-28px_rgba(34,211,238,0.45)]"><div><p className="text-xs font-semibold uppercase tracking-wider text-primary">{lang === 'th' ? 'แดชบอร์ดลูกค้า' : lang === 'ro' ? 'Panou client' : 'Customer dashboard'}</p><p className="mt-2 text-sm text-muted-foreground">{userEmail}</p></div><Button asChild variant="outline" size="sm"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button></div>
-      <div className="mt-5 grid min-w-0 items-start gap-4 md:grid-cols-[210px_minmax(0,1fr)] md:gap-5 lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="h-fit min-w-0 rounded-xl border border-border/60 bg-card/60 p-2 md:sticky md:top-24 md:p-3">
+      <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[244px_minmax(0,1fr)]">
+        <aside className="h-fit min-w-0 rounded-2xl border border-border/60 bg-card/65 p-2 shadow-sm lg:sticky lg:top-24 lg:p-3">
           <div className="px-3 py-3">
             <p className="text-xs font-semibold tracking-wide text-muted-foreground">{lang === 'th' ? 'บัญชีของฉัน' : lang === 'ro' ? 'CONTUL MEU' : 'MY ACCOUNT'}</p>
           </div>
-          <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account navigation'} className="grid gap-1">
+          <nav aria-label={lang === 'th' ? 'ส่วนต่าง ๆ ของบัญชี' : lang === 'ro' ? 'Secțiuni cont' : 'Account navigation'} className="grid grid-cols-2 gap-1.5 lg:grid-cols-1">
             {[
               { id: 'customer-orders', icon: Package, label: lang === 'th' ? 'คำสั่งซื้อและการติดตาม' : lang === 'ro' ? 'Comenzi și livrare' : 'Orders & tracking' },
               { id: 'customer-profile', icon: MonitorSmartphone, label: lang === 'th' ? 'โปรไฟล์และที่อยู่' : lang === 'ro' ? 'Profil și adrese' : 'Profile & addresses' },
@@ -308,7 +308,7 @@ function Account() {
               { id: 'customer-settings', icon: LogOut, label: lang === 'th' ? 'การตั้งค่าบัญชี' : lang === 'ro' ? 'Setări cont' : 'Account settings' },
             ].map(item => {
               const selected = activeSection === item.id || (item.id === 'customer-support' && activeSection === 'customer-orders');
-              return <button type="button" key={item.id} onClick={() => setActiveSection(item.id === 'customer-support' ? 'customer-orders' : item.id)} aria-current={selected ? 'page' : undefined} className={`flex w-full min-w-0 items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected ? 'border-l-primary bg-primary/10 font-medium text-foreground' : 'border-l-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground'}`}>
+              return <button type="button" key={item.id} onClick={() => setActiveSection(item.id === 'customer-support' ? 'customer-orders' : item.id)} aria-current={selected ? 'page' : undefined} className={`flex w-full min-w-0 items-center gap-2 rounded-lg border-l-2 px-2.5 py-2 text-left text-xs leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:gap-3 sm:px-3 sm:text-sm ${selected ? 'border-l-primary bg-primary/10 font-medium text-foreground' : 'border-l-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground'}`}>
                 <item.icon className="h-4 w-4 shrink-0" />
                 <span className="min-w-0 break-words">{item.label}</span>
               </button>;
@@ -318,7 +318,7 @@ function Account() {
             <Button asChild variant="outline" size="sm" className="w-full"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
         </aside>
-        <div className="min-w-0 space-y-4">
+        <div className="min-w-0 space-y-3">
 {(activeSection === 'customer-orders') && <>
 <div className="mb-4 grid scroll-mt-24 grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4">
