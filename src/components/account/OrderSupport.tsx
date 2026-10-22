@@ -21,6 +21,7 @@ export function OrderSupport({ orderId, orderNumber, paymentStatus, orderStatus 
   const { lang } = useT();
   const w = COPY[lang];
   const [requests, setRequests] = useState<SupportRequest[]>([]);
+  const [responses, setResponses] = useState<Record<string,{id:string;message:string;created_at:string}[]>>({});
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<RequestType>("question");
   const [subject, setSubject] = useState("");
@@ -39,6 +40,7 @@ export function OrderSupport({ orderId, orderNumber, paymentStatus, orderStatus 
         .select("id,request_type,subject,status,created_at")
         .eq("user_id", auth.user.id).eq("order_id", orderId).order("created_at", { ascending: false });
       if (alive && data) setRequests(data as SupportRequest[]);
+      if (data?.length) { const {data:messages}=await (supabase as any).from("order_support_messages").select("id,request_id,message,is_internal,created_at").in("request_id",data.map((r:any)=>r.id)).eq("is_internal",false).order("created_at",{ascending:true}); if(alive&&messages){const grouped:Record<string,{id:string;message:string;created_at:string}[]>={};for(const item of messages as any[]){(grouped[item.request_id]??=[]).push(item);}setResponses(grouped);} }
     })();
     return () => { alive = false; };
   }, [orderId]);
@@ -75,6 +77,6 @@ export function OrderSupport({ orderId, orderNumber, paymentStatus, orderStatus 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <div className="flex flex-wrap gap-2"><Button type="submit" disabled={busy}><Send className="mr-2 h-4 w-4" />{busy ? w.sending : w.submit}</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>{w.close}</Button></div>
     </form>}
-    {requests.length > 0 && <div className="mt-4 rounded-lg bg-muted/30 p-3"><p className="mb-2 text-sm font-semibold">{w.history}</p><ul className="space-y-2">{requests.map(request => <li key={request.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-border/30 pt-2 text-sm"><span><span className="font-medium">{request.subject}</span><span className="block text-xs text-muted-foreground">{w[request.request_type] ?? request.request_type} · {new Date(request.created_at).toLocaleDateString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US")}</span></span><Badge variant={request.status === "resolved" ? "default" : request.status === "rejected" ? "destructive" : "secondary"}>{w[request.status as keyof typeof w] ?? request.status}</Badge></li>)}</ul></div>}
+    {requests.length > 0 && <div className="mt-4 rounded-lg bg-muted/30 p-3"><p className="mb-2 text-sm font-semibold">{w.history}</p><ul className="space-y-2">{requests.map(request => <li key={request.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-border/30 pt-2 text-sm"><span><span className="font-medium">{request.subject}</span><span className="block text-xs text-muted-foreground">{w[request.request_type] ?? request.request_type} · {new Date(request.created_at).toLocaleDateString(lang === "th" ? "th-TH" : lang === "ro" ? "ro-RO" : "en-US")}</span>{(responses[request.id]??[]).length>0&&<span className="mt-2 block space-y-1">{(responses[request.id]??[]).map(reply=><span key={reply.id} className="block rounded-md border border-primary/15 bg-primary/5 p-2 text-xs"><span className="block font-medium text-primary">{lang==="th"?"คำตอบจากร้าน":lang==="ro"?"Răspuns de la magazin":"Store reply"} · {new Date(reply.created_at).toLocaleDateString()}</span><span className="mt-1 block whitespace-pre-wrap">{reply.message}</span></span>)}</span>}</span><Badge variant={request.status === "resolved" ? "default" : request.status === "rejected" ? "destructive" : "secondary"}>{w[request.status as keyof typeof w] ?? request.status}</Badge></li>)}</ul></div>}
   </section>;
 }
