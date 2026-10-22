@@ -2,7 +2,7 @@ type AnalyticsEvent = "view_item" | "search" | "add_to_cart" | "contact_line";
 
 declare global {
   interface Window {
-    dataLayer?: Array<Record<string, unknown>>;
+    dataLayer?: unknown[][];
     gtag?: (...args: unknown[]) => void;
   }
 }
@@ -15,7 +15,7 @@ function initializeAnalytics() {
   initialized = true;
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function (...args: unknown[]) {
-    window.dataLayer?.push(Object.assign([], args) as unknown as Record<string, unknown>);
+    window.dataLayer?.push(args);
   };
   const script = document.createElement("script");
   script.async = true;
