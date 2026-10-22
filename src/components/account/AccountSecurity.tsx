@@ -110,7 +110,7 @@ export function AccountSecurity() {
     setWorking(false);
     if (error) { toast.error(w.securityError); return; }
     toast.success(w.signedOut);
-    window.location.assign("/account");
+    window.location.assign("/dashboard");
   }
 
   async function beginMfa() {
