@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, CheckCheck, LogOut } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCheck, LogOut, LayoutDashboard, Package, ShoppingBag, Handshake, Wrench, Calculator, Warehouse, LifeBuoy, ClipboardCheck, Wallet, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/use-admin";
 import { useT } from "@/lib/i18n";
@@ -104,18 +104,18 @@ function Dashboard() {
       </div>
       <Tabs defaultValue="overview">
         <TabsList className="h-auto flex-wrap justify-start gap-1">
-          <TabsTrigger value="overview">{tabLabels.overview}</TabsTrigger>
-          <TabsTrigger value="listings">Listings</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="offers">Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</TabsTrigger>
-          <TabsTrigger value="enquiries">Service enquiries</TabsTrigger>
-          <TabsTrigger value="calc">Profit calculator</TabsTrigger>
-          <TabsTrigger value="inventory">{tabLabels.inventory}</TabsTrigger>
-          <TabsTrigger value="repairs">{tabLabels.repairs}</TabsTrigger>
-          <TabsTrigger value="support">{tabLabels.support}</TabsTrigger>
-          <TabsTrigger value="audit">{tabLabels.audit}</TabsTrigger>
-          <TabsTrigger value="finance">{tabLabels.finance}</TabsTrigger>
-          <TabsTrigger value="promotions">{tabLabels.promotions}</TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="overview"><LayoutDashboard className="h-4 w-4 shrink-0"/><span>{tabLabels.overview}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="listings"><Package className="h-4 w-4 shrink-0"/><span>Listings</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="orders"><ShoppingBag className="h-4 w-4 shrink-0"/><span>Orders</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="offers"><Handshake className="h-4 w-4 shrink-0"/><span>Offers {offers.data?.filter((o) => o.status === "new").length ? `(${offers.data.filter((o) => o.status === "new").length})` : ""}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="enquiries"><LifeBuoy className="h-4 w-4 shrink-0"/><span>Service enquiries</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="calc"><Calculator className="h-4 w-4 shrink-0"/><span>Profit calculator</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="inventory"><Warehouse className="h-4 w-4 shrink-0"/><span>{tabLabels.inventory}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="repairs"><Wrench className="h-4 w-4 shrink-0"/><span>{tabLabels.repairs}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="support"><LifeBuoy className="h-4 w-4 shrink-0"/><span>{tabLabels.support}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="audit"><ClipboardCheck className="h-4 w-4 shrink-0"/><span>{tabLabels.audit}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="finance"><Wallet className="h-4 w-4 shrink-0"/><span>{tabLabels.finance}</span></TabsTrigger>
+          <TabsTrigger className="w-full justify-start gap-2 text-left" value="promotions"><Megaphone className="h-4 w-4 shrink-0"/><span>{tabLabels.promotions}</span></TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4"><AdminOperations section="overview" /></TabsContent>
