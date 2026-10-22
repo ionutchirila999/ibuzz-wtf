@@ -110,6 +110,13 @@ function Shop() {
         return filtered.sort((a, b) => {
           if (s.sort === "price_asc") return Number(a.price) - Number(b.price);
           if (s.sort === "price_desc") return Number(b.price) - Number(a.price);
+          // In the default/newest view, put merchant-selected featured listings
+          // first, then available stock, while retaining newest-first ordering
+          // within each group. Price sorting remains exactly price-driven.
+          const featured = Number(!!b.is_featured) - Number(!!a.is_featured);
+          if (featured) return featured;
+          const available = Number(a.status === "sold" || Number(a.stock) <= 0) - Number(b.status === "sold" || Number(b.stock) <= 0);
+          if (available) return available;
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
       } catch (error) {
