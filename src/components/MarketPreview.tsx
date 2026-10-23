@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/lib/i18n';
 import { homeCopy } from '@/lib/home-copy';
 import { Button } from '@/components/ui/button';
+import type { Product } from "@/lib/shop";
 import { ProductCard } from '@/components/ProductCard';
 
 export const previewQuery = queryOptions({queryKey:['homepage-market'],staleTime:30000,queryFn:async()=>{
@@ -14,7 +15,7 @@ export const previewQuery = queryOptions({queryKey:['homepage-market'],staleTime
  const {data,error}=await (supabase as any).from('products').select('*').neq('status','hidden').order('created_at',{ascending:false});
  if(error)return {products:[],failed:true};
  // Promote featured, available items first; sold listings remain visible after stock.
- const products=(data??[]).sort((a:any,b:any)=>{
+ const products=((data??[]) as Product[]).sort((a,b)=>{
    const featured=Number(!!b.is_featured)-Number(!!a.is_featured);
    if(featured)return featured;
    const available=Number(a.status==="sold"||Number(a.stock)<=0)-Number(b.status==="sold"||Number(b.stock)<=0);
