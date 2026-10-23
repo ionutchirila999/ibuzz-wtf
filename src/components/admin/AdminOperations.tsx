@@ -74,6 +74,10 @@ export function AdminOperations({ section }: { section: Section }) {
   const outstandingOrders=rangeOrders.filter((o:any)=>["pending","submitted"].includes(o.payment_status)&&o.status!=="cancelled");
   const outstandingAmount=outstandingOrders.reduce((sum:number,o:any)=>sum+Number(o.total||0),0);
   const rangePendingOrders=rangeOrders.filter((o:any)=>o.status!=="completed"&&o.status!=="cancelled");
+  const failedPayments=rangeOrders.filter((o:any)=>o.payment_status==="failed");
+  const newOrders=rangeOrders.filter((o:any)=>["received","confirmed"].includes(o.status)&&o.status!=="cancelled");
+  const rangeRefunds=(refunds.data??[]).filter((r:any)=>inRange(r.created_at));
+
   const rangeEnquiries=newEnquiries.filter((e:any)=>inRange(e.created_at));
   const rangeExpenses=(expenses.data??[]).filter((e:any)=>String(e.occurred_on)>=rangeStart&&String(e.occurred_on)<=rangeEnd).reduce((sum:number,e:any)=>sum+Number(e.amount||0),0);
   const costByProduct=new Map((costs.data??[]).map((item:any)=>[item.product_id,Number(item.purchase_cost||0)+Number(item.repair_cost||0)+Number(item.shipping_cost||0)+Number(item.platform_fees||0)+Number(item.other_expenses||0)]));
@@ -115,6 +119,16 @@ export function AdminOperations({ section }: { section: Section }) {
       <Metric icon={<AlertTriangle className="h-4 w-4"/>} label={w.stock} value={String(lowStock.length)}/>
       <Metric icon={<Wrench className="h-4 w-4"/>} label={w.profitEstimate} value={formatPrice(estimatedOperatingResult)}/>
     </div>
+    <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+      <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"/><div className="min-w-0 flex-1"><h3 className="font-semibold">{lang==="th"?"รายการที่ต้องตรวจสอบ":lang==="ro"?"Necesită atenție":"Needs attention"}</h3><p className="mt-1 text-sm text-muted-foreground">{lang==="th"?"ตรวจสอบคำสั่งซื้อ การชำระเงิน การคืนเงิน และสต็อก":lang==="ro"?"Verifică comenzile, plățile, rambursările și stocul":"Review orders, payments, refunds and inventory."}</p></div></div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"คำสั่งซื้อใหม่":lang==="ro"?"Comenzi noi":"New orders"}</p><p className="mt-1 text-xl font-bold">{newOrders.length}</p>{newOrders.slice(0,2).map((o:any)=><p key={o.id} className="mt-1 truncate text-xs">{o.order_number??o.id.slice(0,8)}</p>)}</div>
+        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"ชำระเงินไม่สำเร็จ":lang==="ro"?"Plăți eșuate":"Failed payments"}</p><p className="mt-1 text-xl font-bold">{failedPayments.length}</p>{failedPayments.slice(0,2).map((o:any)=><p key={o.id} className="mt-1 truncate text-xs">{o.order_number??o.id.slice(0,8)} · {formatPrice(Number(o.total||0))}</p>)}</div>
+        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"คืนเงินล่าสุด":lang==="ro"?"Rambursări recente":"Recent refunds"}</p><p className="mt-1 text-xl font-bold">{rangeRefunds.length}</p>{rangeRefunds.slice(0,2).map((r:any)=><p key={r.id} className="mt-1 truncate text-xs">{formatPrice(Number(r.amount||0))} · {fmt(r.created_at)}</p>)}</div>
+        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"สินค้าหมด":lang==="ro"?"Stoc epuizat":"Out of stock"}</p><p className="mt-1 text-xl font-bold">{outOfStock.length}</p><p className="mt-1 text-xs text-muted-foreground">{lowStock.length} {lang==="th"?"สินค้าใกล้หมด":lang==="ro"?"cu stoc redus":"low-stock items"}</p></div>
+      </div>
+      {(newOrders.length+failedPayments.length+rangeRefunds.length+outOfStock.length+lowStock.length)===0&&<p className="mt-3 text-sm text-muted-foreground">{lang==="th"?"ไม่มีรายการเร่งด่วนในช่วงเวลานี้":lang==="ro"?"Nicio alertă pentru intervalul selectat":"No urgent items in this period."}</p>}
+    </section>
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><Badge variant="outline">{lang === "th" ? "ต้องกระทบยอด" : lang === "ro" ? "Necesită reconciliere" : "Reconciliation required"}</Badge><span>{lang === "th" ? "ตรวจสอบยอดรับเงินจริง การคืนเงิน และสต็อก" : lang === "ro" ? "Verifică încasările, rambursările și inventarul." : "Verify payouts, refunds, and inventory."}</span></div>
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.stock}</h3>{lowStock.length===0?<p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>:<ul className="mt-3 space-y-2">{lowStock.slice(0,8).map((p:any)=><li key={p.id} className="flex justify-between gap-3 text-sm"><span className="min-w-0 truncate">{p.title}</span><Badge variant="destructive">{p.stock}</Badge></li>)}</ul>}</div>
