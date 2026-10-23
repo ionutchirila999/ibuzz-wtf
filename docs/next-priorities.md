@@ -1,60 +1,104 @@
-# iBuzz.wtf next-priority roadmap
+# iBuzz.wtf production-readiness roadmap
 
-This roadmap defines the next production-readiness checks. A code change or passing build does not by itself prove production security, payment correctness, Google indexing, or backup recoverability.
+This roadmap tracks the requested work in priority order. Checklist items are not complete until implemented and verified. A code change or passing build alone does not prove production security, payment correctness, indexing, or backup recoverability.
 
-## 1. Security and access control — critical
+## 1. Security and regression testing — highest priority
 
-- [ ] Confirm only the designated owner account has the admin role and can access `/ibuzz-dashboard`.
-- [ ] Verify Supabase Row Level Security and grants enforce admin-only operations independently of client-side route guards.
-- [ ] Verify customers can read and modify only their own orders, profiles, addresses, notifications, wishlists, and support requests.
-- [ ] Review all SQL migrations, security-definer functions, function grants, and any duplicate/future-dated migration timestamps.
-- [ ] Test account deletion, including authentication identity, profile/address cleanup, and retention of legally or operationally required order/audit records.
+- [ ] Verify admin permissions and customer data isolation.
+- [ ] Test sign-in, Google OAuth, redirects, and password recovery.
+- [ ] Ensure customers cannot view or change another customer's orders.
+- [ ] Test account deletion and database access rules.
+- [ ] Review Supabase RLS policies, grants, migrations, security-definer functions, and function permissions.
+- [ ] Run regression tests to ensure existing features have not broken.
 
-## 2. Complete routing and navigation — critical
+**Goal:** Fix vulnerabilities and broken existing functionality before adding new features.
 
-- [ ] Keep route regression tests for `/shop`, `/checkout`, `/auth`, `/dashboard`, `/ibuzz-dashboard`, and legacy `/account` and `/admin` paths.
-- [ ] Test login/logout, password reset, email confirmation, Google OAuth, protected routes, and redirect destinations.
-- [ ] Test direct URL entry, browser refresh, back/forward navigation, and mobile navigation.
-- [ ] Add integration tests for auth redirects where practical; route matching alone does not execute redirect guards or prove provider configuration works.
+## 2. Orders, payments, and refunds
 
-## 3. Reliable orders, payments and profit
+- [ ] Verify checkout totals, payment confirmation, and order creation.
+- [ ] Prevent duplicate orders and duplicate payment processing.
+- [ ] Test stock reduction, cancellations, and refund status updates.
+- [ ] Ensure receipts match the actual order and payment.
+- [ ] Test failed, pending, and successful payments.
+- [ ] Verify stock and cancellation operations are atomic and idempotent.
+- [ ] Keep refund amount, status, timestamp, reference, and audit history traceable.
 
-- [ ] Verify checkout atomically validates stock and price and decrements inventory once.
-- [ ] Verify cancellations restore inventory once and duplicate requests cannot double-restore stock.
-- [ ] Track refunds with status, amount, timestamp, reference, and an audit trail.
-- [ ] Distinguish confirmed receipts/refunds from estimates, pending payments, and manual entries in financial reporting.
-- [ ] Make manual payment confirmation explicit and auditable; never trust a browser success redirect as payment evidence.
-- [ ] Test failed checkout and concurrent purchases against staging data.
+**Goal:** Every transaction must be traceable and financially accurate.
 
-## 4. Mobile shopping experience
+## 3. Complete the customer experience
 
-- [ ] Test the full customer journey on real Android devices and common mobile browsers.
-- [ ] Check product images, image upload/editing, navigation, checkout, support, and LINE contact.
-- [ ] Review Thai and Romanian text for wrapping, overflow, labels, and correct language persistence.
-- [ ] Test install, launch, offline fallback, and update behavior for the PWA.
-- [ ] Confirm production uses the approved logo and transparent assets, not generated replacements or stale cached assets.
+- [ ] Finish address collection wherever delivery requires it.
+- [ ] Verify customer details appear correctly in orders and receipts.
+- [ ] Test order history, tracking, account settings, and email changes.
+- [ ] Verify Google login on the published site.
+- [ ] Make empty states, errors, and confirmation messages clear.
+- [ ] Test direct URL entry, refresh, back/forward navigation, and legacy redirects.
 
-## 5. SEO and customer acquisition
+**Goal:** Customers can manage their entire purchase without needing manual assistance.
 
-- [x] Add a scheduled public check for the homepage, robots file, and sitemap.
-- [x] Improve product price/availability and social-sharing metadata; add configurable GA4 events and LINE conversion attribution.
-- [ ] Configure `VITE_GA_MEASUREMENT_ID` in the production build environment if GA4 is intended; validate events in DebugView and confirm required consent/privacy handling.
-- [ ] Inspect Google Search Console indexing, sitemap processing, canonical selection, and excluded URLs.
-- [ ] Test representative product previews and canonical URLs after deployment.
-- [ ] Verify the LINE contact link opens the correct account from Android and desktop.
+## 4. Business automation
 
-## 6. Backups and operational monitoring
+- [ ] Automate order confirmation and payment notifications.
+- [ ] Notify customers when orders are shipped, delivered, or refunded.
+- [ ] Alert the administrator to failed payments and problematic orders.
+- [ ] Reduce manual stock updates and repetitive order processing.
+- [ ] Ensure notifications and automated actions are not duplicated.
+- [ ] Test retries and failures without creating duplicate orders, stock movements, or messages.
 
-- [x] Add a scheduled GitHub Actions monitor for the public homepage, `robots.txt`, and sitemap.
-- [ ] Restore a real production backup to an isolated staging project; record recovery point, duration, and integrity results.
-- [ ] Compare local and remote migration history with an authorized Supabase CLI session; review pending SQL before applying it.
-- [ ] Verify live RLS policies, grants, critical tables, and checkout/order RPCs against the migrations in Git.
-- [ ] Monitor hosting/server and Supabase errors; investigate failed orders, missing orders, stock discrepancies, and refund delays.
-- [ ] Reconcile order records, payment evidence, inventory movements, refunds, and audit history after releases.
+**Goal:** Save time while keeping customers informed.
 
-## Acceptance rules
+## 5. Trust, policies, and customer support
 
-- Passing GitHub Actions confirms only the checks executed by those workflows.
-- Production database access, Google Search Console, GA4, backup restore, and physical Android testing require their respective authorized environments.
+- [ ] Review shipping, returns, cancellations, and refund policies.
+- [ ] Publish clear privacy and terms pages.
+- [ ] Make contact and support information easy to find.
+- [ ] Add an order-related support process so customers can report problems.
+- [ ] Verify all policy links and support forms work.
+- [ ] Confirm customer support records are protected by ownership rules and admin permissions.
+
+**Goal:** Make customers comfortable buying from iBuzz.wtf.
+
+## 6. Mobile and visual quality
+
+- [ ] Test the complete shopping journey on Android.
+- [ ] Check every page, menu, form, button, and checkout step.
+- [ ] Verify the approved official logo remains correct after publishing.
+- [ ] Check product images, cropping, loading, and broken image links.
+- [ ] Test different screen sizes and slow connections.
+- [ ] Review Thai and Romanian text for wrapping, overflow, and correct language persistence.
+- [ ] Test PWA install, launch, offline fallback, and update behavior where applicable.
+
+**Goal:** The published site looks professional and works consistently across devices.
+
+## 7. SEO, accessibility, and performance
+
+- [ ] Give every important page a proper title and meta description.
+- [ ] Verify sitemap, robots.txt, canonical URLs, and indexing.
+- [ ] Add appropriate product structured data.
+- [ ] Improve image optimization, page speed, and Core Web Vitals.
+- [ ] Check keyboard navigation, form labels, contrast, and accessibility.
+- [ ] Verify social-sharing previews and published branding.
+- [ ] Inspect Search Console indexing and validate representative product URLs after deployment.
+
+**Goal:** Make the store discoverable, fast, and accessible.
+
+## 8. Analytics and growth
+
+- [ ] Verify the existing funnel and privacy analytics work correctly.
+- [ ] Track product views, add-to-cart events, checkout completion, and purchases.
+- [ ] Measure actual profit rather than estimated profit alone.
+- [ ] Track abandoned checkouts and repeat purchases.
+- [ ] Use consent and privacy controls appropriate to the analytics setup.
+- [ ] Validate event accuracy and avoid counting duplicate purchases.
+- [ ] Configure and verify production analytics settings when analytics are enabled.
+
+**Goal:** Understand where sales are lost and which improvements increase revenue.
+
+## Verification and release rules
+
+- Passing automated checks confirms only the checks that actually ran.
+- Production database policies, payment provider behavior, Google OAuth configuration, Search Console, analytics dashboards, backup restore, and physical Android testing require their authorized environments.
+- Test with staging/test data wherever possible; do not create real charges or modify customer records during tests.
 - Do not commit credentials, service-role keys, customer data, or backup contents.
-- Do not apply pending or future-dated migrations blindly.
+- Review migrations and their ordering before applying them; never apply pending or future-dated migrations blindly.
+- Keep changes isolated, verify each change, and do not deploy or publish without explicit permission.
