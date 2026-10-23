@@ -54,4 +54,31 @@ describe("database security regression guards", () => {
     expect(sql).toContain("revoke truncate on all tables in schema public from public, anon, authenticated");
     expect(sql).toContain("revoke truncate on tables from public, anon, authenticated");
   });
+  it("locks owner bootstrap state and prevents direct API access", () => {
+    const bootstrap = migration("20261023000000_lock_owner_bootstrap.sql");
+
+    expect(bootstrap).toContain("alter table public.owner_bootstrap_state enable row level security");
+    expect(bootstrap).toContain("revoke all on public.owner_bootstrap_state from public, anon, authenticated");
+    expect(bootstrap).toContain("grant all on public.owner_bootstrap_state to service_role");
+    expect(bootstrap).toContain("perform pg_advisory_xact_lock(hashtext('ibuzz_first_owner'))");
+    expect(bootstrap).toContain("on conflict (singleton) do nothing");
+    expect(bootstrap).toContain("where singleton = true\n  for update");
+  });
+
+  it("limits customer profile, wishlist, cart, and notification access to the owner", () => {
+    const profiles = migration("20261022120000_customer_profiles_and_saved_addresses.sql");
+    const wishlist = migration("20261022140000_wishlist_items.sql");
+    const notifications = migration("20261022180000_customer_notifications.sql");
+    const customerWrites = migration("20261023000100_harden_customer_writes_and_deletion.sql");
+    const carts = migration("20261023190000_customer_cart_recovery.sql");
+
+    expect(profiles).toContain("using (auth.uid() = user_id)");
+    expect(profiles).toContain("with check (auth.uid() = user_id)");
+    expect(wishlist).toContain("using (auth.uid() = user_id)");
+    expect(carts).toContain("using (user_id = auth.uid())");
+    expect(notifications).toContain("using (auth.uid() = user_id)");
+    expect(customerWrites).toContain("revoke update on public.customer_notifications from authenticated");
+    expect(customerWrites).toContain("grant update (read_at) on public.customer_notifications to authenticated");
+  });
+
 });
