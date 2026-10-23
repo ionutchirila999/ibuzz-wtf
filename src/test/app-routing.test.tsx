@@ -16,6 +16,7 @@ describe("App routing", () => {
 
   it.each([
     ["/shop", "/shop"],
+    ["/market", "/market"],
     ["/checkout", "/checkout"],
     ["/auth", "/auth"],
     ["/dashboard", "/dashboard"],
@@ -29,6 +30,8 @@ describe("App routing", () => {
 
   it("keeps customer and owner dashboards excluded from the sitemap", () => {
     const router = routerFor();
+    expect(router.routesById["/market"]?.options.staticData?.sitemap).toBe(true);
+    expect(router.routesById["/shop"]?.options.staticData?.sitemap).toBe(false);
     expect(router.routesById["/dashboard"]?.options.staticData?.sitemap).toBe("exclude-subtree");
     expect(router.routesById["/ibuzz-dashboard"]?.options.staticData?.sitemap).toBe("exclude-subtree");
     expect(router.routesById["/account"]?.options.staticData?.sitemap).toBe("exclude-subtree");
