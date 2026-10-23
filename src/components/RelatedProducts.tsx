@@ -66,7 +66,7 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
                 )}
               </div>
               <div className="p-3">
-                <h3 className="line-clamp-2 min-h-10 break-words text-sm font-medium">{localizedTitle(product, lang)}</h3>
+                <h3 className="line-clamp-2 min-h-10 break-words text-sm font-medium">{(lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title}</h3>
                 <p className="mt-2 font-semibold text-primary">{formatPrice(product.price)}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{product.stock} {lang === "th" ? "ชิ้นในสต็อก" : lang === "ro" ? "în stoc" : "in stock"}</p>
               </div>
