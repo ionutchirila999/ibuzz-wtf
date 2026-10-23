@@ -49,7 +49,14 @@ export const Route = createFileRoute("/shop")({staticData: { sitemap: true },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:image", content: SOCIAL_IMAGE },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        ...(["th", "en", "ro"] as const).map((language) => {
+          const languageQuery = new URLSearchParams({ ...(cat ? { category: cat } : {}), ...(language !== "th" ? { lang: language } : {}) }).toString();
+          return { rel: "alternate", hrefLang: language, href: `https://ibuzz.wtf/shop${languageQuery ? `?${languageQuery}` : ""}` };
+        }),
+        { rel: "alternate", hrefLang: "x-default", href: `https://ibuzz.wtf/shop${cat ? `?category=${encodeURIComponent(cat)}` : ""}` },
+      ],
     };
   },
   component: Shop,
