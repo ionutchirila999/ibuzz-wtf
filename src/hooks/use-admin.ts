@@ -10,16 +10,20 @@ export function useAdmin() {
   useEffect(() => {
     let active = true;
     let checkVersion = 0;
+    let initialCheckComplete = false;
 
     const check = async (nextUser: User | null) => {
       const version = ++checkVersion;
       if (!active) return;
       setUser(nextUser);
-      setLoading(true);
+      // Only gate the dashboard during its first auth/role check. Re-checking
+      // a live session must not unmount the dashboard and discard form state.
+      if (!initialCheckComplete) setLoading(true);
 
       if (!nextUser) {
         setIsAdmin(false);
-        setLoading(false);
+        if (!initialCheckComplete) setLoading(false);
+        initialCheckComplete = true;
         return;
       }
 
@@ -38,7 +42,10 @@ export function useAdmin() {
         console.error("[Admin] Could not verify owner role:", error);
         if (active && version === checkVersion) setIsAdmin(false);
       } finally {
-        if (active && version === checkVersion) setLoading(false);
+        if (active && version === checkVersion) {
+          initialCheckComplete = true;
+          setLoading(false);
+        }
       }
     };
 
