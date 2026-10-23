@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,21 @@ export const Route = createFileRoute("/auth")({
 });
 
 function Auth() {
+  const [recoveryMode, setRecoveryMode] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("resetPassword") === "1");
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryMode(true);
+        setResetMode(false);
+        setResetSent(false);
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
   const navigate = useNavigate();
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -31,7 +43,31 @@ function Auth() {
     const f = new FormData(e.currentTarget);
     const email = String(f.get("email") ?? "");
     const password = String(f.get("password") ?? "");
+    const confirmPassword = String(f.get("confirmPassword") ?? "");
     setBusy(true);
+
+    if (recoveryMode) {
+      if (password.length < 8) {
+        setBusy(false);
+        toast.error("Password must be at least 8 characters.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setBusy(false);
+        toast.error("Passwords do not match.");
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({ password });
+      setBusy(false);
+      if (error) {
+        toast.error("Could not update your password. Please reopen the reset link and try again.");
+        return;
+      }
+      setRecoveryMode(false);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      toast.success("Password updated. You can now sign in with your new password.");
+      return;
+    }
 
     if (resetMode) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -82,17 +118,17 @@ function Auth() {
       <div className="auth-orb auth-orb-two" aria-hidden="true" />
       <div className="auth-panel relative z-10 w-full max-w-md rounded-3xl border p-6 sm:p-9">
         <h1 className="auth-title text-3xl font-bold tracking-tight sm:text-4xl">
-          {resetMode ? "Reset your password" : "Sign in"}
+          {recoveryMode ? "Choose a new password" : resetMode ? "Reset your password" : "Sign in"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {resetMode ? "Request a password reset link." : "Sign in to continue."}
+          {recoveryMode ? "Enter and confirm your new password." : resetMode ? "Request a password reset link." : "Sign in to continue."}
         </p>
         {resetSent && (
           <p role="status" className="mt-4 rounded-lg border bg-card p-3 text-sm">
             If an account exists for that email, a password reset link has been sent.
           </p>
         )}
-        {!resetMode && (
+        {!resetMode && !recoveryMode && (
           <>
             <div className="mt-7 grid grid-cols-1 gap-2">
               <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => void signInWithProvider("google")}>
@@ -105,26 +141,30 @@ function Auth() {
           </>
         )}
         <form onSubmit={submit} className="space-y-4">
-          <div>
+          {!recoveryMode && <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
-          </div>
-          {!resetMode && (
+          </div>}
+          {(recoveryMode || !resetMode) && (
             <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" autoComplete="current-password" required />
+              <Label htmlFor="password">{recoveryMode ? "New password" : "Password"}</Label>
+              <Input id="password" name="password" type="password" autoComplete={recoveryMode ? "new-password" : "current-password"} minLength={recoveryMode ? 8 : undefined} required />
             </div>
           )}
+          {recoveryMode && <div>
+            <Label htmlFor="confirmPassword">Confirm new password</Label>
+            <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required />
+          </div>}
           <Button type="submit" variant="glow" className="w-full" disabled={busy}>
-            {resetMode ? "Send reset link" : "Sign in"}
+            {busy ? "Please wait…" : recoveryMode ? "Update password" : resetMode ? "Send reset link" : "Sign in"}
           </Button>
         </form>
-        {!resetMode && (
+        {!resetMode && !recoveryMode && (
           <button type="button" onClick={() => { setResetMode(true); setResetSent(false); }} className="mt-4 text-sm text-primary underline underline-offset-4">
             Forgot password?
           </button>
         )}
-        {resetMode && (
+        {resetMode && !recoveryMode && (
           <button type="button" onClick={() => { setResetMode(false); setResetSent(false); }} className="mt-4 text-sm text-primary underline underline-offset-4">
             Back to sign in
           </button>
