@@ -60,7 +60,7 @@ export function AdminPromotions() {
       <div className="flex items-center gap-2"><Megaphone className="h-4 w-4 text-primary"/><h2 className="font-semibold">Homepage banners</h2></div>
       <form onSubmit={createBanner} className="grid gap-3 sm:grid-cols-2">
         <label className="text-xs text-muted-foreground">Title<Input required minLength={2} maxLength={180} value={bannerForm.title} onChange={e=>setBannerForm({...bannerForm,title:e.target.value})}/></label>
-        <label className="text-xs text-muted-foreground">Link URL (HTTPS)<Input type="url" value={bannerForm.link_url} onChange={e=>setBannerForm({...bannerForm,link_url:e.target.value})} placeholder="https://ibuzz.wtf/shop"/></label>
+        <label className="text-xs text-muted-foreground">Link URL (HTTPS)<Input type="url" value={bannerForm.link_url} onChange={e=>setBannerForm({...bannerForm,link_url:e.target.value})} placeholder="https://ibuzz.wtf/market"/></label>
         <label className="text-xs text-muted-foreground sm:col-span-2">Message<Textarea rows={2} maxLength={2000} value={bannerForm.body} onChange={e=>setBannerForm({...bannerForm,body:e.target.value})}/></label>
         <label className="text-xs text-muted-foreground sm:col-span-2">Image URL (HTTPS)<Input type="url" value={bannerForm.image_url} onChange={e=>setBannerForm({...bannerForm,image_url:e.target.value})}/></label>
         <label className="text-xs text-muted-foreground">Starts on (optional)<Input type="date" value={bannerForm.starts_at} onChange={e=>setBannerForm({...bannerForm,starts_at:e.target.value})}/></label>
