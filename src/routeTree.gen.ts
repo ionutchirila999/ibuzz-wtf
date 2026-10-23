@@ -10,11 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IbuzzDashboardRouteImport } from './routes/ibuzz-dashboard'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DigitalRouteImport } from './routes/digital'
+import { Route as IbuzzDashboardRouteImport } from './routes/ibuzz-dashboard'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RepairRouteImport } from './routes/repair'
@@ -34,14 +36,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IbuzzDashboardRoute = IbuzzDashboardRouteImport.update({
-  id: '/ibuzz-dashboard',
-  path: '/ibuzz-dashboard',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -54,9 +56,19 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DigitalRoute = DigitalRouteImport.update({
   id: '/digital',
   path: '/digital',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IbuzzDashboardRoute = IbuzzDashboardRouteImport.update({
+  id: '/ibuzz-dashboard',
+  path: '/ibuzz-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioRoute = PortfolioRouteImport.update({
@@ -128,11 +140,13 @@ const LovableEmailTransactionalPreviewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
@@ -149,11 +163,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
@@ -170,11 +186,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/account': typeof AccountRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
+  '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
+  '/ibuzz-dashboard': typeof IbuzzDashboardRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
@@ -193,11 +211,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
-    | '/ibuzz-dashboard'
+    | '/account'
+    | '/admin'
     | '/auth'
     | '/checkout'
+    | '/dashboard'
     | '/digital'
+    | '/ibuzz-dashboard'
     | '/portfolio'
     | '/privacy'
     | '/repair'
@@ -214,11 +234,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
-    | '/ibuzz-dashboard'
+    | '/account'
+    | '/admin'
     | '/auth'
     | '/checkout'
+    | '/dashboard'
     | '/digital'
+    | '/ibuzz-dashboard'
     | '/portfolio'
     | '/privacy'
     | '/sell'
@@ -234,11 +256,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
-    | '/ibuzz-dashboard'
+    | '/account'
+    | '/admin'
     | '/auth'
     | '/checkout'
+    | '/dashboard'
     | '/digital'
+    | '/ibuzz-dashboard'
     | '/portfolio'
     | '/privacy'
     | '/repair'
@@ -256,11 +280,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  IbuzzDashboardRoute: typeof IbuzzDashboardRoute
+  AccountRoute: typeof AccountRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
+  DashboardRoute: typeof DashboardRoute
   DigitalRoute: typeof DigitalRoute
+  IbuzzDashboardRoute: typeof IbuzzDashboardRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   RepairRoute: typeof RepairRouteWithChildren
@@ -283,18 +309,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ibuzz-dashboard': {
-      id: '/ibuzz-dashboard'
-      path: '/ibuzz-dashboard'
-      fullPath: '/ibuzz-dashboard'
-      preLoaderRoute: typeof IbuzzDashboardRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -311,11 +337,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/digital': {
       id: '/digital'
       path: '/digital'
       fullPath: '/digital'
       preLoaderRoute: typeof DigitalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ibuzz-dashboard': {
+      id: '/ibuzz-dashboard'
+      path: '/ibuzz-dashboard'
+      fullPath: '/ibuzz-dashboard'
+      preLoaderRoute: typeof IbuzzDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio': {
@@ -427,11 +467,13 @@ const RepairRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  IbuzzDashboardRoute: IbuzzDashboardRoute,
+  AccountRoute: AccountRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
+  DashboardRoute: DashboardRoute,
   DigitalRoute: DigitalRoute,
+  IbuzzDashboardRoute: IbuzzDashboardRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   RepairRoute: RepairRouteWithChildren,
