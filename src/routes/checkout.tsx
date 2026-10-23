@@ -101,30 +101,69 @@ function Checkout() {
   const checkoutStarted = useRef(false);
 
   useEffect(() => {
-    const items = readCart();
-    setCart(items);
+    const localItems = readCart();
+    setCart(localItems);
     void (async () => {
       const { data: authData } = await supabase.auth.getUser();
-      setIsSignedIn(!!authData.user);
-      if (!authData.user) return;
-      const { data: savedProfile } = await (supabase as any)
-        .from("customer_profiles")
-        .select("full_name,phone,delivery_addresses")
-        .eq("user_id", authData.user.id)
-        .maybeSingle();
-      const metadata = authData.user.user_metadata ?? {};
-      const profile = savedProfile ?? metadata;
-      setName(current => current || (typeof profile.full_name === "string" ? profile.full_name : ""));
-      setContact(current => current || (typeof profile.phone === "string" ? profile.phone : ""));
-      const addresses = Array.isArray(profile.delivery_addresses) ? profile.delivery_addresses : [];
-      const defaultAddress = addresses.find((item: any) => item && typeof item.address === "string" && item.is_default === true);
-      const fallbackAddress = typeof metadata.delivery_address === "string" ? metadata.delivery_address : "";
-      setShippingAddress(current => current || (typeof defaultAddress?.address === "string" ? defaultAddress.address : fallbackAddress));
-    })().catch(() => { /* Checkout remains editable if profile details cannot be loaded. */ });
-    if (!items.length) { setLoading(false); return; }
-    void supabase.from("products").select("id,title,title_th,title_ro,price,stock,status").in("id", items.map(x => x.id))
-      .then(({ data, error }) => { if (!error && data) setProducts(data as CartProduct[]); setLoading(false); });
-  }, []);
+      const user = authData.user;
+      let items = localItems;
+
+      if (user) {
+        const { data: savedProfile } = await (supabase as any)
+          .from("customer_profiles")
+          .select("full_name,phone,delivery_addresses")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const metadata = user.user_metadata ?? {};
+        const profile = savedProfile ?? metadata;
+        setName(current => current || (typeof profile.full_name === "string" ? profile.full_name : ""));
+        setContact(current => current || (typeof profile.phone === "string" ? profile.phone : ""));
+        const addresses = Array.isArray(profile.delivery_addresses) ? profile.delivery_addresses : [];
+        const defaultAddress = addresses.find((item: any) => item && typeof item.address === "string" && item.is_default === true);
+        const fallbackAddress = typeof metadata.delivery_address === "string" ? metadata.delivery_address : "";
+        setShippingAddress(current => current || (typeof defaultAddress?.address === "string" ? defaultAddress.address : fallbackAddress));
+
+        const { data: savedCart } = await (supabase as any)
+          .from("customer_carts")
+          .select("items")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const remoteItems = Array.isArray(savedCart?.items)
+          ? savedCart.items.filter((item: any) => item && typeof item.id === "string" && Number.isInteger(item.quantity) && item.quantity > 0) as CartItem[]
+          : [];
+        if (remoteItems.length) {
+          const merged = new Map<string, number>();
+          for (const item of remoteItems) merged.set(item.id, item.quantity);
+          for (const item of localItems) merged.set(item.id, (merged.get(item.id) ?? 0) + item.quantity);
+          items = Array.from(merged, ([id, quantity]) => ({ id, quantity }));
+          try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* In-memory cart remains available. */ }
+          setCart(items);
+          toast.success(lang === "th" ? "กู้คืนตะกร้าสินค้าของคุณแล้ว" : lang === "ro" ? "Coșul salvat a fost recuperat" : "Your saved cart has been restored");
+          trackEvent("cart_restored", { item_count: items.length, quantity: items.reduce((sum, item) => sum + item.quantity, 0) });
+        }
+      }
+
+      setIsSignedIn(!!user);
+      if (!items.length) { setLoading(false); return; }
+      const { data, error } = await supabase.from("products")
+        .select("id,title,title_th,title_ro,price,stock,status")
+        .in("id", items.map(item => item.id));
+      if (!error && data) setProducts(data as CartProduct[]);
+      setLoading(false);
+    })().catch(() => { setIsSignedIn(false); setLoading(false); });
+  }, [lang]);
+  useEffect(() => {
+    if (isSignedIn !== true) return;
+    void (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      await (supabase as any).from("customer_carts").upsert({
+        user_id: data.user.id,
+        items: cart,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    })();
+  }, [cart, isSignedIn]);
 
   const items = useMemo(() => reconcileCheckoutItems(cart, products).map(p => ({
     ...p,
