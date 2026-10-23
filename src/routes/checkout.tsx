@@ -137,7 +137,7 @@ function Checkout() {
         if (remoteItems.length) {
           const merged = new Map<string, number>();
           for (const item of remoteItems) merged.set(item.id, item.quantity);
-          for (const item of localItems) merged.set(item.id, (merged.get(item.id) ?? 0) + item.quantity);
+          for (const item of localItems) merged.set(item.id, Math.max(merged.get(item.id) ?? 0, item.quantity));
           items = Array.from(merged, ([id, quantity]) => ({ id, quantity }));
           try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* In-memory cart remains available. */ }
           setCart(items);
