@@ -33,20 +33,12 @@ function RelatedProductCard({ product, lang }: { product: RelatedProduct; lang: 
       <div className="relative aspect-square overflow-hidden bg-muted">
         {image && !mediaFailed ? (
           isVideo ? (
-            <>
-              <video
-                src={image}
-                muted
-                playsInline
-                preload="none"
-                aria-label={title}
-                onError={() => setMediaFailed(true)}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10 text-white">
-                <span className="flex size-10 items-center justify-center rounded-full bg-black/60"><Play className="ml-0.5 h-5 w-5 fill-current" /></span>
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-muted text-muted-foreground" aria-label="Product video">
+              <span className="flex size-12 items-center justify-center rounded-full border border-border bg-background/80 text-primary">
+                <Play className="ml-0.5 h-5 w-5 fill-current" />
               </span>
-            </>
+              <span className="text-xs">View product video</span>
+            </div>
           ) : (
             <img
               src={image}
