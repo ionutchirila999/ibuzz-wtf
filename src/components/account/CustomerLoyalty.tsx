@@ -14,6 +14,8 @@ export function CustomerLoyalty() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
+  const [rewardCode, setRewardCode] = useState("");
 
   async function loadAccount() {
     const { data, error } = await (supabase as any).rpc("ibuzz_get_my_loyalty_account");
@@ -41,6 +43,30 @@ export function CustomerLoyalty() {
     setCode("");
   }
 
+  async function redeemPoints() {
+    if (!account || account.points_balance < 100 || redeeming) return;
+    setRedeeming(true);
+    const { data, error } = await (supabase as any).rpc("ibuzz_redeem_loyalty_points", { p_points: 100 });
+    setRedeeming(false);
+    if (error || typeof data !== "string") {
+      toast.error(error?.message || (lang === "th" ? "แลกคะแนนไม่สำเร็จ" : lang === "ro" ? "Punctele nu au putut fi răscumpărate" : "Could not redeem points"));
+      return;
+    }
+    setRewardCode(data);
+    await loadAccount();
+    toast.success(lang === "th" ? "สร้างรหัสส่วนลด ฿10 แล้ว ใช้ได้ครั้งเดียวภายใน 30 วัน" : lang === "ro" ? "Codul de reducere de 10 ฿ a fost creat. O singură utilizare în 30 de zile." : "Created a ฿10 discount code, valid for one use within 30 days.");
+  }
+
+  async function copyRewardCode() {
+    if (!rewardCode) return;
+    try {
+      await navigator.clipboard.writeText(rewardCode);
+      toast.success(lang === "th" ? "คัดลอกรหัสส่วนลดแล้ว" : lang === "ro" ? "Codul de reducere a fost copiat" : "Discount code copied");
+    } catch {
+      toast.error(lang === "th" ? "คัดลอกไม่สำเร็จ" : lang === "ro" ? "Copierea a eșuat" : "Could not copy code");
+    }
+  }
+
   async function copyCode() {
     if (!account) return;
     try {
@@ -65,6 +91,11 @@ export function CustomerLoyalty() {
         </div>
         <div className="shrink-0 text-right"><p className="text-xs text-muted-foreground">{lang === "th" ? "คะแนนของคุณ" : lang === "ro" ? "Punctele tale" : "Your points"}</p><p className="mt-1 flex items-center justify-end gap-1 text-2xl font-bold"><Sparkles className="h-5 w-5 text-primary" />{account.points_balance}</p></div>
       </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/70 p-3">
+        <div><p className="text-sm font-semibold">{lang === "th" ? "แลก 100 คะแนนเป็นส่วนลด ฿10" : lang === "ro" ? "Schimbă 100 de puncte pentru o reducere de 10 ฿" : "Redeem 100 points for ฿10 off"}</p><p className="mt-1 text-xs text-muted-foreground">{lang === "th" ? "รหัสใช้ได้ครั้งเดียวและหมดอายุใน 30 วัน" : lang === "ro" ? "Codul poate fi folosit o dată și expiră în 30 de zile." : "One-time code; expires in 30 days."}</p></div>
+        <Button type="button" variant="outline" disabled={redeeming || account.points_balance < 100} onClick={() => void redeemPoints()}>{redeeming ? "…" : lang === "th" ? "แลกคะแนน" : lang === "ro" ? "Răscumpără" : "Redeem points"}</Button>
+      </div>
+      {rewardCode && <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3"><div className="min-w-0 flex-1"><p className="text-xs text-muted-foreground">{lang === "th" ? "รหัสส่วนลดของคุณ" : lang === "ro" ? "Codul tău de reducere" : "Your discount code"}</p><code className="break-all font-semibold">{rewardCode}</code></div><Button type="button" size="sm" variant="outline" onClick={() => void copyRewardCode()}><Copy className="mr-2 h-4 w-4"/>{lang === "th" ? "คัดลอก" : lang === "ro" ? "Copiază" : "Copy code"}</Button></div>}
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-border/60 bg-background/70 p-3">
           <p className="text-xs text-muted-foreground">{lang === "th" ? "รหัสแนะนำของคุณ" : lang === "ro" ? "Codul tău de recomandare" : "Your referral code"}</p>
