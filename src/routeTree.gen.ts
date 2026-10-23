@@ -206,6 +206,7 @@ export interface FileRoutesById {
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -254,6 +255,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sell'
     | '/shop'
+    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -277,6 +279,7 @@ export interface FileRouteTypes {
     | '/repair'
     | '/sell'
     | '/shop'
+    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
