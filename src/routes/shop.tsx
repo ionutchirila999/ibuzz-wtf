@@ -128,7 +128,7 @@ function Shop() {
   });
 
   useEffect(() => {
-    if (s.q?.trim()) trackEvent("search", { search_term: s.q.trim().slice(0, 100), category: s.category });
+    if (s.q?.trim()) trackEvent("search", { search_length: Math.min(s.q.trim().length, 100), category: s.category });
   }, [s.q, s.category]);
 
   const subs = s.category ? SUBCATEGORIES[s.category] : [];
