@@ -24,9 +24,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # The repository currently has no committed package lockfile.
+        run: pnpm install --no-frozen-lockfile
       - name: Run unit tests
         run: pnpm test
       - name: Run lint
