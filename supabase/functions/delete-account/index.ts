@@ -1,18 +1,22 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://ibuzz.wtf",
+const allowedOrigins = ["https://ibuzz.wtf", "https://www.ibuzz.wtf", "http://localhost:5173"];
+
+const corsHeadersFor = (origin: string | null) => ({
+  "Access-Control-Allow-Origin": origin && allowedOrigins.includes(origin) ? origin : "https://ibuzz.wtf",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
-};
+});
 
 Deno.serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = corsHeadersFor(origin);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return Response.json({ error: "Method not allowed" }, { status: 405, headers: corsHeaders });
 
-  const origin = req.headers.get("origin");
-  if (origin && !["https://ibuzz.wtf", "https://www.ibuzz.wtf", "http://localhost:5173"].includes(origin)) {
+  if (origin && !allowedOrigins.includes(origin)) {
     return Response.json({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
   }
 
