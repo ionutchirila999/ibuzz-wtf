@@ -16,6 +16,7 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { ShoppingCart } from "lucide-react";
 import { WishlistButton } from "@/components/WishlistButton";
 import { trackEvent } from "@/lib/analytics";
+import { RelatedProducts } from "@/components/RelatedProducts";
 
 const productQuery = (id: string) => ({
   queryKey: ["product", id],
@@ -187,6 +188,8 @@ function ProductPage() {
           </div>
         </aside>
       </div>
+
+      <RelatedProducts productId={p.id} category={p.market_category} />
 
       {!sold && !p.negotiable && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(0,0,0,0.10)] backdrop-blur-md lg:hidden">
         <div className="mx-auto flex max-w-2xl items-center gap-3">
