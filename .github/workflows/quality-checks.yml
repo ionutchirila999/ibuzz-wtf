@@ -32,6 +32,6 @@ jobs:
       - name: Lint checkout changes
         # The existing repository-wide lint baseline has thousands of unrelated formatting errors.
         # Keep this change's lint gate focused on the new checkout utility and tests.
-        run: pnpm exec eslint src/lib/checkout.ts src/lib/checkout.test.ts --rule 'prettier/prettier: off'
+        run: "pnpm exec eslint src/lib/checkout.ts src/lib/checkout.test.ts --rule 'prettier/prettier: off'"
       - name: Build production bundle
         run: pnpm build
