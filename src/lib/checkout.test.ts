@@ -24,7 +24,27 @@ describe("checkout cart reconciliation", () => {
     expect(items[0]).toMatchObject({ id: "available", price: 12.5, stock: 2, quantity: 2 });
   });
 
+  it("merges duplicate product rows before submitting an order", () => {
+    expect(reconcileCheckoutItems([
+      { id: "available", quantity: 1 },
+      { id: "available", quantity: 1 },
+    ], products)).toEqual([
+      { ...products[0], price: 12.5, stock: 2, quantity: 2 },
+    ]);
+  });
+
+  it("caps combined duplicate quantities at current stock", () => {
+    expect(reconcileCheckoutItems([
+      { id: "available", quantity: 2 },
+      { id: "available", quantity: 2 },
+    ], products)).toMatchObject([{ id: "available", quantity: 2, stock: 2 }]);
+  });
+
   it("calculates totals from reconciled current prices", () => {
     expect(checkoutTotal([{ price: 12.5, quantity: 2 }, { price: 3, quantity: 1 }])).toBe(28);
+  });
+
+  it("uses cent-based arithmetic for decimal prices", () => {
+    expect(checkoutTotal([{ price: 0.1, quantity: 1 }, { price: 0.2, quantity: 1 }])).toBe(0.3);
   });
 });
