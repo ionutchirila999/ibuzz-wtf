@@ -8,7 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365 * 10;
 function productStoragePath(src: string) {
   try {
-    const path = new URL(src).pathname.match(/\\/storage\\/v1\\/object\\/sign\\/product-images\\/(.+)$/)?.[1];
+    const pathname = new URL(src).pathname;
+    const marker = "/storage/v1/object/sign/product-images/";
+    const markerIndex = pathname.indexOf(marker);
+    if (markerIndex < 0) return null;
+    const path = pathname.slice(markerIndex + marker.length);
     return path ? decodeURIComponent(path) : null;
   } catch {
     return null;
