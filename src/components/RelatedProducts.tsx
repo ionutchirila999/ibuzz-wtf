@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, localizedTitle, type Category } from "@/lib/shop";
+import { formatPrice } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
 
 type RelatedProduct = {
@@ -59,7 +59,7 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
             <Link key={product.id} to="/product/$id" params={{ id: product.id }} className="group min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card transition-colors hover:border-primary/50">
               <div className="aspect-square overflow-hidden bg-muted">
                 {image ? (
-                  <img src={image} alt={localizedTitle(product, lang)} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <img src={image} alt={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground"><Package className="h-8 w-8" /></div>
                 )}
