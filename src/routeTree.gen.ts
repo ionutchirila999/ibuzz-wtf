@@ -22,6 +22,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RepairRouteImport } from './routes/repair'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -96,6 +97,11 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
+  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -223,6 +231,7 @@ export interface FileRouteTypes {
     | '/repair'
     | '/sell'
     | '/shop'
+    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -292,6 +301,7 @@ export interface RootRouteChildren {
   RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
+  MarketRoute: typeof MarketRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -393,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -479,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
+  MarketRoute: MarketRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ProductIdRoute: ProductIdRoute,
