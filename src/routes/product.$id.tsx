@@ -63,7 +63,13 @@ export const Route = createFileRoute("/product/$id")({staticData: { sitemap: tru
         { name: "twitter:image", content: image },
         ...(image !== SOCIAL_IMAGE ? [{ property: "og:image:width", content: "1200" }, { property: "og:image:height", content: "630" }, { property: "og:image:type", content: "image/jpeg" }] : []),
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: [
+        { rel: "canonical", href: url },
+        { rel: "alternate", hrefLang: "th", href: `https://ibuzz.wtf/product/${params.id}` },
+        { rel: "alternate", hrefLang: "en", href: `https://ibuzz.wtf/product/${params.id}?lang=en` },
+        { rel: "alternate", hrefLang: "ro", href: `https://ibuzz.wtf/product/${params.id}?lang=ro` },
+        { rel: "alternate", hrefLang: "x-default", href: `https://ibuzz.wtf/product/${params.id}` },
+      ],
     };
   },
   component: ProductPage,
