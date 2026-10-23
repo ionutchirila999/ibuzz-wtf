@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, lineLink } from "@/lib/shop";
@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n";
 import { pageHead } from "@/lib/service-copy";
 import { checkoutTotal, reconcileCheckoutItems } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -97,6 +98,7 @@ function Checkout() {
   const [savedOrderText, setSavedOrderText] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{code:string;amount:number;subtotal:number}|null>(null);
+  const checkoutStarted = useRef(false);
 
   useEffect(() => {
     const items = readCart();
@@ -131,9 +133,31 @@ function Checkout() {
   const total = checkoutTotal(items);
   const appliedDiscountAmount = appliedDiscount && appliedDiscount.subtotal === total ? appliedDiscount.amount : 0;
   const payableTotal = Math.max(0,total-appliedDiscountAmount);
+
+  useEffect(() => {
+    if (loading || !items.length || checkoutStarted.current) return;
+    checkoutStarted.current = true;
+    trackEvent("begin_checkout", {
+      value: payableTotal,
+      currency: "THB",
+      item_count: items.length,
+      quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+    });
+  }, [items, loading, payableTotal]);
+
   const applyDiscount = async () => { const code=discountCode.trim().toUpperCase(); if(!code){toast.error(lang==="th"?"กรอกรหัสส่วนลดก่อน":lang==="ro"?"Introdu un cod de reducere":"Enter a discount code first");return;} const {data,error} = await (supabase as any).rpc("validate_discount_code",{p_code:code,p_subtotal:total}); if(error||!data?.valid){setAppliedDiscount(null);toast.error(data?.message||(lang==="th"?"รหัสส่วนลดไม่ถูกต้อง":lang==="ro"?"Codul nu este valid":"Discount code is not valid"));return;} setDiscountCode(code);setAppliedDiscount({code,amount:Number(data.discount_amount)||0,subtotal:total});toast.success(lang==="th"?"ใช้รหัสส่วนลดแล้ว":lang==="ro"?"Cod aplicat":"Discount applied"); };
 
   const updateQty = (id: string, qty: number) => {
+    if (qty <= 0) {
+      const removedItem = items.find(item => item.id === id);
+      trackEvent("remove_from_cart", {
+        item_id: id,
+        item_name: removedItem?.displayTitle,
+        price: removedItem ? Number(removedItem.price) : undefined,
+        quantity: removedItem?.quantity ?? 1,
+        currency: "THB",
+      });
+    }
     const next = cart.map(x => x.id === id ? { ...x, quantity: qty } : x).filter(x => x.quantity > 0);
     setCart(next); localStorage.setItem(KEY, JSON.stringify(next));
   };
@@ -278,6 +302,13 @@ function Checkout() {
         orderNumber = typeof data?.order_number === "string" ? data.order_number : null;
         if (!orderNumber) throw new Error("Order number was not returned");
         setCreatedOrderNumber(orderNumber);
+        trackEvent("order_request_created", {
+          value: payableTotal,
+          currency: "THB",
+          item_count: items.length,
+          quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+          payment_method: "promptpay_line",
+        });
         setSavedOrderText(orderText(orderNumber));
         localStorage.removeItem(KEY);
         setCart([]);
