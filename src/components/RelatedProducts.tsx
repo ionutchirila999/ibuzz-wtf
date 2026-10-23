@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Package } from "lucide-react";
+import { ArrowUpRight, Package, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/shop";
 import { useT } from "@/lib/i18n";
@@ -16,6 +17,60 @@ type RelatedProduct = {
   status?: string | null;
   market_category: string;
 };
+
+const isVideoUrl = (url: string) => /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(url);
+
+function RelatedProductCard({ product, lang }: { product: RelatedProduct; lang: string }) {
+  const [mediaFailed, setMediaFailed] = useState(false);
+  const title = (lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title;
+  const media = (product.images ?? []).filter((url): url is string => typeof url === "string" && url.startsWith("https://"));
+  // Prefer a real product photo so related cards don't need to load video files.
+  const image = media.find((url) => !isVideoUrl(url)) ?? media.find(isVideoUrl);
+  const isVideo = Boolean(image && isVideoUrl(image));
+
+  return (
+    <Link to="/product/$id" params={{ id: product.id }} className="group min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card transition-colors hover:border-primary/50">
+      <div className="relative aspect-square overflow-hidden bg-muted">
+        {image && !mediaFailed ? (
+          isVideo ? (
+            <>
+              <video
+                src={image}
+                muted
+                playsInline
+                preload="none"
+                aria-label={title}
+                onError={() => setMediaFailed(true)}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10 text-white">
+                <span className="flex size-10 items-center justify-center rounded-full bg-black/60"><Play className="ml-0.5 h-5 w-5 fill-current" /></span>
+              </span>
+            </>
+          ) : (
+            <img
+              src={image}
+              alt={title}
+              loading="lazy"
+              onError={() => setMediaFailed(true)}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          )
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground" aria-label="Product media unavailable">
+            <Package className="h-8 w-8" />
+            <span className="text-xs">Preview unavailable</span>
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <h3 className="line-clamp-2 min-h-10 break-words text-sm font-medium">{title}</h3>
+        <p className="mt-2 font-semibold text-primary">{formatPrice(product.price)}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{product.stock} {lang === "th" ? "ชิ้นในสต็อก" : lang === "ro" ? "în stoc" : "in stock"}</p>
+      </div>
+    </Link>
+  );
+}
 
 export function RelatedProducts({ productId, category }: { productId: string; category: string | null }) {
   const { t, lang } = useT();
@@ -54,30 +109,7 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        {products.map((product) => {
-          const image = product.images?.find((url) => typeof url === "string" && url.startsWith("https://"));
-          const isVideo = Boolean(image && /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(image));
-          return (
-            <Link key={product.id} to="/product/$id" params={{ id: product.id }} className="group min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card transition-colors hover:border-primary/50">
-              <div className="aspect-square overflow-hidden bg-muted">
-                {image ? (
-                  isVideo ? (
-                    <video src={image} muted playsInline preload="metadata" aria-label={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                  ) : (
-                    <img src={image} alt={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                  )
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground"><Package className="h-8 w-8" /></div>
-                )}
-              </div>
-              <div className="p-3">
-                <h3 className="line-clamp-2 min-h-10 break-words text-sm font-medium">{(lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title}</h3>
-                <p className="mt-2 font-semibold text-primary">{formatPrice(product.price)}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{product.stock} {lang === "th" ? "ชิ้นในสต็อก" : lang === "ro" ? "în stoc" : "in stock"}</p>
-              </div>
-            </Link>
-          );
-        })}
+        {products.map((product) => <RelatedProductCard key={product.id} product={product} lang={lang} />)}
       </div>
     </section>
   );
