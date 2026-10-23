@@ -56,11 +56,16 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {products.map((product) => {
           const image = product.images?.find((url) => typeof url === "string" && url.startsWith("https://"));
+          const isVideo = Boolean(image && /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(image));
           return (
             <Link key={product.id} to="/product/$id" params={{ id: product.id }} className="group min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card transition-colors hover:border-primary/50">
               <div className="aspect-square overflow-hidden bg-muted">
                 {image ? (
-                  <img src={image} alt={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  isVideo ? (
+                    <video src={image} muted playsInline preload="metadata" aria-label={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  ) : (
+                    <img src={image} alt={((lang === "th" ? product.title_th : lang === "ro" ? product.title_ro : null) || product.title)} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  )
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground"><Package className="h-8 w-8" /></div>
                 )}
