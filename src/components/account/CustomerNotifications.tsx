@@ -136,13 +136,13 @@ export function CustomerNotifications() {
 
   function details(row: NotificationRow) {
     const meta = row.metadata ?? {};
-    const orderNumber = typeof meta.order_number === "string" ? meta.order_number : "";
-    const status = typeof meta.status === "string" ? meta.status : "";
-    const payment = typeof meta.payment_status === "string" ? meta.payment_status : "";
-    const tracking = typeof meta.tracking_number === "string" ? meta.tracking_number : "";
-    const ticketNumber = typeof meta.ticket_number === "string" ? meta.ticket_number : "";
-    const subject = typeof meta.subject === "string" ? meta.subject : "";
-    const reply = typeof meta.reply === "string" ? meta.reply : "";
+    const orderNumber = typeof meta["order_number"] === "string" ? meta["order_number"] : "";
+    const status = typeof meta["status"] === "string" ? meta["status"] : "";
+    const payment = typeof meta["payment_status"] === "string" ? meta["payment_status"] : "";
+    const tracking = typeof meta["tracking_number"] === "string" ? meta["tracking_number"] : "";
+    const ticketNumber = typeof meta["ticket_number"] === "string" ? meta["ticket_number"] : "";
+    const subject = typeof meta["subject"] === "string" ? meta["subject"] : "";
+    const reply = typeof meta["reply"] === "string" ? meta["reply"] : "";
     return <div className="mt-1 space-y-1 text-sm text-muted-foreground">
       {orderNumber && <p>{w.order}: <span className="font-medium text-foreground">{orderNumber}</span></p>}
       {row.event_type === "payment_update" && payment && <p>{w.payment}: <span className="font-medium text-foreground">{label(payment)}</span></p>}

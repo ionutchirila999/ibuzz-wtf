@@ -47,10 +47,10 @@ export function CustomerAccountExtras() {
       if (!alive || error || !data.user) return;
       const user = data.user;
       setUserId(user.id);
-      setFullName(String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? ""));
-      setPhone(String(user.user_metadata?.phone ?? ""));
-      setAddress(String(user.user_metadata?.delivery_address ?? ""));
-      const pref = user.user_metadata?.preferred_language;
+      setFullName(String(user.user_metadata?.["full_name"] ?? user.user_metadata?.["name"] ?? ""));
+      setPhone(String(user.user_metadata?.["phone"] ?? ""));
+      setAddress(String(user.user_metadata?.["delivery_address"] ?? ""));
+      const pref = user.user_metadata?.["preferred_language"];
       setPreferredLanguage(pref === "en" || pref === "ro" || pref === "th" ? pref : lang);
     });
     return () => { alive = false; };

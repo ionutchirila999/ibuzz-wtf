@@ -12,7 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type Form = Omit<Product, "id" | "created_at" | "updated_at">;
+type OptionalProductFields = "is_featured" | "low_stock_threshold" | "sold_out_label_en" | "sold_out_label_ro" | "sold_out_label_th" | "video_url";
+type Form = Omit<Product, "id" | "created_at" | "updated_at" | OptionalProductFields> & Partial<Pick<Product, OptionalProductFields>>;
 const COSTS = ["purchase_cost", "repair_cost", "shipping_cost", "platform_fees", "other_expenses"] as const;
 type Costs = Record<(typeof COSTS)[number], number> & { fault_notes: string };
 

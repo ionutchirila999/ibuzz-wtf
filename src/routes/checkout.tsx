@@ -123,7 +123,7 @@ function Checkout() {
         setContact(current => current || (typeof profile.phone === "string" ? profile.phone : ""));
         const addresses = Array.isArray(profile.delivery_addresses) ? profile.delivery_addresses : [];
         const defaultAddress = addresses.find((item: any) => item && typeof item.address === "string" && item.is_default === true);
-        const fallbackAddress = typeof metadata.delivery_address === "string" ? metadata.delivery_address : "";
+        const fallbackAddress = typeof metadata["delivery_address"] === "string" ? metadata["delivery_address"] : "";
         setShippingAddress(current => current || (typeof defaultAddress?.address === "string" ? defaultAddress.address : fallbackAddress));
 
         const { data: savedCart } = await (supabase as any)
@@ -170,7 +170,7 @@ function Checkout() {
 
   const items = useMemo(() => reconcileCheckoutItems(cart, products).map(p => ({
     ...p,
-    displayTitle: (lang === "th" ? (p as CartProduct).title_th : lang === "ro" ? (p as CartProduct).title_ro : null) || p.title,
+    displayTitle: (lang === "th" ? p.title_th : lang === "ro" ? p.title_ro : null) || p.title,
   })), [cart, products, lang]);
   const total = checkoutTotal(items);
   const appliedDiscountAmount = appliedDiscount && appliedDiscount.subtotal === total ? appliedDiscount.amount : 0;

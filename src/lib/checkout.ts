@@ -1,7 +1,7 @@
 export type CheckoutCartItem = { id: string; quantity: number };
 export type CheckoutProduct = { id: string; price: number | string; stock: number | string | null; status: string };
 
-export function reconcileCheckoutItems(cart: readonly CheckoutCartItem[], products: readonly CheckoutProduct[]) {
+export function reconcileCheckoutItems<T extends CheckoutProduct>(cart: readonly CheckoutCartItem[], products: readonly T[]) {
   return cart.flatMap((item) => {
     const product = products.find((candidate) => candidate.id === item.id);
     if (!product || product.status !== "available") return [];
