@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
 import { supabase } from "@/integrations/supabase/client";
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365 * 10;
+const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
 function productStoragePath(src: string) {
   try {
     const pathname = new URL(src).pathname;
