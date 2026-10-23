@@ -3,6 +3,17 @@ import { ChevronLeft, ChevronRight, ImageOff, Maximize2, Play } from "lucide-rea
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { useT } from "@/lib/i18n";
 import { galleryText, photoCaption } from "@/lib/gallery-copy";
+import { supabase } from "@/integrations/supabase/client";
+
+const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365 * 10;
+function productStoragePath(src: string) {
+  try {
+    const path = new URL(src).pathname.match(/\\/storage\\/v1\\/object\\/sign\\/product-images\\/(.+)$/)?.[1];
+    return path ? decodeURIComponent(path) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function ProductGallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0);
@@ -10,6 +21,8 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [failedMedia, setFailedMedia] = useState<string | null>(null);
+  const [refreshedVideos, setRefreshedVideos] = useState<Record<string, string>>({});
+  const refreshAttempted = useRef(new Set<string>());
   const { lang } = useT();
   const text = (key: Parameters<typeof galleryText>[1]) => galleryText(lang, key);
   const photos = images.filter((src): src is string => typeof src === "string" && src.trim().length > 0);
@@ -17,6 +30,16 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   const currentIsVideo = photos[active] ? isVideo(photos[active]) : false;
   const index = photos.length ? Math.min(active, photos.length - 1) : 0;
   const current = photos[index];
+  const resolvedCurrent = current ? refreshedVideos[current] ?? current : current;
+  const recoverVideo = async (original: string, failedSource: string) => {
+    if (refreshAttempted.current.has(original)) { setFailedMedia(original); return; }
+    refreshAttempted.current.add(original);
+    const path = productStoragePath(failedSource) ?? productStoragePath(original);
+    if (!path) { setFailedMedia(original); return; }
+    const { data, error } = await supabase.storage.from("product-images").createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+    if (error || !data?.signedUrl || data.signedUrl === failedSource) { setFailedMedia(original); return; }
+    setRefreshedVideos((previous) => ({ ...previous, [original]: data.signedUrl }));
+  };
   // Reuse an existing product photo as the video poster whenever one is available.
   const videoPoster = photos.find((src) => !isVideo(src));
   const caption = current ? photoCaption(lang, current) : null;
@@ -35,7 +58,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
         <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-slate-950/70 shadow-[0_12px_40px_-28px_rgba(34,211,238,0.4)]">
           <div className="relative">
             <div className="flex h-[clamp(280px,42vw,440px)] w-full items-center justify-center p-2.5 sm:h-[clamp(320px,38vw,420px)] sm:p-4 lg:h-[clamp(340px,34vw,460px)]">
-              {failedMedia === current ? <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400" role="img" aria-label="Product media unavailable"><ImageOff className="h-8 w-8" /><span className="text-xs">Preview unavailable</span></div> : currentIsVideo ? <div className="relative flex h-full w-full items-center justify-center"><ImageOff className="absolute h-8 w-8 text-slate-700" /><video key={current} ref={videoRef} src={current} poster={videoPoster} controls playsInline preload="metadata" onError={() => setFailedMedia(current)} onPlay={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} className="relative h-full w-full select-none object-contain" aria-label={photoName(index)} />{!videoPlaying && <button type="button" onClick={() => { void videoRef.current?.play().catch(() => undefined); }} aria-label="Play product video" className="absolute left-1/2 top-1/2 z-10 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-cyan-200/70 bg-slate-950/85 text-cyan-100 shadow-[0_0_32px_rgba(34,211,238,0.35)] backdrop-blur transition hover:scale-105 hover:bg-slate-900"><Play className="ml-1 h-7 w-7 fill-current" /></button>}</div> : <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block h-full w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}><img src={current} alt={photoName(index)} fetchPriority="high" onError={() => setFailedMedia(current)} draggable={false} className="h-full w-full select-none object-contain" /><span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span></button>}
+              {failedMedia === current ? <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400" role="img" aria-label="Product media unavailable"><ImageOff className="h-8 w-8" /><span className="text-xs">Preview unavailable</span></div> : currentIsVideo ? <div className="relative flex h-full w-full items-center justify-center"><ImageOff className="absolute h-8 w-8 text-slate-700" /><video key={resolvedCurrent} ref={videoRef} src={resolvedCurrent} poster={videoPoster} controls playsInline preload="metadata" onError={() => { void recoverVideo(current, resolvedCurrent); }} onPlay={() => setVideoPlaying(true)} onPause={() => setVideoPlaying(false)} className="relative h-full w-full select-none object-contain" aria-label={photoName(index)} />{!videoPlaying && <button type="button" onClick={() => { void videoRef.current?.play().catch(() => undefined); }} aria-label="Play product video" className="absolute left-1/2 top-1/2 z-10 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-cyan-200/70 bg-slate-950/85 text-cyan-100 shadow-[0_0_32px_rgba(34,211,238,0.35)] backdrop-blur transition hover:scale-105 hover:bg-slate-900"><Play className="ml-1 h-7 w-7 fill-current" /></button>}</div> : <button type="button" onClick={() => setLightboxOpen(true)} className="group relative block h-full w-full cursor-zoom-in p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300" aria-label={text("open")}><img src={current} alt={photoName(index)} fetchPriority="high" onError={() => setFailedMedia(current)} draggable={false} className="h-full w-full select-none object-contain" /><span className="absolute bottom-2 right-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/80 text-cyan-100 shadow-lg backdrop-blur-md transition-colors group-hover:border-cyan-300/40" title={text("open")}><Maximize2 className="h-3.5 w-3.5" /></span></button>}
             </div>
             {currentIsVideo && <button type="button" onClick={() => setLightboxOpen(true)} aria-label={text("open")} title="Enlarge video" className="absolute bottom-3 right-3 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-slate-950/85 text-cyan-100 shadow-lg backdrop-blur-md hover:border-cyan-300/40"><Maximize2 className="h-3.5 w-3.5" /></button>}
           </div>
@@ -65,7 +88,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
           </div>
           <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.07),transparent_65%)]" />
-            {failedMedia === current ? <div className="flex flex-col items-center gap-2 text-slate-400"><ImageOff className="h-8 w-8" /><span className="text-xs">Preview unavailable</span></div> : currentIsVideo ? <video src={current} poster={videoPoster} controls autoPlay playsInline onError={() => setFailedMedia(current)} className="relative max-h-full max-w-full select-none object-contain" aria-label={photoName(index)} /> : <img src={current} alt={photoName(index)} onError={() => setFailedMedia(current)} draggable={false} className="relative max-h-full max-w-full select-none object-contain" />}
+            {failedMedia === current ? <div className="flex flex-col items-center gap-2 text-slate-400"><ImageOff className="h-8 w-8" /><span className="text-xs">Preview unavailable</span></div> : currentIsVideo ? <video key={resolvedCurrent} src={resolvedCurrent} poster={videoPoster} controls autoPlay playsInline onError={() => { void recoverVideo(current, resolvedCurrent); }} className="relative max-h-full max-w-full select-none object-contain" aria-label={photoName(index)} /> : <img src={current} alt={photoName(index)} onError={() => setFailedMedia(current)} draggable={false} className="relative max-h-full max-w-full select-none object-contain" />}
             {photos.length > 1 && <>
               <button type="button" onClick={() => step(-1)} aria-label={text("previous")} className={`${arrowClass} left-2 sm:left-4`}><ChevronLeft className="h-5 w-5" /></button>
               <button type="button" onClick={() => step(1)} aria-label={text("next")} className={`${arrowClass} right-2 sm:right-4`}><ChevronRight className="h-5 w-5" /></button>
