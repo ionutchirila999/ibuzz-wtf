@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2, MonitorSmartphone, KeyRound, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Package, LogOut, Truck, Clock, CheckCircle2, Heart, Trash2, MonitorSmartphone, KeyRound, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { CustomerOrderDetails } from '@/components/account/CustomerOrderDetails';
 import { OrderSupport } from '@/components/account/OrderSupport';
 import { CustomerNotifications } from '@/components/account/CustomerNotifications';
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/dashboard')({
   component: Account,
 });
 
-type OrderItem = { id: string; product_title: string; unit_price: number; quantity: number; line_total: number };
+type OrderItem = { id: string; product_id: string | null; product_title: string; unit_price: number; quantity: number; line_total: number };
 type Order = { id: string; order_number: string; buyer_name: string; buyer_contact: string; shipping_address: string | null; total: number; payment_status: string; status: string; tracking_number: string | null; tracking_url: string | null; created_at: string; order_items: OrderItem[] };
 
 const WORDS = {
@@ -156,10 +156,49 @@ function Account() {
     const ownerId = userId ?? authData.user?.id;
     if (authError || !ownerId) { setOrders([]); setLoadingOrders(false); return; }
     // Always scope customer order reads to the authenticated account; never depend on RLS alone.
-    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,buyer_name,buyer_contact,shipping_address,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_title,unit_price,quantity,line_total)').eq('user_id', ownerId).order('created_at', { ascending: false });
+    const { data, error: queryError } = await (supabase as any).from('orders').select('id,order_number,buyer_name,buyer_contact,shipping_address,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_id,product_title,unit_price,quantity,line_total)').eq('user_id', ownerId).order('created_at', { ascending: false });
     if (queryError) { setError(w.error); setOrders([]); }
     else setOrders((data ?? []) as Order[]);
     setLoadingOrders(false);
+  }
+
+  async function reorder(order: Order) {
+    const orderItems = (order.order_items ?? []).filter(item => item.product_id);
+    if (!orderItems.length) {
+      setNotice(lang === 'th' ? 'ไม่พบสินค้าเดิมที่สามารถสั่งซื้อซ้ำได้' : lang === 'ro' ? 'Nu există produse disponibile pentru repetarea comenzii.' : 'No products from this order can be reordered.');
+      return;
+    }
+    const ids = [...new Set(orderItems.map(item => item.product_id as string))];
+    const { data: currentProducts, error: productsError } = await (supabase as any)
+      .from('products').select('id,stock,status').in('id', ids);
+    if (productsError) {
+      setNotice(lang === 'th' ? 'โหลดสต็อกสินค้าไม่ได้ กรุณาลองอีกครั้ง' : lang === 'ro' ? 'Nu s-a putut verifica stocul. Încearcă din nou.' : 'Could not check current stock. Please try again.');
+      return;
+    }
+    const stockById = new Map((currentProducts ?? []).map((product: {id:string;stock:number;status:string}) => [product.id, product]));
+    let cart: {id:string;quantity:number}[] = [];
+    try {
+      const parsed = JSON.parse(localStorage.getItem('ibuzz-cart-v1') || '[]');
+      if (Array.isArray(parsed)) cart = parsed.filter((item) => item && typeof item.id === 'string' && Number.isInteger(item.quantity) && item.quantity > 0);
+    } catch { cart = []; }
+    const quantities = new Map(cart.map(item => [item.id, item.quantity]));
+    let added = 0;
+    for (const item of orderItems) {
+      const product = stockById.get(item.product_id as string);
+      if (!product || product.status !== 'available' || product.stock <= 0) continue;
+      quantities.set(product.id, Math.min(product.stock, (quantities.get(product.id) ?? 0) + item.quantity));
+      added++;
+    }
+    if (!added) {
+      setNotice(lang === 'th' ? 'สินค้าในคำสั่งซื้อนี้ไม่มีในสต็อกแล้ว' : lang === 'ro' ? 'Produsele din această comandă nu mai sunt în stoc.' : 'The products from this order are no longer in stock.');
+      return;
+    }
+    try { localStorage.setItem('ibuzz-cart-v1', JSON.stringify(Array.from(quantities, ([id, quantity]) => ({id, quantity})))); }
+    catch {
+      setNotice(lang === 'th' ? 'ไม่สามารถบันทึกตะกร้าสินค้าได้' : lang === 'ro' ? 'Coșul nu a putut fi salvat.' : 'Could not save your cart.');
+      return;
+    }
+    void navigate({ to: '/checkout' });
   }
 
   async function loadWishlist(userId?: string) {
@@ -347,7 +386,7 @@ function Account() {
       </div>
       {error && <p role="alert" className="mb-4 rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{error}</p>}
       {loadingOrders ? <p className="py-10 text-center text-muted-foreground">{w.loading}</p> : orders.length === 0 ? <div className="rounded-xl border border-dashed p-10 text-center"><Package className="mx-auto h-9 w-9 text-muted-foreground"/><p className="mt-3 font-medium">{w.empty}</p><Button asChild className="mt-5"><Link to="/shop">{w.shop}<ArrowUpRight className="ml-2 h-4 w-4"/></Link></Button></div> : <div className="space-y-3">{orders.map(order => <article key={order.id} className="rounded-xl border border-cyan-300/15 bg-card/40 p-3 sm:p-4 shadow-[0_12px_36px_-30px_rgba(34,211,238,0.35)]"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{w.order} · {order.order_number}</p><h2 className="mt-1 text-lg font-bold">{money(order.total)}</h2><p className="mt-1 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString(lang==='th'?'th-TH':lang==='ro'?'ro-RO':'en-US')}</p></div><div className="flex flex-wrap gap-2"><Badge variant={order.status==='completed'?'default':order.status==='cancelled'?'destructive':'secondary'}>{label(order.status)}</Badge><Badge variant={order.payment_status==='paid'?'default':'outline'}>{label(order.payment_status)}</Badge></div></div>
-        <div className="mt-4 grid min-w-0 gap-3"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{safeTrackingUrl(order.tracking_url) && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={safeTrackingUrl(order.tracking_url)!} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
+        <div className="mt-4 grid min-w-0 gap-3"><div><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{w.items}</p><ul className="space-y-2">{(order.order_items??[]).map(item=><li key={item.id} className="flex justify-between gap-3 text-sm"><span>{item.product_title} × {item.quantity}</span><span className="shrink-0">{money(item.line_total)}</span></li>)}</ul></div><Button type="button" variant="outline" className="min-h-10 w-fit" onClick={() => void reorder(order)}><ShoppingCart className="mr-2 h-4 w-4"/>{lang === "th" ? "สั่งซื้ออีกครั้ง" : lang === "ro" ? "Comandă din nou" : "Reorder"}</Button><div className="rounded-lg bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{w.status}</p><div className="mt-2 flex items-center gap-2 text-sm font-semibold"><Clock className="h-4 w-4 text-primary-soft"/>{label(order.status)}</div><p className="mt-4 text-xs text-muted-foreground">{w.payment}</p><p className="mt-1 text-sm">{label(order.payment_status)}</p>{order.tracking_number && <div className="mt-4 border-t border-border/30 pt-3"><p className="text-xs text-muted-foreground">{w.tracking}</p><p className="mt-1 break-all text-sm font-medium">{order.tracking_number}</p>{safeTrackingUrl(order.tracking_url) && <a className="mt-2 inline-flex items-center text-sm text-primary underline" href={safeTrackingUrl(order.tracking_url)!} target="_blank" rel="noopener noreferrer">{w.track}<Truck className="ml-1 h-4 w-4"/></a>}</div>}</div></div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border/30 pt-4 text-xs text-muted-foreground"><CheckCircle2 className="h-4 w-4"/>{w.status}: {label(order.status)}</div>
         <div id={order.id === orders[0]?.id ? "customer-support" : undefined} className="scroll-mt-24"><OrderSupport orderId={order.id} orderNumber={order.order_number} paymentStatus={order.payment_status} orderStatus={order.status} /></div>
         <CustomerOrderDetails order={order} />
