@@ -89,7 +89,7 @@ function ProductPage() {
   }, [p?.id, lang]);
 
   if (isLoading) return <p className="p-8 text-muted-foreground">{t("loading")}</p>;
-  if (!p) return <div className="p-8 text-center">{t("p.notFound")} <Link to="/shop" className="text-primary">{t("p.back")}</Link></div>;
+  if (!p) return <div className="p-8 text-center">{t("p.notFound")} <Link to="/market" className="text-primary">{t("p.back")}</Link></div>;
 
   const sold = p.status === "sold" || p.stock <= 0;
   const rows: [string, string | null][] = [
@@ -117,7 +117,7 @@ function ProductPage() {
   return (
     <main className="mx-auto w-full min-w-0 max-w-[1440px] px-4 pb-28 pt-4 sm:px-6 sm:pt-6 lg:px-10 lg:pb-12">
       <nav className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/shop" className="inline-flex min-h-10 items-center gap-2 rounded-lg pr-2 hover:text-foreground"><ArrowLeft className="h-4 w-4" />{t("nav.shop")}</Link>
+        <Link to="/market" className="inline-flex min-h-10 items-center gap-2 rounded-lg pr-2 hover:text-foreground"><ArrowLeft className="h-4 w-4" />{t("nav.shop")}</Link>
         <span aria-hidden="true">/</span><span className="max-w-[65vw] truncate text-foreground">{localizedTitle(p, lang)}</span>
       </nav>
 
@@ -186,7 +186,7 @@ function ProductPage() {
                 <EnquiryForm kind="product" service={localizedTitle(p, lang)} />
               </div>
             </details>}
-            {sold && <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl"><Link to="/shop">{t("p.soldBrowse")}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}
+            {sold && <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl"><Link to="/market">{t("p.soldBrowse")}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}
             <div className="mt-5 rounded-xl bg-muted/50 p-4">
               <p className="text-sm font-semibold">{lang === "th" ? "มีคำถามเกี่ยวกับสินค้านี้?" : lang === "ro" ? "Ai întrebări despre acest produs?" : "Have a question about this item?"}</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">{lang === "th" ? "ติดต่อเราเพื่อยืนยันรายละเอียด การจัดส่ง หรือขอสินค้าใกล้เคียง" : lang === "ro" ? "Scrie-ne pentru detalii, livrare sau pentru a găsi un produs similar." : "Message us to confirm details, delivery, or find a similar item."}</p>

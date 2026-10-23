@@ -96,7 +96,7 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
             {lang === "th" ? "สินค้าอื่นในหมวดหมู่เดียวกัน" : lang === "ro" ? "Mai multe produse din aceeași categorie" : "More items from the same category"}
           </p>
         </div>
-        <Link to="/shop" className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary hover:underline">
+        <Link to="/market" className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-lg px-2 text-sm font-medium text-primary hover:underline">
           {t("nav.shop")} <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>

@@ -9,7 +9,7 @@ import { homeCopy } from '@/lib/home-copy';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { InstallGuide } from '@/components/InstallGuide';
-const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/shop',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/dashboard',label:'account'},{to:'/sell',label:'nav.sell'}] as const;
+const nav=[{to:'/repair',label:'repair'},{to:'/digital',label:'digital'},{to:'/market',label:'market'},{to:'/portfolio',label:'portfolio'},{to:'/dashboard',label:'account'},{to:'/sell',label:'nav.sell'}] as const;
 function navigationLabel(n: typeof nav[number], lang: Lang, t: ReturnType<typeof useT>['t']) { return n.label === 'nav.sell' ? t(n.label) : copy(lang, n.label); }
 
 function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' | 'line' }) {
