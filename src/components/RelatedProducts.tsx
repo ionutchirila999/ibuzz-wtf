@@ -28,6 +28,7 @@ export function RelatedProducts({ productId, category }: { productId: string; ca
         .select("id,title,title_th,title_ro,price,images,stock,status,market_category")
         .eq("market_category", category!)
         .neq("id", productId)
+        .eq("status", "available")
         .gt("stock", 0)
         .limit(12);
       if (error) throw error;
