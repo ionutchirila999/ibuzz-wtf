@@ -99,8 +99,11 @@ function Checkout() {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{code:string;amount:number;subtotal:number}|null>(null);
   const checkoutStarted = useRef(false);
+  const cartHydrated = useRef(false);
 
   useEffect(() => {
+    if (cartHydrated.current) return;
+    cartHydrated.current = true;
     const localItems = readCart();
     setCart(localItems);
     void (async () => {
