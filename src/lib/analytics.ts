@@ -1,4 +1,4 @@
-type AnalyticsEvent = "view_item" | "search" | "add_to_cart" | "contact_line";
+type AnalyticsEvent = "view_item" | "search" | "add_to_cart" | "remove_from_cart" | "begin_checkout" | "order_request_created" | "contact_line";
 
 declare global {
   interface Window {
