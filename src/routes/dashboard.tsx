@@ -15,6 +15,7 @@ import { CustomerNotifications } from '@/components/account/CustomerNotification
 import { AccountSecurity } from '@/components/account/AccountSecurity';
 import { safeTrackingUrl } from '@/lib/tracking';
 import { WishlistButton } from '@/components/WishlistButton';
+import { CustomerLoyalty } from '@/components/account/CustomerLoyalty';
 
 export const Route = createFileRoute('/dashboard')({
   staticData: { sitemap: 'exclude-subtree' },
@@ -380,6 +381,7 @@ function Account() {
           <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">{lang === 'th' ? 'ดูคำสั่งซื้อและขอความช่วยเหลือ' : lang === 'ro' ? 'Vezi comenzile și cere ajutor' : 'View orders and get support'} <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></span>
         </button>
       </div>
+      <CustomerLoyalty />
       <div id="customer-orders" className="mb-4 flex scroll-mt-24 flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{w.orders}</h2>
         <Button type="button" size="sm" variant="outline" disabled={loadingOrders} onClick={() => void loadOrders()}>{lang === 'th' ? 'รีเฟรชคำสั่งซื้อ' : lang === 'ro' ? 'Reîncarcă comenzile' : 'Refresh orders'}</Button>
