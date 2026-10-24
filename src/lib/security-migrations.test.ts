@@ -81,4 +81,17 @@ describe("database security regression guards", () => {
     expect(customerWrites).toContain("grant update (read_at) on public.customer_notifications to authenticated");
   });
 
+
+  it("allows only verified completed purchasers to publish one review per order and product", () => {
+    const reviews = migration("20261024090000_verified_product_reviews.sql");
+
+    expect(reviews).toContain("alter table public.product_reviews enable row level security");
+    expect(reviews).toContain("grant insert on public.product_reviews to authenticated");
+    expect(reviews).toContain("user_id = auth.uid()");
+    expect(reviews).toContain("o.payment_status = 'paid'");
+    expect(reviews).toContain("o.status = 'completed'");
+    expect(reviews).toContain("oi.product_id = product_reviews.product_id");
+    expect(reviews).toContain("unique (order_id, product_id)");
+    expect(reviews).toContain("using (is_visible = true)");
+  });
 });
