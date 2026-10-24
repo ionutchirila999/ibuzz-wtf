@@ -94,4 +94,18 @@ describe("database security regression guards", () => {
     expect(reviews).toContain("unique (order_id, product_id)");
     expect(reviews).toContain("using (is_visible = true)");
   });
+
+  it("restricts admin notifications to admins and creates alerts from order and stock transitions", () => {
+    const notifications = migration("20261024100000_admin_notifications.sql");
+
+    expect(notifications).toContain("alter table public.admin_notifications enable row level security");
+    expect(notifications).toContain("public.has_role(auth.uid(), 'admin'::public.app_role)");
+    expect(notifications).toContain("after insert on public.orders");
+    expect(notifications).toContain("new.payment_status in ('submitted', 'failed')");
+    expect(notifications).toContain("new.status = 'cancelled'");
+    expect(notifications).toContain("after update of stock on public.products");
+    expect(notifications).toContain("event_type, product_id, title, message, metadata");
+    expect(notifications).toContain("revoke all on function public.ibuzz_notify_admin_order_events() from public, anon, authenticated");
+    expect(notifications).toContain("revoke all on function public.ibuzz_notify_admin_stock_events() from public, anon, authenticated");
+  });
 });
