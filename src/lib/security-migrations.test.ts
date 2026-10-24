@@ -81,4 +81,31 @@ describe("database security regression guards", () => {
     expect(customerWrites).toContain("grant update (read_at) on public.customer_notifications to authenticated");
   });
 
+
+  it("allows only verified completed purchasers to publish one review per order and product", () => {
+    const reviews = migration("20261024090000_verified_product_reviews.sql");
+
+    expect(reviews).toContain("alter table public.product_reviews enable row level security");
+    expect(reviews).toContain("grant insert on public.product_reviews to authenticated");
+    expect(reviews).toContain("user_id = auth.uid()");
+    expect(reviews).toContain("o.payment_status = 'paid'");
+    expect(reviews).toContain("o.status = 'completed'");
+    expect(reviews).toContain("oi.product_id = product_reviews.product_id");
+    expect(reviews).toContain("unique (order_id, product_id)");
+    expect(reviews).toContain("using (is_visible = true)");
+  });
+
+  it("restricts admin notifications to admins and creates alerts from order and stock transitions", () => {
+    const notifications = migration("20261024100000_admin_notifications.sql");
+
+    expect(notifications).toContain("alter table public.admin_notifications enable row level security");
+    expect(notifications).toContain("public.has_role(auth.uid(), 'admin'::public.app_role)");
+    expect(notifications).toContain("after insert on public.orders");
+    expect(notifications).toContain("new.payment_status in ('submitted', 'failed')");
+    expect(notifications).toContain("new.status = 'cancelled'");
+    expect(notifications).toContain("after update of stock on public.products");
+    expect(notifications).toContain("event_type, product_id, title, message, metadata");
+    expect(notifications).toContain("revoke all on function public.ibuzz_notify_admin_order_events() from public, anon, authenticated");
+    expect(notifications).toContain("revoke all on function public.ibuzz_notify_admin_stock_events() from public, anon, authenticated");
+  });
 });
