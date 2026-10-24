@@ -129,7 +129,7 @@ export function AdminOperations({ section }: { section: Section }) {
       return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     };
     const csv = rows.map(row => row.map(value => escapeCsv(value ?? "")).join(",")).join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = `ibuzz-operations-${rangeStart}-to-${rangeEnd}.csv`;
