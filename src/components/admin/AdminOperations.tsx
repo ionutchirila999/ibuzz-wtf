@@ -100,6 +100,43 @@ export function AdminOperations({ section }: { section: Section }) {
   async function updateResaleOffer(id:string,status:string){const {error}=await (supabase as any).from("resale_offers").update({status}).eq("id",id);if(error){toast.error("Could not update resale offer");return;}toast.success(w.save);await invalidate();}
   async function saveOrderSupportRequest(request:any){const {error}=await (supabase as any).from("order_support_requests").update({status:orderRequestStatus[request.id]??request.status,assigned_to:(orderRequestAssignee[request.id]??request.assigned_to??"").trim()||null,updated_at:new Date().toISOString()}).eq("id",request.id);if(error){toast.error(error.message);return;}toast.success(w.save);await invalidate();}
   async function addOrderSupportMessage(id:string,isInternal:boolean){const message=((isInternal?orderRequestNotes[id]:orderRequestReplies[id])??"").trim();if(!message){toast.error("Enter a message first.");return;}const {error}=await (supabase as any).rpc("ibuzz_add_order_support_message",{p_request_id:id,p_message:message,p_is_internal:isInternal});if(error){toast.error(error.message||"Could not save message.");return;}if(isInternal)await (supabase as any).from("order_support_requests").update({internal_notes:message}).eq("id",id);toast.success(isInternal?"Internal note added":"Reply recorded");if(isInternal)setOrderRequestNotes(old=>({...old,[id]:""}));else setOrderRequestReplies(old=>({...old,[id]:""}));await Promise.all([qc.invalidateQueries({queryKey:["ops-order-support-messages"]}),qc.invalidateQueries({queryKey:["ops-order-support"]}),qc.invalidateQueries({queryKey:["ops-audit"]})]);}
+  function downloadDailySummary() {
+    const rows: (string | number)[][] = [
+      ["iBuzz.wtf operations summary", `${rangeStart} to ${rangeEnd}`],
+      ["Completed paid sales (THB)", completedPaidSales.toFixed(2)],
+      ["Outstanding payments (THB)", outstandingAmount.toFixed(2)],
+      ["Outstanding payment orders", outstandingOrders.length],
+      ["Open orders", rangePendingOrders.length],
+      ["Failed payments", failedPayments.length],
+      ["New orders", newOrders.length],
+      ["Low-stock products", lowStock.length],
+      ["Out-of-stock products", outOfStock.length],
+      ["Estimated operating result (THB)", estimatedOperatingResult.toFixed(2)],
+      [],
+      ["Order number", "Created at", "Order status", "Payment status", "Total (THB)"],
+      ...rangeOrders.map((order: any) => [
+        String(order.order_number ?? order.id),
+        String(order.created_at ?? ""),
+        String(order.status ?? ""),
+        String(order.payment_status ?? ""),
+        Number(order.total ?? 0).toFixed(2),
+      ]),
+    ];
+    const escapeCsv = (value: string | number) => {
+      const text = String(value);
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const csv = rows.map(row => row.map(value => escapeCsv(value ?? "")).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `ibuzz-operations-${rangeStart}-to-${rangeEnd}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   if(anyError)return <p role="alert" className="rounded-xl border border-destructive/40 p-4 text-sm text-destructive">{w.failed}</p>;
   if(products.isLoading||orders.isLoading||enquiries.isLoading)return <p className="py-6 text-muted-foreground">{w.loading}</p>;
 
@@ -111,6 +148,7 @@ export function AdminOperations({ section }: { section: Section }) {
         {rangePreset==="custom"&&<><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.from}</span><Input className="w-full min-w-0" type="date" value={customStart} max={customEnd} onChange={e=>setCustomStart(e.target.value)}/></label><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.to}</span><Input className="w-full min-w-0" type="date" value={customEnd} min={customStart} onChange={e=>setCustomEnd(e.target.value)}/></label></>}
       </div>
     </div>
+    <div className="flex justify-end"><Button size="sm" variant="outline" onClick={downloadDailySummary}>{lang === "th" ? "ดาวน์โหลดสรุปรายวัน CSV" : lang === "ro" ? "Descarcă rezumatul CSV" : "Download daily summary CSV"}</Button></div>
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <Metric icon={<Banknote className="h-4 w-4"/>} label={w.totalSales} value={formatPrice(completedPaidSales)}/>
       <Metric icon={<ClipboardList className="h-4 w-4"/>} label={w.pending} value={String(rangePendingOrders.length)}/>
