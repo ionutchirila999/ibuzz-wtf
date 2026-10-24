@@ -19,7 +19,8 @@ create index if not exists admin_notifications_created_idx
 
 alter table public.admin_notifications enable row level security;
 revoke all on public.admin_notifications from public, anon, authenticated;
-grant select, update on public.admin_notifications to authenticated;
+grant select on public.admin_notifications to authenticated;
+grant update (read_at) on public.admin_notifications to authenticated;
 
 drop policy if exists "Admins read admin notifications" on public.admin_notifications;
 create policy "Admins read admin notifications"
