@@ -36,11 +36,11 @@ create policy "Customers review completed purchases once"
       select 1
       from public.orders o
       join public.order_items oi on oi.order_id = o.id
-      where o.id = order_id
+      where o.id = product_reviews.order_id
         and o.user_id = auth.uid()
         and o.payment_status = 'paid'
         and o.status = 'completed'
-        and oi.product_id = product_id
+        and oi.product_id = product_reviews.product_id
     )
   );
 
