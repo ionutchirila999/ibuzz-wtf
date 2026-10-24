@@ -21,6 +21,13 @@ jobs:
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/" -o /tmp/home.html
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/robots.txt" -o /tmp/robots.txt
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/sitemap.xml" -o /tmp/sitemap.xml
+          curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/market" -o /tmp/market.html
+          SHOP_FINAL_URL="$(curl --fail --silent --show-error --location --max-redirs 5 --max-time 30 -o /dev/null -w '%{url_effective}' "$SITE_URL/shop")"
+          case "$SHOP_FINAL_URL" in
+            "$SITE_URL/market") echo "OK: /shop redirects to /market" ;;
+            *) echo "Unexpected /shop redirect destination: $SHOP_FINAL_URL"; exit 1 ;;
+          esac
+          grep -F 'https://ibuzz.wtf/market' /tmp/market.html
           grep -F "Sitemap: $SITE_URL/sitemap.xml" /tmp/robots.txt
-          python -c 'import xml.etree.ElementTree as E; from urllib.parse import urlparse; r=E.parse("/tmp/sitemap.xml").getroot(); n={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}; u=[x.text for x in r.findall("sm:url/sm:loc",n)]; assert u, "Sitemap contains no URLs"; b=[x for x in u if urlparse(x).scheme!="https" or urlparse(x).netloc!="ibuzz.wtf"]; assert not b, "Non-canonical sitemap URLs: "+str(b[:5]); print("OK: sitemap contains",len(u),"canonical HTTPS URLs")'
+          python -c 'import xml.etree.ElementTree as E; from urllib.parse import urlparse; r=E.parse("/tmp/sitemap.xml").getroot(); n={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}; u=[x.text for x in r.findall("sm:url/sm:loc",n)]; assert u, "Sitemap contains no URLs"; b=[x for x in u if urlparse(x).scheme!="https" or urlparse(x).netloc!="ibuzz.wtf"]; assert not b, "Non-canonical sitemap URLs: "+str(b[:5]); paths={urlparse(x).path.rstrip("/") for x in u}; assert "/market" in paths, "Sitemap is missing /market"; assert "/shop" not in paths, "Legacy /shop must not be indexed"; print("OK: sitemap contains",len(u),"canonical HTTPS URLs; /market included and /shop excluded")'
           grep -Eiq '<title>.*iBuzz' /tmp/home.html
