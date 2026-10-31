@@ -1,0 +1,24 @@
+begin;
+
+-- Publish the seller-confirmed adidas KE0703 listing.
+-- The seller supplied real-item photos and label close-ups confirming article code KE0703.
+-- Keep authenticity unverified; the article label alone is not an independent authenticity check.
+update public.products
+set
+  title = 'adidas Originals Lightweight Regular Shorts – KE0703',
+  title_th = 'กางเกงขาสั้น adidas Originals Lightweight Regular รุ่น KE0703',
+  title_ro = 'Pantaloni scurți adidas Originals Lightweight Regular – KE0703',
+  description = 'Black adidas Originals Lightweight Regular Shorts, article code KE0703, size XS. Elastic waist, subtle side stripe detailing and small adidas logo. The seller supplied photographs of the actual item and its product label.',
+  description_th = 'กางเกงขาสั้น adidas Originals Lightweight Regular สีดำ รุ่น KE0703 ไซซ์ XS เอวยางยืด มีแถบลายด้านข้างและโลโก้ adidas ขนาดเล็ก ผู้ขายมีภาพถ่ายสินค้าจริงและป้ายรหัสสินค้า',
+  description_ro = 'Pantaloni scurți adidas Originals Lightweight Regular negri, cod KE0703, mărimea XS. Talie elastică, detalii discrete cu dungi laterale și logo adidas mic. Vânzătorul a furnizat fotografii ale articolului real și ale etichetei.',
+  images = array['https://assets.adidas.com/images/w_500%2Cf_auto%2Cq_auto/0ed64d4f57bf4494a903cd48a91482a7_9366/LIGHTWEIGHT_REGULAR_SHORTS_Black_KE0703_21_model.jpg'],
+  price = 555,
+  stock = 1,
+  status = 'available',
+  authenticity_verified = false,
+  authenticity_notes = 'Seller supplied photos show article label KE0703. Authenticity has not been independently verified.',
+  updated_at = now()
+where lower(coalesce(brand, '')) = 'adidas'
+  and upper(coalesce(model, '')) = 'KE0703';
+
+commit;
