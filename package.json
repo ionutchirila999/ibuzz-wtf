@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
+    "check:deps": "vitest run src/test/dependency-overrides.test.ts",
     "test:watch": "vitest"
   },
   "overrides": {
