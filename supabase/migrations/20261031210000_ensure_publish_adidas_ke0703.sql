@@ -2,7 +2,7 @@ begin;
 
 -- Ensure the KE0703 listing exists and is publicly available even if the
 -- earlier draft-seed migration was never applied. Safe to re-run by model code.
-do $
+do $$
 begin
 update public.products
 set
@@ -47,6 +47,6 @@ if not found then
     false, 'available', 'needs_review', 'needs_review', false, 2
   );
 end if;
-end $;
+end $$;
 
 commit;
