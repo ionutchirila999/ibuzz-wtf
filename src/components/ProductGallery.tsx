@@ -33,7 +33,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
   const isVideo = (src: string) => /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src);
   const currentIsVideo = photos[active] ? isVideo(photos[active]) : false;
   const index = photos.length ? Math.min(active, photos.length - 1) : 0;
-  const current = photos[index];
+  const current = photos[index] ?? "";
   const resolvedCurrent = current ? refreshedVideos[current] ?? current : current;
   const recoverVideo = async (original: string, failedSource: string) => {
     if (refreshAttempted.current.has(original)) { setFailedMedia(original); return; }
