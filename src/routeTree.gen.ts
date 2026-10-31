@@ -17,12 +17,12 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DigitalRouteImport } from './routes/digital'
 import { Route as IbuzzDashboardRouteImport } from './routes/ibuzz-dashboard'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RepairRouteImport } from './routes/repair'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ShopRouteImport } from './routes/shop'
-import { Route as MarketRouteImport } from './routes/market'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -72,6 +72,11 @@ const IbuzzDashboardRoute = IbuzzDashboardRouteImport.update({
   path: '/ibuzz-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -95,11 +100,6 @@ const SellRoute = SellRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketRoute = MarketRouteImport.update({
-  id: '/market',
-  path: '/market',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -153,12 +153,12 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
   '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -177,11 +177,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
   '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -201,12 +201,12 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/digital': typeof DigitalRoute
   '/ibuzz-dashboard': typeof IbuzzDashboardRoute
+  '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/repair': typeof RepairRouteWithChildren
   '/sell': typeof SellRoute
   '/shop': typeof ShopRoute
-  '/market': typeof MarketRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/product/$id': typeof ProductIdRoute
@@ -227,12 +227,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/digital'
     | '/ibuzz-dashboard'
+    | '/market'
     | '/portfolio'
     | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
-    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -251,11 +251,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/digital'
     | '/ibuzz-dashboard'
+    | '/market'
     | '/portfolio'
     | '/privacy'
     | '/sell'
     | '/shop'
-    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -274,12 +274,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/digital'
     | '/ibuzz-dashboard'
+    | '/market'
     | '/portfolio'
     | '/privacy'
     | '/repair'
     | '/sell'
     | '/shop'
-    | '/market'
     | '/sitemap.xml'
     | '/terms'
     | '/product/$id'
@@ -299,12 +299,12 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DigitalRoute: typeof DigitalRoute
   IbuzzDashboardRoute: typeof IbuzzDashboardRoute
+  MarketRoute: typeof MarketRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   RepairRoute: typeof RepairRouteWithChildren
   SellRoute: typeof SellRoute
   ShopRoute: typeof ShopRoute
-  MarketRoute: typeof MarketRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -371,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IbuzzDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portfolio': {
       id: '/portfolio'
       path: '/portfolio'
@@ -404,13 +411,6 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market': {
-      id: '/market'
-      path: '/market'
-      fullPath: '/market'
-      preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -494,12 +494,12 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DigitalRoute: DigitalRoute,
   IbuzzDashboardRoute: IbuzzDashboardRoute,
+  MarketRoute: MarketRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   RepairRoute: RepairRouteWithChildren,
   SellRoute: SellRoute,
   ShopRoute: ShopRoute,
-  MarketRoute: MarketRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ProductIdRoute: ProductIdRoute,
