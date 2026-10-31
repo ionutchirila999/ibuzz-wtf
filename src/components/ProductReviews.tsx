@@ -70,7 +70,8 @@ export function ProductReviews({ productId }: { productId: string }) {
   });
 
   useEffect(() => {
-    if (!orderId && eligibleOrders.data?.length) setOrderId(eligibleOrders.data[0].order_id);
+    const firstOrder = eligibleOrders.data?.[0];
+    if (!orderId && firstOrder) setOrderId(firstOrder.order_id);
   }, [orderId, eligibleOrders.data]);
 
   async function submitReview(e: React.FormEvent<HTMLFormElement>) {
