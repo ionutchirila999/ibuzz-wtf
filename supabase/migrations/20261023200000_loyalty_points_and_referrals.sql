@@ -89,6 +89,12 @@ declare
   v_referrer uuid;
   v_inserted uuid;
 begin
+  -- Deleted/guest customers have no account to receive account-bound rewards.
+  -- Return before touching loyalty_accounts (user_id is NOT NULL).
+  if new.user_id is null then
+    return new;
+  end if;
+
   if new.status = 'completed' and new.payment_status = 'paid'
      and (old.status is distinct from 'completed' or old.payment_status is distinct from 'paid') then
     insert into public.loyalty_accounts(user_id, referral_code)
