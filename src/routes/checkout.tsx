@@ -17,6 +17,18 @@ import { Minus, Plus, Trash2, Copy, ShoppingBag, Download, Share2 } from "lucide
 type CartItem = { id: string; quantity: number };
 type CartProduct = { id: string; title: string; title_th?: string | null; title_ro?: string | null; price: number; stock: number; status: string };
 const KEY = "ibuzz-cart-v1";
+const CHECKOUT_REQUEST_KEY = "ibuzz-checkout-request-key-v1";
+const getCheckoutRequestKey = () => {
+  try {
+    const existing = localStorage.getItem(CHECKOUT_REQUEST_KEY);
+    if (existing && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(existing)) return existing;
+    const next = crypto.randomUUID();
+    localStorage.setItem(CHECKOUT_REQUEST_KEY, next);
+    return next;
+  } catch {
+    return crypto.randomUUID();
+  }
+};
 const readCart = (): CartItem[] => { try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v.filter((x) => typeof x.id === "string" && Number.isInteger(x.quantity) && x.quantity > 0) : []; } catch { return []; } };
 
 const COPY = {
@@ -339,10 +351,12 @@ function Checkout() {
           p_shipping_address: shippingAddress.trim(),
           p_items: items.map(item => ({ id: item.id, quantity: item.quantity })),
           p_discount_code: appliedDiscountAmount > 0 ? appliedDiscount?.code ?? null : null,
+          p_request_key: getCheckoutRequestKey(),
         });
         if (error) throw error;
         orderNumber = typeof data?.order_number === "string" ? data.order_number : null;
         if (!orderNumber) throw new Error("Order number was not returned");
+        try { localStorage.removeItem(CHECKOUT_REQUEST_KEY); } catch { /* The order number is held in component state for this session. */ }
         setCreatedOrderNumber(orderNumber);
         trackEvent("order_request_created", {
           value: payableTotal,
