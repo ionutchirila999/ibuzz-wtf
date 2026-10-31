@@ -22,6 +22,10 @@ jobs:
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/robots.txt" -o /tmp/robots.txt
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/sitemap.xml" -o /tmp/sitemap.xml
           curl --fail --silent --show-error --location --max-time 30 "$SITE_URL/market" -o /tmp/market.html
+          # Smoke-test public customer journeys and service pages, not only the homepage.
+          for path in /checkout /auth /repair /sell /digital /privacy /terms; do
+            curl --fail --silent --show-error --location --max-time 30 "$SITE_URL$path" -o /dev/null
+          done
           SHOP_FINAL_URL="$(curl --fail --silent --show-error --location --max-redirs 5 --max-time 30 -o /dev/null -w '%{url_effective}' "$SITE_URL/shop")"
           case "$SHOP_FINAL_URL" in
             "$SITE_URL/market") echo "OK: /shop redirects to /market" ;;
@@ -29,5 +33,24 @@ jobs:
           esac
           grep -F 'https://ibuzz.wtf/market' /tmp/market.html
           grep -F "Sitemap: $SITE_URL/sitemap.xml" /tmp/robots.txt
-          python -c 'import xml.etree.ElementTree as E; from urllib.parse import urlparse; r=E.parse("/tmp/sitemap.xml").getroot(); n={"sm":"http://www.sitemaps.org/schemas/sitemap/0.9"}; u=[x.text for x in r.findall("sm:url/sm:loc",n)]; assert u, "Sitemap contains no URLs"; b=[x for x in u if urlparse(x).scheme!="https" or urlparse(x).netloc!="ibuzz.wtf"]; assert not b, "Non-canonical sitemap URLs: "+str(b[:5]); paths={urlparse(x).path.rstrip("/") for x in u}; assert "/market" in paths, "Sitemap is missing /market"; assert "/shop" not in paths, "Legacy /shop must not be indexed"; print("OK: sitemap contains",len(u),"canonical HTTPS URLs; /market included and /shop excluded")'
+          python - <<'PY'
+          import xml.etree.ElementTree as E
+          from urllib.parse import urlparse
+          root = E.parse("/tmp/sitemap.xml").getroot()
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+          urls = [node.text for node in root.findall("sm:url/sm:loc", ns)]
+          assert urls, "Sitemap contains no URLs"
+          invalid = [url for url in urls if urlparse(url).scheme != "https" or urlparse(url).netloc != "ibuzz.wtf"]
+          assert not invalid, f"Non-canonical sitemap URLs: {invalid[:5]}"
+          paths = {urlparse(url).path.rstrip("/") for url in urls}
+          assert "/market" in paths, "Sitemap is missing /market"
+          assert "/shop" not in paths, "Legacy /shop must not be indexed"
+          with open("/tmp/sitemap-urls.txt", "w", encoding="utf-8") as output:
+              output.write("\\n".join(urls) + "\\n")
+          print(f"OK: sitemap contains {len(urls)} canonical HTTPS URLs; /market included and /shop excluded")
+          PY
+          # Every URL advertised to search engines must resolve successfully.
+          while IFS= read -r url; do
+            curl --fail --silent --show-error --location --max-time 30 "$url" -o /dev/null
+          done < /tmp/sitemap-urls.txt
           grep -Eiq '<title>.*iBuzz' /tmp/home.html
