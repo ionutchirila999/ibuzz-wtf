@@ -20,6 +20,8 @@ jobs:
           # Use the public npm registry directly instead of Lovable's rate-limited mirror.
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org
         run: bun install --frozen-lockfile --registry https://registry.npmjs.org
+      - name: Check dependency versions and build overrides
+        run: bun run check:deps
       - name: Build production app
         run: bun run build
       - name: Run tests
