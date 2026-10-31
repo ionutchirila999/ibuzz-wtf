@@ -46,7 +46,7 @@ jobs:
           assert "/market" in paths, "Sitemap is missing /market"
           assert "/shop" not in paths, "Legacy /shop must not be indexed"
           with open("/tmp/sitemap-urls.txt", "w", encoding="utf-8") as output:
-              output.write("\\n".join(urls) + "\\n")
+              output.write("\n".join(urls) + "\n")
           print(f"OK: sitemap contains {len(urls)} canonical HTTPS URLs; /market included and /shop excluded")
           PY
           # Every URL advertised to search engines must resolve successfully.
