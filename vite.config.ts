@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import path from "node:path";
 import { dependencyGuard } from "./build/dependency-guard-plugin";
 
 export default defineConfig({
@@ -15,6 +16,8 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    // TEMPORARY publish test: known-incompatible override, revert after test.
+    resolve: { alias: { entities: path.resolve(__dirname, "node_modules/entities") } },
     plugins: [
       dependencyGuard(__dirname),
       VitePWA({
