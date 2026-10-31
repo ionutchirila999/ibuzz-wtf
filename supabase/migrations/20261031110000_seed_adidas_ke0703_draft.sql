@@ -51,7 +51,7 @@ select
   'กางเกงขาสั้น adidas Originals สีดำ รุ่น KE0703 ไซซ์ XS ทรง Regular พร้อมเชือกผูกเอว ความยาวตะเข็บด้านใน 7 นิ้ว และผลิตจากโพลีเอสเตอร์รีไซเคิล รูปภาพปัจจุบันเป็นภาพอ้างอิงจาก adidas อย่างเป็นทางการ ไม่ใช่ภาพถ่ายสินค้าชิ้นจริง ต้องยืนยันสภาพสินค้า ราคา และเพิ่มภาพถ่ายสินค้าจริงก่อนเผยแพร่',
   'Pantaloni scurți adidas Originals negri, model KE0703, mărimea XS, croială regular, cu șnur în talie și lungime interioară a cracului de 7 inch. Material din poliester reciclat. Imaginea actuală este o fotografie oficială de referință adidas, nu fotografia exemplarului vândut. Starea, prețul final și fotografiile articolului real trebuie confirmate înainte de publicare.',
   array['https://assets.adidas.com/images/w_500%2Cf_auto%2Cq_auto/0ed64d4f57bf4494a903cd48a91482a7_9366/LIGHTWEIGHT_REGULAR_SHORTS_Black_KE0703_21_model.jpg'],
-  0,
+  555,
   false,
   0,
   'pre_owned',
