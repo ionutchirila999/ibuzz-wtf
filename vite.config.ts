@@ -7,7 +7,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "node:path";
-import { dependencyGuard } from "./build/dependency-guard-plugin";
+import { dependencyGuard } from "./tooling/dependency-guard-plugin";
 
 export default defineConfig({
   tanstackStart: {
