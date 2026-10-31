@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { dependencyGuard } from "./build/dependency-guard-plugin";
 
 export default defineConfig({
   tanstackStart: {
@@ -15,6 +16,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      dependencyGuard(__dirname),
       VitePWA({
         strategies: "generateSW",
         registerType: "autoUpdate",
