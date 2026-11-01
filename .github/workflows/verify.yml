@@ -26,6 +26,9 @@ jobs:
       - name: 'STATUS: Dependency checks'
         id: deps
         run: bun run check:deps
+      - name: 'STATUS: Type check'
+        id: typecheck
+        run: bunx tsc --noEmit
       - name: 'STATUS: Production build'
         id: build
         run: bun run build
@@ -37,12 +40,13 @@ jobs:
         env:
           INSTALL_RESULT: ${{ steps.install.outcome }}
           DEPS_RESULT: ${{ steps.deps.outcome }}
+          TYPECHECK_RESULT: ${{ steps.typecheck.outcome }}
           BUILD_RESULT: ${{ steps.build.outcome }}
           TEST_RESULT: ${{ steps.test.outcome }}
         run: |
           {
             echo '## iBuzz publish gate'
-            for item in "Dependency install:$INSTALL_RESULT" "Dependency checks:$DEPS_RESULT" "Production build:$BUILD_RESULT" "Test suite:$TEST_RESULT"; do
+            for item in "Dependency install:$INSTALL_RESULT" "Dependency checks:$DEPS_RESULT" "Type check:$TYPECHECK_RESULT" "Production build:$BUILD_RESULT" "Test suite:$TEST_RESULT"; do
               name="${item%%:*}"; result="${item#*:}"
               case "$result" in
                 success) echo "- **PASSED** — $name" ;;
@@ -51,7 +55,7 @@ jobs:
                 *) echo "- **BLOCKED / NOT RUN** — $name ($result)" ;;
               esac
             done
-            if [ "$INSTALL_RESULT" = success ] && [ "$DEPS_RESULT" = success ] && [ "$BUILD_RESULT" = success ] && [ "$TEST_RESULT" = success ]; then
+            if [ "$INSTALL_RESULT" = success ] && [ "$DEPS_RESULT" = success ] && [ "$TYPECHECK_RESULT" = success ] && [ "$BUILD_RESULT" = success ] && [ "$TEST_RESULT" = success ]; then
               echo ''; echo '### PUBLISH GATE: PASSED'
             else
               echo ''; echo '### PUBLISH GATE: FAILED'
