@@ -14,7 +14,7 @@ type Case = {
   /** Inserted at the top of the `vite: { ... }` block in vite.config.ts. */
   viteConfig?: string;
   /** Changes applied to the copied package.json. */
-  pkg?: (pkg: Record<string, any>) => void;
+  pkg?: (pkg: { dependencies: Record<string, string>; overrides?: Record<string, string> }) => void;
   expected: string;
 };
 
