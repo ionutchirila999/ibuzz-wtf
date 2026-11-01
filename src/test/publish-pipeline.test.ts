@@ -1,4 +1,3 @@
-// @vitest-environment node
 // Regression test: publishing runs `vite build`. With an incompatible dependency override in
 // vite.config.ts, that real build must stop at the dependency guard before any bundling happens.
 import { spawnSync } from "node:child_process";
