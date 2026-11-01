@@ -78,7 +78,8 @@
     "@lovable.dev/webhooks-js": "0.0.3",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.10",
-    "@lovable.dev/cloud-auth-js": "^1.2.1"
+    "@lovable.dev/cloud-auth-js": "^1.2.1",
+    "entities": "^6.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
@@ -91,7 +92,6 @@
     "@vitejs/plugin-react": "^5.2.0",
     "drizzle-kit": "0.x",
     "drizzle-orm": "0.x",
-    "entities": "^6.0.1",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
