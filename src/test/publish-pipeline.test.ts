@@ -21,8 +21,8 @@ describe("publishing pipeline dependency guard", () => {
     for (const d of ["node_modules", "src", "public"]) symlinkSync(path.join(root, d), path.join(dir, d), "dir");
     const config = readFileSync(path.join(root, "vite.config.ts"), "utf8");
     expect(config).toContain("dependencyGuard(__dirname)");
-    expect(config).toContain("vite: {");
-    writeFileSync(path.join(dir, "vite.config.ts"), config.replace("vite: {", `vite: {\n    ${BAD_ALIAS}`));
+    expect(config).toContain("\n  vite: {\n");
+    writeFileSync(path.join(dir, "vite.config.ts"), config.replace("\n  vite: {\n", `\n  vite: {\n    ${BAD_ALIAS}\n`));
   });
 
   afterAll(() => {
