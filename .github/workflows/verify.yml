@@ -9,20 +9,51 @@ permissions:
   contents: read
 jobs:
   verify:
+    name: PUBLISH GATE
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v2
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install dependencies
+        id: install
         env:
-          # Use the public npm registry directly instead of Lovable's rate-limited mirror.
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org
         run: bun install --frozen-lockfile --registry https://registry.npmjs.org
-      - name: Check dependency versions and build overrides
+      - name: 'STATUS: Dependency checks'
+        id: deps
         run: bun run check:deps
-      - name: Build production app
+      - name: 'STATUS: Production build'
+        id: build
         run: bun run build
-      - name: Run tests
+      - name: 'STATUS: Test suite'
+        id: test
         run: bun run test
+      - name: PUBLISH GATE REPORT
+        if: always()
+        env:
+          INSTALL_RESULT: ${{ steps.install.outcome }}
+          DEPS_RESULT: ${{ steps.deps.outcome }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          TEST_RESULT: ${{ steps.test.outcome }}
+        run: |
+          {
+            echo '## iBuzz publish gate'
+            for item in "Dependency install:$INSTALL_RESULT" "Dependency checks:$DEPS_RESULT" "Production build:$BUILD_RESULT" "Test suite:$TEST_RESULT"; do
+              name="${item%%:*}"; result="${item#*:}"
+              case "$result" in
+                success) echo "- **PASSED** — $name" ;;
+                failure) echo "- **FAILED** — $name" ;;
+                cancelled) echo "- **CANCELLED** — $name" ;;
+                *) echo "- **BLOCKED / NOT RUN** — $name ($result)" ;;
+              esac
+            done
+            if [ "$INSTALL_RESULT" = success ] && [ "$DEPS_RESULT" = success ] && [ "$BUILD_RESULT" = success ] && [ "$TEST_RESULT" = success ]; then
+              echo ''; echo '### PUBLISH GATE: PASSED'
+            else
+              echo ''; echo '### PUBLISH GATE: FAILED'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
