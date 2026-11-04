@@ -616,12 +616,12 @@ export function AdminOperations({ section }: { section: Section }) {
   const rangeOrders = (orders.data ?? []).filter((o) => inRange(o.created_at));
   const completedPaidSales = rangeOrders
     .filter((o) => o.payment_status === 'paid' && o.status === 'completed')
-    .reduce((sum: number, o: any) => sum + Number(o.total || 0), 0);
+    .reduce((sum: number, o) => sum + Number(o.total || 0), 0);
   const outstandingOrders = rangeOrders.filter(
     (o) => ['pending', 'submitted'].includes(o.payment_status) && o.status !== 'cancelled',
   );
   const outstandingAmount = outstandingOrders.reduce(
-    (sum: number, o: any) => sum + Number(o.total || 0),
+    (sum: number, o) => sum + Number(o.total || 0),
     0,
   );
   const rangePendingOrders = rangeOrders.filter(
@@ -636,7 +636,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const rangeEnquiries = newEnquiries.filter((e) => inRange(e.created_at));
   const rangeExpenses = (expenses.data ?? [])
     .filter((e) => String(e.occurred_on) >= rangeStart && String(e.occurred_on) <= rangeEnd)
-    .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+    .reduce((sum: number, e) => sum + Number(e.amount || 0), 0);
   const costByProduct = new Map(
     (costs.data ?? []).map((item) => [
       item.product_id,
@@ -650,10 +650,10 @@ export function AdminOperations({ section }: { section: Section }) {
   const rangeProductCosts = rangeOrders
     .filter((o) => o.payment_status === 'paid' && o.status === 'completed')
     .reduce(
-      (sum: number, o: any) =>
+      (sum: number, o) =>
         sum +
         (o.order_items ?? []).reduce(
-          (itemSum: number, item: any) =>
+          (itemSum: number, item) =>
             itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
@@ -1392,24 +1392,24 @@ export function AdminOperations({ section }: { section: Section }) {
 
   if (section === 'finance') {
     const expenseTotal = (expenses.data ?? []).reduce(
-      (sum: number, e: any) => sum + Number(e.amount || 0),
+      (sum: number, e) => sum + Number(e.amount || 0),
       0,
     );
     const completedPaidOrders = (orders.data ?? []).filter(
       (o) => o.status === 'completed' && o.payment_status === 'paid',
     );
     const recordedCost = completedPaidOrders.reduce(
-      (sum: number, o: any) =>
+      (sum: number, o) =>
         sum +
         (o.order_items ?? []).reduce(
-          (itemSum: number, item: any) =>
+          (itemSum: number, item) =>
             itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
     );
     const refundTotal = (refunds.data ?? []).reduce(
-      (sum: number, r: any) => sum + Number(r.amount || 0),
+      (sum: number, r) => sum + Number(r.amount || 0),
       0,
     );
     const netSales = salesTotals.paidCompletedSales - refundTotal;
