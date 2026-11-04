@@ -6,7 +6,7 @@ export type StockProduct = {
   low_stock_threshold?: number | string | null;
 };
 
-export function classifyInventory(products: readonly StockProduct[], threshold: number) {
+export function classifyInventory<T extends StockProduct>(products: readonly T[], threshold: number) {
   const eligible = products.filter((product) => !product.is_demo && product.status === 'available');
   const outOfStock = eligible.filter((product) => Number(product.stock) <= 0);
   const lowStock = eligible.filter((product) => {

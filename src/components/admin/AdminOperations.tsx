@@ -654,7 +654,7 @@ export function AdminOperations({ section }: { section: Section }) {
         sum +
         (o.order_items ?? []).reduce(
           (itemSum: number, item) =>
-            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
@@ -725,7 +725,7 @@ export function AdminOperations({ section }: { section: Section }) {
       p_product_id: stockAdjustment.product_id,
       p_new_stock: newStock,
       p_reason: stockAdjustment.reason,
-      p_note: stockAdjustment.note.trim() || undefined,
+      ...(stockAdjustment.note.trim() ? { p_note: stockAdjustment.note.trim() } : {}),
     });
     if (error) {
       toast.error(
@@ -944,7 +944,7 @@ export function AdminOperations({ section }: { section: Section }) {
     toast.success(w.save);
     await invalidate();
   }
-  async function saveOrderSupportRequest(request) {
+  async function saveOrderSupportRequest(request: (typeof visibleOrderSupport)[number]) {
     const { error } = await supabase
       .from('order_support_requests')
       .update({
@@ -1403,7 +1403,7 @@ export function AdminOperations({ section }: { section: Section }) {
         sum +
         (o.order_items ?? []).reduce(
           (itemSum: number, item) =>
-            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
