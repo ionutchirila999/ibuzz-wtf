@@ -130,7 +130,7 @@ function ActiveSiteBanner() {
     staleTime: 60_000,
     retry: false,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('site_banners')
         .select('id,title,body,image_url,link_url,sort_order')
         .eq('is_active', true)

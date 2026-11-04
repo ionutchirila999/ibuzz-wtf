@@ -361,7 +361,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const products = useQuery({
     queryKey: ['ops-products'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from('products').select('*').order('title');
+      const { data, error } = await supabase.from('products').select('*').order('title');
       if (error) throw error;
       return data ?? [];
     },
@@ -369,7 +369,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const orders = useQuery({
     queryKey: ['ops-orders'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('orders')
         .select(
           'id,order_number,total,status,payment_status,created_at,updated_at,order_items(product_id,quantity)',
@@ -383,7 +383,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-admin-notifications'],
     enabled: section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('admin_notifications')
         .select('id,event_type,order_id,product_id,title,message,metadata,read_at,created_at')
         .order('created_at', { ascending: false })
@@ -396,7 +396,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const enquiries = useQuery({
     queryKey: ['ops-enquiries'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('service_enquiries')
         .select('*')
         .order('created_at', { ascending: false })
@@ -409,7 +409,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-resale-offers'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('resale_offers')
         .select('*')
         .order('created_at', { ascending: false })
@@ -423,7 +423,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-inventory'],
     enabled: section === 'inventory' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('inventory_movements')
         .select('id,product_id,quantity_delta,stock_after,reason,note,created_at,products(title)')
         .order('created_at', { ascending: false })
@@ -436,7 +436,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-repairs'],
     enabled: section === 'repairs' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('repair_jobs')
         .select('*')
         .order('created_at', { ascending: false })
@@ -449,7 +449,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-tickets'],
     enabled: section === 'support' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
         .order('created_at', { ascending: false })
@@ -462,7 +462,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-ticket-messages'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_ticket_messages')
         .select('id,ticket_id,author_id,message,is_internal,created_at')
         .order('created_at', { ascending: true })
@@ -476,7 +476,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-order-support'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_support_requests')
         .select(
           'id,user_id,order_id,request_type,subject,message,status,created_at,updated_at,assigned_to,internal_notes,admin_reply,replied_at,orders(order_number,buyer_name,buyer_contact,total,status,payment_status)',
@@ -492,7 +492,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-order-support-messages'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_support_messages')
         .select('id,request_id,author_id,message,is_internal,created_at')
         .order('created_at', { ascending: true })
@@ -506,7 +506,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-audit'],
     enabled: section === 'audit',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('admin_audit_log')
         .select('*')
         .order('created_at', { ascending: false })
@@ -519,7 +519,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-expenses'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('expense_entries')
         .select('*')
         .order('occurred_on', { ascending: false })
@@ -532,7 +532,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-costs'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('product_costs')
         .select('product_id,purchase_cost,repair_cost,shipping_cost,platform_fees,other_expenses');
       if (error) throw error;
@@ -543,7 +543,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-refunds'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_refunds')
         .select('id,order_id,amount,reason,created_at')
         .order('created_at', { ascending: false })
@@ -719,7 +719,7 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a valid stock quantity and low-stock threshold.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_adjust_inventory', {
+    const { error } = await supabase.rpc('ibuzz_adjust_inventory', {
       p_product_id: stockAdjustment.product_id,
       p_new_stock: newStock,
       p_reason: stockAdjustment.reason,
@@ -732,7 +732,7 @@ export function AdminOperations({ section }: { section: Section }) {
       );
       return;
     }
-    const { error: thresholdError } = await (supabase as any)
+    const { error: thresholdError } = await supabase
       .from('products')
       .update({ low_stock_threshold: threshold })
       .eq('id', stockAdjustment.product_id);
@@ -760,7 +760,7 @@ export function AdminOperations({ section }: { section: Section }) {
       return;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any).from('expense_entries').insert({
+    const { error } = await supabase.from('expense_entries').insert({
       category: expense.category.trim(),
       description: expense.description.trim(),
       amount,
@@ -801,7 +801,7 @@ export function AdminOperations({ section }: { section: Section }) {
       other_expenses: values[4],
       updated_at: new Date().toISOString(),
     };
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('product_costs')
       .upsert(payload, { onConflict: 'product_id' });
     if (error) {
@@ -813,7 +813,7 @@ export function AdminOperations({ section }: { section: Section }) {
   }
   async function createJob(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const { error } = await (supabase as any).from('repair_jobs').insert({
+    const { error } = await supabase.from('repair_jobs').insert({
       customer_name: job.customer_name.trim(),
       customer_contact: job.customer_contact.trim(),
       device: job.device.trim(),
@@ -854,7 +854,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await invalidate();
   }
   async function saveRepair(id: string, values: Record<string, any>) {
-    const { error } = await (supabase as any).from('repair_jobs').update(values).eq('id', id);
+    const { error } = await supabase.from('repair_jobs').update(values).eq('id', id);
     if (error) {
       toast.error(
         lang === 'th'
@@ -869,7 +869,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await invalidate();
   }
   async function saveTicket(ticket: any) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('support_tickets')
       .update({
         status: ticketState[ticket.id] ?? ticket.status,
@@ -890,7 +890,7 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a message first.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_add_support_message', {
+    const { error } = await supabase.rpc('ibuzz_add_support_message', {
       p_ticket_id: id,
       p_message: message,
       p_is_internal: isInternal,
@@ -909,7 +909,7 @@ export function AdminOperations({ section }: { section: Section }) {
     ]);
   }
   async function updateServiceEnquiry(id: string, status: string) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('service_enquiries')
       .update({ status })
       .eq('id', id);
@@ -921,7 +921,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await invalidate();
   }
   async function markAdminNotificationRead(id: string) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('admin_notifications')
       .update({ read_at: new Date().toISOString() })
       .eq('id', id);
@@ -932,7 +932,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await qc.invalidateQueries({ queryKey: ['ops-admin-notifications'] });
   }
   async function updateResaleOffer(id: string, status: string) {
-    const { error } = await (supabase as any).from('resale_offers').update({ status }).eq('id', id);
+    const { error } = await supabase.from('resale_offers').update({ status }).eq('id', id);
     if (error) {
       toast.error('Could not update resale offer');
       return;
@@ -941,7 +941,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await invalidate();
   }
   async function saveOrderSupportRequest(request: any) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('order_support_requests')
       .update({
         status: orderRequestStatus[request.id] ?? request.status,
@@ -962,7 +962,7 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a message first.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_add_order_support_message', {
+    const { error } = await supabase.rpc('ibuzz_add_order_support_message', {
       p_request_id: id,
       p_message: message,
       p_is_internal: isInternal,
@@ -972,7 +972,7 @@ export function AdminOperations({ section }: { section: Section }) {
       return;
     }
     if (isInternal)
-      await (supabase as any)
+      await supabase
         .from('order_support_requests')
         .update({ internal_notes: message })
         .eq('id', id);

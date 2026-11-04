@@ -89,7 +89,7 @@ export function ProductReviews({ productId }: { productId: string }) {
   const reviews = useQuery({
     queryKey: ['product-reviews', productId],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('product_reviews')
         .select('id,rating,title,body,created_at')
         .eq('product_id', productId)
@@ -105,7 +105,7 @@ export function ProductReviews({ productId }: { productId: string }) {
     queryKey: ['product-review-orders', productId, userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_items')
         .select('order_id,orders!inner(order_number,created_at,status,payment_status,user_id)')
         .eq('product_id', productId)
@@ -138,7 +138,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       return;
     }
     setBusy(true);
-    const { error } = await (supabase as any).from('product_reviews').insert({
+    const { error } = await supabase.from('product_reviews').insert({
       product_id: productId,
       order_id: orderId,
       user_id: userId,

@@ -52,7 +52,7 @@ export function WishlistButton({
       const id = data.user?.id ?? null;
       setUserId(id);
       if (id) {
-        const { data: row } = await (supabase as any)
+        const { data: row } = await supabase
           .from('wishlist_items')
           .select('id')
           .eq('user_id', id)
@@ -70,7 +70,7 @@ export function WishlistButton({
         setReady(true);
         return;
       }
-      void (supabase as any)
+      void supabase
         .from('wishlist_items')
         .select('id')
         .eq('user_id', id)
@@ -97,7 +97,7 @@ export function WishlistButton({
     if (busy) return;
     setBusy(true);
     if (saved) {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('wishlist_items')
         .delete()
         .eq('user_id', userId)
@@ -110,7 +110,7 @@ export function WishlistButton({
       setSaved(false);
       toast.success(labels.removed);
     } else {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('wishlist_items')
         .upsert(
           { user_id: userId, product_id: productId },

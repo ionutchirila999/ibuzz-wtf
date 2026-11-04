@@ -346,7 +346,7 @@ function Account() {
     user: { id: string; user_metadata?: Record<string, unknown> } | null | undefined,
   ) {
     if (!user?.id) return;
-    const { data, error: profileError } = await (supabase as any)
+    const { data, error: profileError } = await supabase
       .from('customer_profiles')
       .select('full_name,phone,preferred_language,delivery_addresses')
       .eq('user_id', user.id)
@@ -455,7 +455,7 @@ function Account() {
       return;
     }
     setBusy(true);
-    const { error: updateError } = await (supabase as any).from('customer_profiles').upsert(
+    const { error: updateError } = await supabase.from('customer_profiles').upsert(
       {
         user_id: authData.user.id,
         full_name: profileName.trim(),
@@ -487,7 +487,7 @@ function Account() {
       return;
     }
     // Always scope customer order reads to the authenticated account; never depend on RLS alone.
-    const { data, error: queryError } = await (supabase as any)
+    const { data, error: queryError } = await supabase
       .from('orders')
       .select(
         'id,order_number,buyer_name,buyer_contact,shipping_address,total,payment_status,status,tracking_number,tracking_url,created_at,order_items(id,product_id,product_title,unit_price,quantity,line_total)',
@@ -514,7 +514,7 @@ function Account() {
       return;
     }
     const ids = [...new Set(orderItems.map((item) => item.product_id as string))];
-    const { data: currentProducts, error: productsError } = await (supabase as any)
+    const { data: currentProducts, error: productsError } = await supabase
       .from('products')
       .select('id,stock,status')
       .in('id', ids);
@@ -596,7 +596,7 @@ function Account() {
       setLoadingWishlist(false);
       return;
     }
-    const { data: saved, error: savedError } = await (supabase as any)
+    const { data: saved, error: savedError } = await supabase
       .from('wishlist_items')
       .select('product_id')
       .eq('user_id', ownerId)
@@ -607,7 +607,7 @@ function Account() {
       return;
     }
     const ids = saved.map((row: { product_id: string }) => row.product_id);
-    const { data: products, error: productsError } = await (supabase as any)
+    const { data: products, error: productsError } = await supabase
       .from('products')
       .select('id,title,title_th,title_ro,brand,images,price,stock,status')
       .in('id', ids);
@@ -623,7 +623,7 @@ function Account() {
   async function removeWishlist(productId: string) {
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) return;
-    const { error: removeError } = await (supabase as any)
+    const { error: removeError } = await supabase
       .from('wishlist_items')
       .delete()
       .eq('user_id', authData.user.id)

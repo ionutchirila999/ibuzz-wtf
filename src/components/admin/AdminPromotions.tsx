@@ -48,7 +48,7 @@ export function AdminPromotions() {
   const products = useQuery({
     queryKey: ['promotion-products'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from('products').select('*').order('title');
+      const { data, error } = await supabase.from('products').select('*').order('title');
       if (error) throw error;
       return (data ?? []) as ProductControl[];
     },
@@ -56,7 +56,7 @@ export function AdminPromotions() {
   const codes = useQuery({
     queryKey: ['discount-codes'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('discount_codes')
         .select('*')
         .order('created_at', { ascending: false });
@@ -67,7 +67,7 @@ export function AdminPromotions() {
   const banners = useQuery({
     queryKey: ['site-banners'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('site_banners')
         .select('*')
         .order('sort_order')
@@ -124,7 +124,7 @@ export function AdminPromotions() {
       return;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any).from('discount_codes').insert({
+    const { error } = await supabase.from('discount_codes').insert({
       code,
       discount_type: codeForm.discount_type,
       discount_value: value,
@@ -148,7 +148,7 @@ export function AdminPromotions() {
   async function createBanner(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any).from('site_banners').insert({
+    const { error } = await supabase.from('site_banners').insert({
       title: bannerForm.title.trim(),
       body: bannerForm.body.trim() || null,
       image_url: bannerForm.image_url.trim() || null,
@@ -179,7 +179,7 @@ export function AdminPromotions() {
     await refresh();
   }
   async function update(table: string, id: string, values: Record<string, unknown>) {
-    const { error } = await (supabase as any).from(table).update(values).eq('id', id);
+    const { error } = await supabase.from(table).update(values).eq('id', id);
     if (error) {
       toast.error(error.message);
       return;
@@ -188,7 +188,7 @@ export function AdminPromotions() {
   }
   async function remove(table: string, id: string) {
     if (!window.confirm('Delete this item?')) return;
-    const { error } = await (supabase as any).from(table).delete().eq('id', id);
+    const { error } = await supabase.from(table).delete().eq('id', id);
     if (error) {
       toast.error(error.message);
       return;
