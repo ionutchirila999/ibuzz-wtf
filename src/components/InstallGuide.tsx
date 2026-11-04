@@ -3,7 +3,14 @@ import { MonitorSmartphone, Smartphone, Tablet, Monitor, CheckCircle2 } from 'lu
 import { homeCopy } from '@/lib/home-copy';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Platform = 'android' | 'ios' | 'desktop';
@@ -16,10 +23,17 @@ function detectPlatform(): Platform {
 }
 
 function isStandalone(): boolean {
-  return window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
+  );
 }
 
-const stepKey = { android: 'installStepsAndroid', ios: 'installStepsIos', desktop: 'installStepsDesktop' } as const;
+const stepKey = {
+  android: 'installStepsAndroid',
+  ios: 'installStepsIos',
+  desktop: 'installStepsDesktop',
+} as const;
 const tabKey = { android: 'installAndroid', ios: 'installIos', desktop: 'installDesktop' } as const;
 
 export function InstallGuide() {
@@ -54,9 +68,18 @@ export function InstallGuide() {
         ) : (
           <Tabs defaultValue={platform ?? 'desktop'}>
             <TabsList className="w-full">
-              <TabsTrigger value="android" className="flex-1 gap-1.5 px-1 text-xs"><Smartphone className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installAndroid')}</TabsTrigger>
-              <TabsTrigger value="ios" className="flex-1 gap-1.5 px-1 text-xs"><Tablet className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installIos')}</TabsTrigger>
-              <TabsTrigger value="desktop" className="flex-1 gap-1.5 px-1 text-xs"><Monitor className="hidden h-4 w-4 sm:block" aria-hidden />{homeCopy(lang, 'installDesktop')}</TabsTrigger>
+              <TabsTrigger value="android" className="flex-1 gap-1.5 px-1 text-xs">
+                <Smartphone className="hidden h-4 w-4 sm:block" aria-hidden />
+                {homeCopy(lang, 'installAndroid')}
+              </TabsTrigger>
+              <TabsTrigger value="ios" className="flex-1 gap-1.5 px-1 text-xs">
+                <Tablet className="hidden h-4 w-4 sm:block" aria-hidden />
+                {homeCopy(lang, 'installIos')}
+              </TabsTrigger>
+              <TabsTrigger value="desktop" className="flex-1 gap-1.5 px-1 text-xs">
+                <Monitor className="hidden h-4 w-4 sm:block" aria-hidden />
+                {homeCopy(lang, 'installDesktop')}
+              </TabsTrigger>
             </TabsList>
             {(Object.keys(stepKey) as Platform[]).map((p) => (
               <TabsContent key={p} value={p} className="mt-4">

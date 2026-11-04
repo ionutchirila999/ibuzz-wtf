@@ -1,48 +1,53 @@
-import socialAsset from "@/assets/ibuzz-social.jpg.asset.json";
-import type { Tables } from "@/integrations/supabase/types";
+import socialAsset from '@/assets/ibuzz-social.jpg.asset.json';
+import type { Tables } from '@/integrations/supabase/types';
 
-export type Product = Tables<"products">;
-export type Category = "technology" | "clothing" | "footwear";
+export type Product = Tables<'products'>;
+export type Category = 'technology' | 'clothing' | 'footwear';
 
 // The shop's name. Used in the header, footer and every page title.
-export const SHOP_NAME = "iBuzz.wtf";
-export const SHOP_SHORT_NAME = "iBuzz.wtf";
+export const SHOP_NAME = 'iBuzz.wtf';
+export const SHOP_SHORT_NAME = 'iBuzz.wtf';
 // The wording used inside the logo artwork.
-export const LOGO_NAME = "iBuzz.wtf";
-export const SHOP_TAGLINE = "Repair. Build. Buy. Sell.";
+export const LOGO_NAME = 'iBuzz.wtf';
+export const SHOP_TAGLINE = 'Repair. Build. Buy. Sell.';
 
 // The site's own address. Used for link previews so shared pages point here.
-export const SITE_ORIGIN = "https://ibuzz.wtf";
+export const SITE_ORIGIN = 'https://ibuzz.wtf';
 // The branded picture shown when a page is shared in chat or on social media.
 export const SOCIAL_IMAGE = `${SITE_ORIGIN}${socialAsset.url}`;
 
 // Contact details for enquiry buttons.
 export const SHOP_CONTACT = {
-  lineId: "ibuzz.wtf", // lowercase: LINE IDs can't contain capital letters
-  lineLabel: "ibuzz.wtf", // how the contact is shown on buttons — the exact LINE ID
+  lineId: 'ibuzz.wtf', // lowercase: LINE IDs can't contain capital letters
+  lineLabel: 'ibuzz.wtf', // how the contact is shown on buttons — the exact LINE ID
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
-  technology: "Technology",
-  clothing: "Clothing",
-  footwear: "Footwear",
+  technology: 'Technology',
+  clothing: 'Clothing',
+  footwear: 'Footwear',
 };
 
 export const SUBCATEGORIES: Record<Category, string[]> = {
   technology: [
-    "Smartphones & mobile phones",
-    "Mobile phone accessories",
-    "Digital cameras & lenses",
-    "Tablets & laptops",
-    "TVs & monitors",
-    "Computer components & accessories",
-    "Gaming equipment & peripherals",
-    "E-scooter parts & accessories",
-    "Used & refurbished electronics",
-    "Repair parts & technical accessories",
+    'Smartphones & mobile phones',
+    'Mobile phone accessories',
+    'Digital cameras & lenses',
+    'Tablets & laptops',
+    'TVs & monitors',
+    'Computer components & accessories',
+    'Gaming equipment & peripherals',
+    'E-scooter parts & accessories',
+    'Used & refurbished electronics',
+    'Repair parts & technical accessories',
   ],
-  clothing: ["Tops", "Trousers & shorts", "Dresses & skirts", "Outerwear", "Sportswear"],
-  footwear: ["Sneakers", "Sports shoes", "Sandals", "Boots", "Formal footwear",
+  clothing: ['Tops', 'Trousers & shorts', 'Dresses & skirts', 'Outerwear', 'Sportswear'],
+  footwear: [
+    'Sneakers',
+    'Sports shoes',
+    'Sandals',
+    'Boots',
+    'Formal footwear',
     "Women's sneakers",
     "Women's casual shoes",
     "Women's sports & running shoes",
@@ -53,23 +58,23 @@ export const SUBCATEGORIES: Record<Category, string[]> = {
   ],
 };
 
-export const SIZE_SYSTEMS = ["EU", "US Women", "UK", "JP (cm)"];
+export const SIZE_SYSTEMS = ['EU', 'US Women', 'UK', 'JP (cm)'];
 
 export const CONDITION_LABEL: Record<string, string> = {
-  new: "New",
-  pre_owned: "Pre-owned",
-  refurbished: "Refurbished",
-  repaired_tested: "Repaired & tested",
-  untested: "Untested",
-  for_parts: "For parts",
+  new: 'New',
+  pre_owned: 'Pre-owned',
+  refurbished: 'Refurbished',
+  repaired_tested: 'Repaired & tested',
+  untested: 'Untested',
+  for_parts: 'For parts',
 };
 
 export function formatPrice(n: number | null | undefined) {
-  return `฿${Number(n ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  return `฿${Number(n ?? 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
 }
 
 export function lineLink() {
-  return "https://line.me/ti/p/CcGd-nkSXZ";
+  return 'https://line.me/ti/p/CcGd-nkSXZ';
 }
 
 export interface CostInput {
@@ -94,40 +99,62 @@ export function calcProfit(c: CostInput) {
   return { totalCosts, netProfit, margin, warning };
 }
 
-export type Lang = "th" | "en" | "ro";
+export type Lang = 'th' | 'en' | 'ro';
 // Product name/description in the visitor's language, falling back to English.
-export function localizedTitle(p: Pick<Product, "title" | "title_th" | "title_ro">, lang: Lang) {
-  return (lang === "th" ? p.title_th : lang === "ro" ? p.title_ro : null) || p.title;
+export function localizedTitle(p: Pick<Product, 'title' | 'title_th' | 'title_ro'>, lang: Lang) {
+  return (lang === 'th' ? p.title_th : lang === 'ro' ? p.title_ro : null) || p.title;
 }
 export function localizedDescription(p: Product, lang: Lang) {
-  return (lang === "th" ? p.description_th : lang === "ro" ? p.description_ro : null) || p.description;
+  return (
+    (lang === 'th' ? p.description_th : lang === 'ro' ? p.description_ro : null) || p.description
+  );
 }
 
-export const MARKET_CATEGORIES: Category[] = ["technology", "clothing", "footwear"];
-export function legacyCategory(category: Category) { return category === "footwear" ? "womens_shoes" : "technology"; }
-export function legacyCondition(condition: string) { return condition === "new" ? "new" : condition === "refurbished" || condition === "repaired_tested" ? "refurbished" : "pre_owned"; }
+export const MARKET_CATEGORIES: Category[] = ['technology', 'clothing', 'footwear'];
+export function legacyCategory(category: Category) {
+  return category === 'footwear' ? 'womens_shoes' : 'technology';
+}
+export function legacyCondition(condition: string) {
+  return condition === 'new'
+    ? 'new'
+    : condition === 'refurbished' || condition === 'repaired_tested'
+      ? 'refurbished'
+      : 'pre_owned';
+}
 
 // The Market search box matches product names in all three languages, the brand
 // and model columns, and the localized descriptions — where brand names and
 // model numbers also appear inside the Thai and Romanian wording.
-const SEARCH_FIELDS = ["title", "title_th", "title_ro", "brand", "model", "description", "description_th", "description_ro"];
+const SEARCH_FIELDS = [
+  'title',
+  'title_th',
+  'title_ro',
+  'brand',
+  'model',
+  'description',
+  'description_th',
+  'description_ro',
+];
 
 // Builds the database "or" conditions for a search term. Returns undefined when
 // there is nothing to search for, so other filters (like availability) are left
 // exactly as they are.
 export function productSearchConditions(raw: string | undefined): string | undefined {
-  const term = String(raw ?? "").normalize("NFC").replace(/[^\p{L}\p{M}\p{N} ._-]/gu, "").slice(0, 100);
+  const term = String(raw ?? '')
+    .normalize('NFC')
+    .replace(/[^\p{L}\p{M}\p{N} ._-]/gu, '')
+    .slice(0, 100);
   if (!term.trim()) return undefined;
-  const exact = `%${term.replace(/_/g, "")}%`;
+  const exact = `%${term.replace(/_/g, '')}%`;
   // Model numbers are often typed without the hyphen or spacing used on the
   // label (F36A for F-36A), so also let any separator stand for anything.
-  const loose = `%${term.replace(/[-._ ]+/g, "%")}%`;
+  const loose = `%${term.replace(/[-._ ]+/g, '%')}%`;
   const patterns = exact === loose ? [exact] : [exact, loose];
   // A short code mixing letters and digits (F36A, JX500) reads as a model
   // number, so anything may sit between its characters.
-  const code = term.replace(/[-._ ]+/g, "");
+  const code = term.replace(/[-._ ]+/g, '');
   if (!/\s/.test(term) && /\d/.test(code) && /[^\d]/.test(code) && code.length <= 12) {
-    patterns.push(`%${[...code].join("%")}%`);
+    patterns.push(`%${[...code].join('%')}%`);
   }
-  return SEARCH_FIELDS.flatMap((f) => patterns.map((p) => `${f}.ilike.${p}`)).join(",");
+  return SEARCH_FIELDS.flatMap((f) => patterns.map((p) => `${f}.ilike.${p}`)).join(',');
 }

@@ -35,31 +35,55 @@ export function sitemapPathForLocation(
   location: Pick<ParsedLocation, 'pathname' | 'publicHref'>,
   routeId: string,
 ): string | undefined {
-  if (!isSafeSitemapPath(location.pathname) || !isSafeSitemapPath(location.publicHref)) return undefined;
+  if (!isSafeSitemapPath(location.pathname) || !isSafeSitemapPath(location.publicHref))
+    return undefined;
   const result = router.getMatchedRoutes(location.pathname) as RouteMatch;
   const [params, foundRoute] = Array.isArray(result)
     ? [result[1], result[2]]
     : [result.routeParams, result.parseError ? undefined : result.foundRoute];
-  return params['**'] === undefined && foundRoute?.id === routeId && isSitemapRouteIncluded(foundRoute)
-    ? location.publicHref : undefined;
+  return params['**'] === undefined &&
+    foundRoute?.id === routeId &&
+    isSitemapRouteIncluded(foundRoute)
+    ? location.publicHref
+    : undefined;
 }
 
-export interface SitemapEntry { path: string; lastmod?: string }
+export interface SitemapEntry {
+  path: string;
+  lastmod?: string;
+}
 
 function isSafeSitemapPath(pathname: string): boolean {
-  if (!pathname.startsWith('/') || pathname.startsWith('//') || /[?#\\]/.test(pathname)) return false;
+  if (!pathname.startsWith('/') || pathname.startsWith('//') || /[?#\\]/.test(pathname))
+    return false;
   try {
     return decodeURI(new URL(pathname, 'https://sitemap.invalid').pathname) === decodeURI(pathname);
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 export function sitemapXML(baseURL: string, entries: SitemapEntry[]): string {
   const origin = new URL(baseURL);
-  if (!/^https?:$/.test(origin.protocol) || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash) {
+  if (
+    !/^https?:$/.test(origin.protocol) ||
+    origin.username ||
+    origin.password ||
+    origin.pathname !== '/' ||
+    origin.search ||
+    origin.hash
+  ) {
     throw new Error('The sitemap base URL must be the public site origin');
   }
-  const escapes: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' };
-  const escape = (value: string) => value.replace(/[&<>"']/g, character => escapes[character] ?? character);
+  const escapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&apos;',
+  };
+  const escape = (value: string) =>
+    value.replace(/[&<>"']/g, (character) => escapes[character] ?? character);
   const seen = new Set<string>();
   const urls: string[] = [];
   for (const entry of entries) {
@@ -67,15 +91,20 @@ export function sitemapXML(baseURL: string, entries: SitemapEntry[]): string {
     const url = new URL(entry.path, origin);
     if (seen.has(url.href)) continue;
     seen.add(url.href);
-    urls.push(`<url><loc>${escape(url.href)}</loc>${entry.lastmod ? `<lastmod>${escape(entry.lastmod)}</lastmod>` : ''}</url>`);
+    urls.push(
+      `<url><loc>${escape(url.href)}</loc>${entry.lastmod ? `<lastmod>${escape(entry.lastmod)}</lastmod>` : ''}</url>`,
+    );
   }
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
 }
 
 // Complete every page before callers serialize XML; errors never yield partial output.
-export async function collectSitemapPages<T>(readPage: (offset: number, end: number) => Promise<T[]>, pageSize = 1000): Promise<T[]> {
+export async function collectSitemapPages<T>(
+  readPage: (offset: number, end: number) => Promise<T[]>,
+  pageSize = 1000,
+): Promise<T[]> {
   const rows: T[] = [];
-  for (let offset = 0; ; ) {
+  for (let offset = 0; ;) {
     const page = await readPage(offset, offset + pageSize - 1);
     if (page.length === 0) return rows;
     rows.push(...page);

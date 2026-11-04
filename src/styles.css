@@ -1,12 +1,12 @@
-@import "tailwindcss" source(none);
+@import 'tailwindcss' source(none);
 @source "../src";
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -57,9 +57,9 @@
   --primary-soft: oklch(0.78 0.13 305);
   --secondary: oklch(0.46 0.17 252);
   --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.30 0.055 278);
+  --muted: oklch(0.3 0.055 278);
   --muted-foreground: oklch(0.87 0.03 288);
-  --accent: oklch(0.31 0.10 285);
+  --accent: oklch(0.31 0.1 285);
   --accent-foreground: oklch(0.98 0.006 292);
   --destructive: oklch(0.63 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
@@ -69,22 +69,30 @@
   --whatsapp-foreground: oklch(0.99 0 0);
   --line: oklch(0.65 0.19 145);
   --line-foreground: oklch(0.99 0 0);
-  --azure: oklch(0.70 0.16 245);
+  --azure: oklch(0.7 0.16 245);
   --azure-foreground: oklch(0.17 0.05 282);
   --border: oklch(0.65 0.035 270 / 40%);
   --input: oklch(0.82 0.06 268 / 54%);
-  --ring: oklch(0.70 0.16 245);
+  --ring: oklch(0.7 0.16 245);
   --glow: 0 8px 30px -8px oklch(0.63 0.22 302 / 0.6);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: 0;
+  }
 }
 
 @utility hero-fade {
@@ -92,13 +100,28 @@
 }
 
 .home-hero-shade {
-  background: linear-gradient(180deg, var(--background) 0%, var(--background) 47%, color-mix(in oklab, var(--background) 92%, transparent) 60%, transparent 82%, var(--background) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--background) 0%,
+    var(--background) 47%,
+    color-mix(in oklab, var(--background) 92%, transparent) 60%,
+    transparent 82%,
+    var(--background) 100%
+  );
 }
 
 @utility hero-aura {
   background:
-    radial-gradient(60% 55% at 18% 8%, color-mix(in oklab, var(--primary) 34%, transparent), transparent 70%),
-    radial-gradient(55% 50% at 88% 22%, color-mix(in oklab, var(--azure) 30%, transparent), transparent 72%);
+    radial-gradient(
+      60% 55% at 18% 8%,
+      color-mix(in oklab, var(--primary) 34%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 50% at 88% 22%,
+      color-mix(in oklab, var(--azure) 30%, transparent),
+      transparent 72%
+    );
 }
 
 /* Homepage surfaces remain unframed and share the site's semantic palette. */
@@ -106,61 +129,254 @@
 .premium-hero {
   position: relative;
   isolation: isolate;
-  background-image: url("./assets/ibuzz-studio.jpg");
+  background-image: url('./assets/ibuzz-studio.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 .premium-hero::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(100deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 42%, transparent) 45%, color-mix(in oklab, var(--background) 25%, transparent) 100%),
-    linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 35%, transparent) 45%, var(--background) 100%);
+    linear-gradient(
+      100deg,
+      color-mix(in oklab, var(--background) 55%, transparent) 0%,
+      color-mix(in oklab, var(--background) 42%, transparent) 45%,
+      color-mix(in oklab, var(--background) 25%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--background) 45%, transparent) 0%,
+      color-mix(in oklab, var(--background) 35%, transparent) 45%,
+      var(--background) 100%
+    );
 }
-.premium-hero > * { position: relative; z-index: 2; }
-.premium-hero > .hero-slides { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
-.hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; transition: opacity 1.2s ease-in-out; }
-@media (prefers-reduced-motion: reduce) { .hero-slide { transition: none; } }
-.hero-heading { font-size: 2rem; line-height: 1.18; }
-.hero-studio { aspect-ratio: 1.8; border-radius: var(--radius); }
-.section-heading { font-size: 1.65rem; line-height: 1.25; font-weight: 700; }
-.section-eyebrow { color: var(--primary-soft); font-size: 0.7rem; line-height: 1.6; font-weight: 700; }
-.section-space { padding-top: 3rem; padding-bottom: 3rem; }
-.service-card { background: linear-gradient(145deg, var(--card), color-mix(in oklab, var(--background) 90%, var(--card))); }
-.buying-band { background: linear-gradient(110deg, color-mix(in oklab, var(--background) 87%, var(--primary)), color-mix(in oklab, var(--background) 93%, var(--secondary))); }
-@media (min-width: 640px) { .hero-heading { font-size: 2.5rem; } .section-heading { font-size: 2rem; } .section-space { padding-top: 4rem; padding-bottom: 4rem; } }
-@media (min-width: 1024px) { .hero-heading { font-size: 3rem; } .hero-studio { aspect-ratio: 1.2; object-fit: cover; } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
-
+.premium-hero > * {
+  position: relative;
+  z-index: 2;
+}
+.premium-hero > .hero-slides {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 1.2s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide {
+    transition: none;
+  }
+}
+.hero-heading {
+  font-size: 2rem;
+  line-height: 1.18;
+}
+.hero-studio {
+  aspect-ratio: 1.8;
+  border-radius: var(--radius);
+}
+.section-heading {
+  font-size: 1.65rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.section-eyebrow {
+  color: var(--primary-soft);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  font-weight: 700;
+}
+.section-space {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.service-card {
+  background: linear-gradient(
+    145deg,
+    var(--card),
+    color-mix(in oklab, var(--background) 90%, var(--card))
+  );
+}
+.buying-band {
+  background: linear-gradient(
+    110deg,
+    color-mix(in oklab, var(--background) 87%, var(--primary)),
+    color-mix(in oklab, var(--background) 93%, var(--secondary))
+  );
+}
+@media (min-width: 640px) {
+  .hero-heading {
+    font-size: 2.5rem;
+  }
+  .section-heading {
+    font-size: 2rem;
+  }
+  .section-space {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-heading {
+    font-size: 3rem;
+  }
+  .hero-studio {
+    aspect-ratio: 1.2;
+    object-fit: cover;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* Modern, responsive sign-in surfaces with restrained glow and tactile feedback. */
 .auth-page::before {
-  content: ""; position: absolute; inset: 4% 2%; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 28%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 54%), radial-gradient(ellipse at 85% 75%, color-mix(in oklab, var(--azure) 12%, transparent), transparent 42%);
+  content: '';
+  position: absolute;
+  inset: 4% 2%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 28%,
+      color-mix(in oklab, var(--primary) 16%, transparent),
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse at 85% 75%,
+      color-mix(in oklab, var(--azure) 12%, transparent),
+      transparent 42%
+    );
   filter: blur(12px);
 }
 .auth-panel {
-  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 88%, white 4%), color-mix(in oklab, var(--background) 84%, var(--primary) 16%));
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--card) 88%, white 4%),
+    color-mix(in oklab, var(--background) 84%, var(--primary) 16%)
+  );
   border-color: color-mix(in oklab, var(--primary) 28%, var(--border));
-  box-shadow: 0 24px 80px -34px color-mix(in oklab, var(--primary) 45%, transparent), inset 0 1px 0 color-mix(in oklab, white 12%, transparent);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  box-shadow:
+    0 24px 80px -34px color-mix(in oklab, var(--primary) 45%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 12%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
 }
-.auth-panel:focus-within { border-color: color-mix(in oklab, var(--primary) 62%, var(--border)); box-shadow: 0 26px 84px -32px color-mix(in oklab, var(--primary) 55%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent); }
-.auth-title { background: linear-gradient(100deg, var(--foreground), color-mix(in oklab, var(--primary-soft) 82%, white)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.auth-orb { position: absolute; z-index: -1; width: 15rem; height: 15rem; border-radius: 9999px; filter: blur(70px); opacity: .24; pointer-events: none; animation: auth-float 9s ease-in-out infinite alternate; }
-.auth-orb-one { left: 3%; top: 16%; background: var(--primary); }
-.auth-orb-two { right: 2%; bottom: 10%; background: var(--azure); animation-delay: -4s; }
-.auth-panel input { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
-.auth-panel input:focus-visible { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 24%, transparent); }
-.auth-panel button { transition: transform 160ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease; }
-.auth-panel button:active { transform: scale(.985); }
-.auth-panel button:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
-.auth-social-button { min-height: 2.9rem; gap: .65rem; }
-.auth-social-button:hover { border-color: color-mix(in oklab, var(--primary) 55%, var(--border)); box-shadow: 0 8px 24px -16px var(--primary); }
-.google-mark { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: white; color: #4285f4; font-weight: 800; font-size: .9rem; }
-@keyframes auth-float { from { transform: translate3d(0, -8px, 0) scale(.96); } to { transform: translate3d(12px, 14px, 0) scale(1.06); } }
-@media (prefers-reduced-motion: reduce) { .auth-orb { animation: none; } .auth-panel, .auth-panel input, .auth-panel button { transition: none; } }
+.auth-panel:focus-within {
+  border-color: color-mix(in oklab, var(--primary) 62%, var(--border));
+  box-shadow:
+    0 26px 84px -32px color-mix(in oklab, var(--primary) 55%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
+}
+.auth-title {
+  background: linear-gradient(
+    100deg,
+    var(--foreground),
+    color-mix(in oklab, var(--primary-soft) 82%, white)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.auth-orb {
+  position: absolute;
+  z-index: -1;
+  width: 15rem;
+  height: 15rem;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.24;
+  pointer-events: none;
+  animation: auth-float 9s ease-in-out infinite alternate;
+}
+.auth-orb-one {
+  left: 3%;
+  top: 16%;
+  background: var(--primary);
+}
+.auth-orb-two {
+  right: 2%;
+  bottom: 10%;
+  background: var(--azure);
+  animation-delay: -4s;
+}
+.auth-panel input {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+.auth-panel input:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 24%, transparent);
+}
+.auth-panel button {
+  transition:
+    transform 160ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+.auth-panel button:active {
+  transform: scale(0.985);
+}
+.auth-panel button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.auth-social-button {
+  min-height: 2.9rem;
+  gap: 0.65rem;
+}
+.auth-social-button:hover {
+  border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
+  box-shadow: 0 8px 24px -16px var(--primary);
+}
+.google-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: white;
+  color: #4285f4;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+@keyframes auth-float {
+  from {
+    transform: translate3d(0, -8px, 0) scale(0.96);
+  }
+  to {
+    transform: translate3d(12px, 14px, 0) scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-orb {
+    animation: none;
+  }
+  .auth-panel,
+  .auth-panel input,
+  .auth-panel button {
+    transition: none;
+  }
+}

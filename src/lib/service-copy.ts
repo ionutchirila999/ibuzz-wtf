@@ -1,30 +1,239 @@
 import { SOCIAL_IMAGE } from './shop';
 import type { Lang } from './i18n';
 export const C = {
- tagline: ['ซ่อม สร้าง ซื้อ ขาย', 'Repair. Build. Buy. Sell.', 'Reparăm. Construim. Cumpărăm. Vindem.'],
- headline: ['เครื่องเสีย? เราซ่อมให้ อยากซื้อหรือขาย? เราช่วยคุณได้', 'Broken? We Fix It. Looking to Buy or Sell? We’ve Got You.', 'Defect? Îl reparăm. Vrei să cumperi sau să vinzi? Suntem aici.'],
- lead: ['ตั้งแต่ซ่อมสมาร์ตโฟนและอุปกรณ์อิเล็กทรอนิกส์ รับซื้อเครื่องเสีย จำหน่ายสินค้าคุณภาพ ไปจนถึงสร้างโซลูชันดิจิทัล iBuzz.wtf รวมเทคโนโลยีและการค้าไว้ในที่เดียว', 'From repairing smartphones and electronics to buying broken devices, selling quality products, and building digital solutions, iBuzz.wtf brings technology and commerce together in one place.', 'De la repararea telefoanelor și electronicelor la cumpărarea dispozitivelor defecte, vânzarea produselor de calitate și construirea soluțiilor digitale, iBuzz.wtf reunește tehnologia și comerțul.'],
- account: ['บัญชีของฉัน', 'My Account', 'Contul meu'],
- repair: ['ซ่อม', 'Repair', 'Reparații'], digital: ['ดิจิทัล', 'Digital', 'Digital'], market: ['ตลาด', 'Market', 'Magazin'], portfolio: ['ผลงาน', 'Portfolio', 'Portofoliu'],
- fix: ['เราซ่อมให้', 'We Fix It.', 'Reparăm.'], build: ['เราสร้างให้', 'We Build It.', 'Construim.'], trade: ['เราซื้อและขาย', 'We Buy & Sell It.', 'Cumpărăm și vindem.'],
- repairLead: ['วิเคราะห์ปัญหาและซ่อมอุปกรณ์อิเล็กทรอนิกส์', 'Professional diagnostics and repair services.', 'Diagnosticare și reparații electronice.'],
- digitalLead: ['เว็บไซต์ แอปพลิเคชัน และโซลูชันดิจิทัล', 'Websites, applications, and digital solutions.', 'Site-uri, aplicații și soluții digitale.'],
- marketLead: ['อิเล็กทรอนิกส์ เสื้อผ้า รองเท้า และอุปกรณ์รีเฟอร์บิช สำหรับผู้ชาย ผู้หญิง และเด็ก', 'Electronics, clothing, footwear, and refurbished devices — for men, women, and children.', 'Electronice, îmbrăcăminte, încălțăminte și dispozitive recondiționate — pentru bărbați, femei și copii.'],
- book: ['ขอรับบริการซ่อม', 'Book a Repair', 'Solicită o reparație'], shop: ['เลือกซื้อสินค้า', 'Shop Market', 'Cumpără din magazin'], sell: ['ขายอุปกรณ์ให้เรา', 'Sell Your Device', 'Vinde-ne dispozitivul'], quote: ['ขอใบเสนอราคา', 'Request a Quote', 'Solicită o ofertă'],
- portfolioEmpty: ['ยังไม่มีผลงานที่เผยแพร่', 'No completed projects published yet.', 'Nu sunt proiecte finalizate publicate încă.'], portfolioLead: ['งานเว็บไซต์ แอปพลิเคชัน และการปรับปรุงระบบดิจิทัล', 'Websites, applications, and digital improvements.', 'Site-uri, aplicații și îmbunătățiri digitale.'],
- workflow: ['จากอุปกรณ์สู่โอกาสใหม่', 'A second life, built on expertise.', 'O a doua viață, prin expertiză.'],
- step1: ['รับเครื่องหรือรับซื้ออุปกรณ์', 'Receive or purchase a device.', 'Primim sau cumpărăm dispozitivul.'], step2: ['ตรวจสอบและวิเคราะห์ปัญหา', 'Inspect and diagnose the problem.', 'Inspectăm și diagnosticăm problema.'], step3: ['ประเมินค่าใช้จ่ายในการซ่อม', 'Estimate repair costs.', 'Estimăm costurile reparației.'], step4: ['ซ่อมเมื่อเหมาะสมและคุ้มค่า', 'Repair suitable devices when economical.', 'Reparăm dispozitivele când este rentabil.'], step5: ['ทดสอบและตรวจสอบการทำงาน', 'Test and verify functionality.', 'Testăm și verificăm funcționalitatea.'], step6: ['ขายต่อพร้อมระบุสภาพตามจริง', 'List repaired products with honest condition descriptions.', 'Listăm produsele reparate cu descrieri sincere ale stării.'],
- broken: ['เครื่องเสียก็เสนอขายได้', 'Broken devices are welcome.', 'Dispozitivele defecte sunt binevenite.'], assessment: ['เราประเมินทุกข้อเสนอ แต่ไม่รับประกันว่าจะรับซื้อทุกเครื่อง', 'Every offer is assessed. Submitting an offer does not guarantee a purchase.', 'Evaluăm fiecare ofertă. Trimiterea unei oferte nu garantează cumpărarea.'],
- phones: ['สมาร์ตโฟนและโทรศัพท์มือถือ', 'Smartphones and mobile phones', 'Smartphone-uri și telefoane'], cameras: ['กล้องดิจิทัล', 'Digital cameras', 'Aparate foto digitale'], screens: ['โทรทัศน์และจอมอนิเตอร์', 'Televisions and monitors', 'Televizoare și monitoare'], computers: ['คอมพิวเตอร์ แล็ปท็อป และแท็บเล็ต', 'Computers, laptops, and tablets', 'Calculatoare, laptopuri și tablete'], electronics: ['อุปกรณ์และชิ้นส่วนอิเล็กทรอนิกส์', 'Electronic devices and components', 'Dispozitive și componente electronice'], scooters: ['สกูตเตอร์ไฟฟ้าและระบบไฟฟ้า', 'Electric scooters and electrical systems', 'Trotinete electrice și sisteme electrice'],
- websites: ['เว็บไซต์ธุรกิจ', 'Business websites', 'Site-uri pentru afaceri'], stores: ['แลนดิ้งเพจและร้านค้าออนไลน์', 'Landing pages and online stores', 'Pagini de prezentare și magazine online'], apps: ['เว็บแอปพลิเคชันแบบกำหนดเอง', 'Custom web applications', 'Aplicații web personalizate'], mobile: ['แอปพลิเคชันที่รองรับมือถือ', 'Mobile-friendly applications', 'Aplicații adaptate pentru mobil'], integrations: ['การเชื่อมต่อซอฟต์แวร์', 'Software integrations', 'Integrări software'], maintenance: ['แก้บั๊กและปรับปรุงเว็บไซต์เดิม', 'Bug fixes and existing website improvements', 'Remedierea erorilor și îmbunătățirea site-urilor'],
- humanCheck: ['ยืนยันว่าคุณไม่ใช่หุ่นยนต์: ผลบวกคือเท่าไร?', 'Quick human check: what is the answer?', 'Verificare rapidă: care este rezultatul?'], humanWrong: ['คำตอบไม่ถูกต้อง ลองตอบคำถาบใหม่', 'That answer is not right — try the new question.', 'Răspuns greșit — încearcă din nou cu noua întrebare.'], cooldown: ['คุณเพิ่งส่งคำขอ กรุณารอสักครู่แล้วลองใหม่อีกครั้ง', 'You just sent a request. Please wait a minute and try again.', 'Ai trimis deja o cerere. Așteaptă un minut și încearcă din nou.'],
- humanNew: ['ขอคำถามใหม่', 'Get an easier question', 'Altă întrebare'], humanHelp: ['ตอบคำถามนี้ได้ยาก? ขอคำถามใหม่ หรือทักหาเราทาง LINE ได้โดยตรงโดยไม่ต้องยืนยัน', 'Having trouble with this question? Get a different one, or skip the form and message us directly on LINE — no check needed.', 'Ai dificultăți cu această întrebare? Cere alta sau scrie-ne direct pe LINE — fără verificare.'],
- humanAlt: ['ยืนยันโดยไม่ต้องคิดเลข: ฉันเป็นคนจริง ไม่ใช่โปรแกรมอัตโนมัติ', 'Verify without math: I am a real person, not an automated program', 'Verificare fără calcule: sunt o persoană reală, nu un program automat'],
- name: ['ชื่อของคุณ', 'Your name', 'Numele tău'], contact: ['เบอร์โทรหรือ LINE ID', 'Phone or LINE ID', 'Telefon sau ID LINE'], service: ['บริการ', 'Service', 'Serviciu'], details: ['รายละเอียด / ปัญหาที่พบ', 'Details / faults', 'Detalii / defecte'], photos: ['รูปภาพ (ไม่บังคับ)', 'Photos (optional)', 'Fotografii (opțional)'], send: ['ส่งคำขอ', 'Submit request', 'Trimite cererea'], sending: ['กำลังส่ง…', 'Sending…', 'Se trimite…'], done: ['ได้รับคำขอแล้ว', 'Request received', 'Cerere primită'], doneDetail: ['บันทึกข้อมูลแล้วเพื่อประเมินและติดต่อกลับ', 'Your details have been saved for assessment and follow-up.', 'Detaliile au fost salvate pentru evaluare și contact.'], error: ['ส่งไม่สำเร็จ โปรดตรวจสอบข้อมูลและลองใหม่', 'Could not submit. Check your details and try again.', 'Trimiterea a eșuat. Verifică detaliile și încearcă din nou.'],
- device: ['ประเภทอุปกรณ์', 'Device type', 'Tip dispozitiv'], brand: ['ยี่ห้อ', 'Brand', 'Marcă'], model: ['รุ่น', 'Model', 'Model'], working: ['ใช้งานได้', 'Working', 'Funcțional'], faulty: ['เสีย', 'Broken', 'Defect'], condition: ['สภาพ', 'Condition', 'Stare'], price: ['ราคาที่คาดหวัง (฿, ไม่บังคับ)', 'Expected price (฿, optional)', 'Preț dorit (฿, opțional)'], clothing: ['เสื้อผ้า', 'Clothing', 'Îmbrăcăminte'], footwear: ['รองเท้า', 'Footwear', 'Încălțăminte'], repaired_tested: ['ซ่อมและทดสอบแล้ว', 'Repaired & tested', 'Reparat și testat'], untested: ['ยังไม่ทดสอบ', 'Untested', 'Netestat'], for_parts: ['สำหรับอะไหล่', 'For parts', 'Pentru piese'], audience: ['กลุ่มผู้ใช้', 'For', 'Pentru'], men: ['ผู้ชาย', 'Men', 'Bărbați'], women: ['ผู้หญิง', 'Women', 'Femei'], children: ['เด็ก', 'Children', 'Copii'], all: ['ทั้งหมด', 'All', 'Toate'], availability: ['สถานะ', 'Availability', 'Disponibilitate'], available: ['มีสินค้า', 'Available', 'Disponibil'], sold: ['ขายแล้ว', 'Sold', 'Vândut'],
-} satisfies Record<string, [string,string,string]>;
+  tagline: [
+    'ซ่อม สร้าง ซื้อ ขาย',
+    'Repair. Build. Buy. Sell.',
+    'Reparăm. Construim. Cumpărăm. Vindem.',
+  ],
+  headline: [
+    'เครื่องเสีย? เราซ่อมให้ อยากซื้อหรือขาย? เราช่วยคุณได้',
+    'Broken? We Fix It. Looking to Buy or Sell? We’ve Got You.',
+    'Defect? Îl reparăm. Vrei să cumperi sau să vinzi? Suntem aici.',
+  ],
+  lead: [
+    'ตั้งแต่ซ่อมสมาร์ตโฟนและอุปกรณ์อิเล็กทรอนิกส์ รับซื้อเครื่องเสีย จำหน่ายสินค้าคุณภาพ ไปจนถึงสร้างโซลูชันดิจิทัล iBuzz.wtf รวมเทคโนโลยีและการค้าไว้ในที่เดียว',
+    'From repairing smartphones and electronics to buying broken devices, selling quality products, and building digital solutions, iBuzz.wtf brings technology and commerce together in one place.',
+    'De la repararea telefoanelor și electronicelor la cumpărarea dispozitivelor defecte, vânzarea produselor de calitate și construirea soluțiilor digitale, iBuzz.wtf reunește tehnologia și comerțul.',
+  ],
+  account: ['บัญชีของฉัน', 'My Account', 'Contul meu'],
+  repair: ['ซ่อม', 'Repair', 'Reparații'],
+  digital: ['ดิจิทัล', 'Digital', 'Digital'],
+  market: ['ตลาด', 'Market', 'Magazin'],
+  portfolio: ['ผลงาน', 'Portfolio', 'Portofoliu'],
+  fix: ['เราซ่อมให้', 'We Fix It.', 'Reparăm.'],
+  build: ['เราสร้างให้', 'We Build It.', 'Construim.'],
+  trade: ['เราซื้อและขาย', 'We Buy & Sell It.', 'Cumpărăm și vindem.'],
+  repairLead: [
+    'วิเคราะห์ปัญหาและซ่อมอุปกรณ์อิเล็กทรอนิกส์',
+    'Professional diagnostics and repair services.',
+    'Diagnosticare și reparații electronice.',
+  ],
+  digitalLead: [
+    'เว็บไซต์ แอปพลิเคชัน และโซลูชันดิจิทัล',
+    'Websites, applications, and digital solutions.',
+    'Site-uri, aplicații și soluții digitale.',
+  ],
+  marketLead: [
+    'อิเล็กทรอนิกส์ เสื้อผ้า รองเท้า และอุปกรณ์รีเฟอร์บิช สำหรับผู้ชาย ผู้หญิง และเด็ก',
+    'Electronics, clothing, footwear, and refurbished devices — for men, women, and children.',
+    'Electronice, îmbrăcăminte, încălțăminte și dispozitive recondiționate — pentru bărbați, femei și copii.',
+  ],
+  book: ['ขอรับบริการซ่อม', 'Book a Repair', 'Solicită o reparație'],
+  shop: ['เลือกซื้อสินค้า', 'Shop Market', 'Cumpără din magazin'],
+  sell: ['ขายอุปกรณ์ให้เรา', 'Sell Your Device', 'Vinde-ne dispozitivul'],
+  quote: ['ขอใบเสนอราคา', 'Request a Quote', 'Solicită o ofertă'],
+  portfolioEmpty: [
+    'ยังไม่มีผลงานที่เผยแพร่',
+    'No completed projects published yet.',
+    'Nu sunt proiecte finalizate publicate încă.',
+  ],
+  portfolioLead: [
+    'งานเว็บไซต์ แอปพลิเคชัน และการปรับปรุงระบบดิจิทัล',
+    'Websites, applications, and digital improvements.',
+    'Site-uri, aplicații și îmbunătățiri digitale.',
+  ],
+  workflow: [
+    'จากอุปกรณ์สู่โอกาสใหม่',
+    'A second life, built on expertise.',
+    'O a doua viață, prin expertiză.',
+  ],
+  step1: [
+    'รับเครื่องหรือรับซื้ออุปกรณ์',
+    'Receive or purchase a device.',
+    'Primim sau cumpărăm dispozitivul.',
+  ],
+  step2: [
+    'ตรวจสอบและวิเคราะห์ปัญหา',
+    'Inspect and diagnose the problem.',
+    'Inspectăm și diagnosticăm problema.',
+  ],
+  step3: ['ประเมินค่าใช้จ่ายในการซ่อม', 'Estimate repair costs.', 'Estimăm costurile reparației.'],
+  step4: [
+    'ซ่อมเมื่อเหมาะสมและคุ้มค่า',
+    'Repair suitable devices when economical.',
+    'Reparăm dispozitivele când este rentabil.',
+  ],
+  step5: [
+    'ทดสอบและตรวจสอบการทำงาน',
+    'Test and verify functionality.',
+    'Testăm și verificăm funcționalitatea.',
+  ],
+  step6: [
+    'ขายต่อพร้อมระบุสภาพตามจริง',
+    'List repaired products with honest condition descriptions.',
+    'Listăm produsele reparate cu descrieri sincere ale stării.',
+  ],
+  broken: [
+    'เครื่องเสียก็เสนอขายได้',
+    'Broken devices are welcome.',
+    'Dispozitivele defecte sunt binevenite.',
+  ],
+  assessment: [
+    'เราประเมินทุกข้อเสนอ แต่ไม่รับประกันว่าจะรับซื้อทุกเครื่อง',
+    'Every offer is assessed. Submitting an offer does not guarantee a purchase.',
+    'Evaluăm fiecare ofertă. Trimiterea unei oferte nu garantează cumpărarea.',
+  ],
+  phones: [
+    'สมาร์ตโฟนและโทรศัพท์มือถือ',
+    'Smartphones and mobile phones',
+    'Smartphone-uri și telefoane',
+  ],
+  cameras: ['กล้องดิจิทัล', 'Digital cameras', 'Aparate foto digitale'],
+  screens: ['โทรทัศน์และจอมอนิเตอร์', 'Televisions and monitors', 'Televizoare și monitoare'],
+  computers: [
+    'คอมพิวเตอร์ แล็ปท็อป และแท็บเล็ต',
+    'Computers, laptops, and tablets',
+    'Calculatoare, laptopuri și tablete',
+  ],
+  electronics: [
+    'อุปกรณ์และชิ้นส่วนอิเล็กทรอนิกส์',
+    'Electronic devices and components',
+    'Dispozitive și componente electronice',
+  ],
+  scooters: [
+    'สกูตเตอร์ไฟฟ้าและระบบไฟฟ้า',
+    'Electric scooters and electrical systems',
+    'Trotinete electrice și sisteme electrice',
+  ],
+  websites: ['เว็บไซต์ธุรกิจ', 'Business websites', 'Site-uri pentru afaceri'],
+  stores: [
+    'แลนดิ้งเพจและร้านค้าออนไลน์',
+    'Landing pages and online stores',
+    'Pagini de prezentare și magazine online',
+  ],
+  apps: ['เว็บแอปพลิเคชันแบบกำหนดเอง', 'Custom web applications', 'Aplicații web personalizate'],
+  mobile: [
+    'แอปพลิเคชันที่รองรับมือถือ',
+    'Mobile-friendly applications',
+    'Aplicații adaptate pentru mobil',
+  ],
+  integrations: ['การเชื่อมต่อซอฟต์แวร์', 'Software integrations', 'Integrări software'],
+  maintenance: [
+    'แก้บั๊กและปรับปรุงเว็บไซต์เดิม',
+    'Bug fixes and existing website improvements',
+    'Remedierea erorilor și îmbunătățirea site-urilor',
+  ],
+  humanCheck: [
+    'ยืนยันว่าคุณไม่ใช่หุ่นยนต์: ผลบวกคือเท่าไร?',
+    'Quick human check: what is the answer?',
+    'Verificare rapidă: care este rezultatul?',
+  ],
+  humanWrong: [
+    'คำตอบไม่ถูกต้อง ลองตอบคำถาบใหม่',
+    'That answer is not right — try the new question.',
+    'Răspuns greșit — încearcă din nou cu noua întrebare.',
+  ],
+  cooldown: [
+    'คุณเพิ่งส่งคำขอ กรุณารอสักครู่แล้วลองใหม่อีกครั้ง',
+    'You just sent a request. Please wait a minute and try again.',
+    'Ai trimis deja o cerere. Așteaptă un minut și încearcă din nou.',
+  ],
+  humanNew: ['ขอคำถามใหม่', 'Get an easier question', 'Altă întrebare'],
+  humanHelp: [
+    'ตอบคำถามนี้ได้ยาก? ขอคำถามใหม่ หรือทักหาเราทาง LINE ได้โดยตรงโดยไม่ต้องยืนยัน',
+    'Having trouble with this question? Get a different one, or skip the form and message us directly on LINE — no check needed.',
+    'Ai dificultăți cu această întrebare? Cere alta sau scrie-ne direct pe LINE — fără verificare.',
+  ],
+  humanAlt: [
+    'ยืนยันโดยไม่ต้องคิดเลข: ฉันเป็นคนจริง ไม่ใช่โปรแกรมอัตโนมัติ',
+    'Verify without math: I am a real person, not an automated program',
+    'Verificare fără calcule: sunt o persoană reală, nu un program automat',
+  ],
+  name: ['ชื่อของคุณ', 'Your name', 'Numele tău'],
+  contact: ['เบอร์โทรหรือ LINE ID', 'Phone or LINE ID', 'Telefon sau ID LINE'],
+  service: ['บริการ', 'Service', 'Serviciu'],
+  details: ['รายละเอียด / ปัญหาที่พบ', 'Details / faults', 'Detalii / defecte'],
+  photos: ['รูปภาพ (ไม่บังคับ)', 'Photos (optional)', 'Fotografii (opțional)'],
+  send: ['ส่งคำขอ', 'Submit request', 'Trimite cererea'],
+  sending: ['กำลังส่ง…', 'Sending…', 'Se trimite…'],
+  done: ['ได้รับคำขอแล้ว', 'Request received', 'Cerere primită'],
+  doneDetail: [
+    'บันทึกข้อมูลแล้วเพื่อประเมินและติดต่อกลับ',
+    'Your details have been saved for assessment and follow-up.',
+    'Detaliile au fost salvate pentru evaluare și contact.',
+  ],
+  error: [
+    'ส่งไม่สำเร็จ โปรดตรวจสอบข้อมูลและลองใหม่',
+    'Could not submit. Check your details and try again.',
+    'Trimiterea a eșuat. Verifică detaliile și încearcă din nou.',
+  ],
+  device: ['ประเภทอุปกรณ์', 'Device type', 'Tip dispozitiv'],
+  brand: ['ยี่ห้อ', 'Brand', 'Marcă'],
+  model: ['รุ่น', 'Model', 'Model'],
+  working: ['ใช้งานได้', 'Working', 'Funcțional'],
+  faulty: ['เสีย', 'Broken', 'Defect'],
+  condition: ['สภาพ', 'Condition', 'Stare'],
+  price: [
+    'ราคาที่คาดหวัง (฿, ไม่บังคับ)',
+    'Expected price (฿, optional)',
+    'Preț dorit (฿, opțional)',
+  ],
+  clothing: ['เสื้อผ้า', 'Clothing', 'Îmbrăcăminte'],
+  footwear: ['รองเท้า', 'Footwear', 'Încălțăminte'],
+  repaired_tested: ['ซ่อมและทดสอบแล้ว', 'Repaired & tested', 'Reparat și testat'],
+  untested: ['ยังไม่ทดสอบ', 'Untested', 'Netestat'],
+  for_parts: ['สำหรับอะไหล่', 'For parts', 'Pentru piese'],
+  audience: ['กลุ่มผู้ใช้', 'For', 'Pentru'],
+  men: ['ผู้ชาย', 'Men', 'Bărbați'],
+  women: ['ผู้หญิง', 'Women', 'Femei'],
+  children: ['เด็ก', 'Children', 'Copii'],
+  all: ['ทั้งหมด', 'All', 'Toate'],
+  availability: ['สถานะ', 'Availability', 'Disponibilitate'],
+  available: ['มีสินค้า', 'Available', 'Disponibil'],
+  sold: ['ขายแล้ว', 'Sold', 'Vândut'],
+} satisfies Record<string, [string, string, string]>;
 export type CopyKey = keyof typeof C;
-export function copy(lang: Lang, key: CopyKey) { return C[key][lang === 'th' ? 0 : lang === 'en' ? 1 : 2]; }
-export const repairServices: CopyKey[] = ['phones','cameras','screens','computers','electronics','scooters'];
-export const digitalServices: CopyKey[] = ['websites','stores','apps','mobile','integrations','maintenance'];
-export function pageHead(title: string, description: string) { return { meta: [{title: `${title} — iBuzz.wtf`}, {name:'description',content:description}, {property:'og:title',content:`${title} — iBuzz.wtf`}, {property:'og:description',content:description}, {property:'og:type',content:'website'}, {property:'og:image',content:SOCIAL_IMAGE}, {name:'twitter:card',content:'summary_large_image'}, {name:'twitter:image',content:SOCIAL_IMAGE}] }; }
+export function copy(lang: Lang, key: CopyKey) {
+  return C[key][lang === 'th' ? 0 : lang === 'en' ? 1 : 2];
+}
+export const repairServices: CopyKey[] = [
+  'phones',
+  'cameras',
+  'screens',
+  'computers',
+  'electronics',
+  'scooters',
+];
+export const digitalServices: CopyKey[] = [
+  'websites',
+  'stores',
+  'apps',
+  'mobile',
+  'integrations',
+  'maintenance',
+];
+export function pageHead(title: string, description: string) {
+  return {
+    meta: [
+      { title: `${title} — iBuzz.wtf` },
+      { name: 'description', content: description },
+      { property: 'og:title', content: `${title} — iBuzz.wtf` },
+      { property: 'og:description', content: description },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:image', content: SOCIAL_IMAGE },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:image', content: SOCIAL_IMAGE },
+    ],
+  };
+}
