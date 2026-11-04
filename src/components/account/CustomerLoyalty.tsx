@@ -18,7 +18,7 @@ export function CustomerLoyalty() {
   const [rewardCode, setRewardCode] = useState('');
 
   async function loadAccount() {
-    const { data, error } = await (supabase as any).rpc('ibuzz_get_my_loyalty_account');
+    const { data, error } = await supabase.rpc('ibuzz_get_my_loyalty_account');
     if (error) {
       setAccount(null);
     } else {
@@ -39,7 +39,7 @@ export function CustomerLoyalty() {
   async function applyCode() {
     if (!code.trim()) return;
     setApplying(true);
-    const { error } = await (supabase as any).rpc('ibuzz_apply_referral_code', {
+    const { error } = await supabase.rpc('ibuzz_apply_referral_code', {
       p_code: code.trim().toUpperCase(),
     });
     setApplying(false);
@@ -67,7 +67,7 @@ export function CustomerLoyalty() {
   async function redeemPoints() {
     if (!account || account.points_balance < 100 || redeeming) return;
     setRedeeming(true);
-    const { data, error } = await (supabase as any).rpc('ibuzz_redeem_loyalty_points', {
+    const { data, error } = await supabase.rpc('ibuzz_redeem_loyalty_points', {
       p_points: 100,
     });
     setRedeeming(false);

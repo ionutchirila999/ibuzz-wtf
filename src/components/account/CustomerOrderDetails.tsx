@@ -154,7 +154,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
     queryKey: ['customer-order-history', order.id],
     enabled: open,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_status_history')
         .select('id,status,payment_status,note,created_at')
         .eq('order_id', order.id)
@@ -167,7 +167,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
     queryKey: ['customer-order-tickets', order.id],
     enabled: open,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .select('id,ticket_number,subject,message,status,admin_reply,created_at,updated_at')
         .eq('order_id', order.id)
@@ -190,7 +190,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
       setBusy(false);
       return;
     }
-    const { error } = await (supabase as any).from('support_tickets').insert({
+    const { error } = await supabase.from('support_tickets').insert({
       user_id: data.user.id,
       order_id: order.id,
       subject: subject.trim(),
@@ -277,7 +277,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
               <p className="mt-2 text-sm text-muted-foreground">{w.noHistory}</p>
             ) : (
               <ol className="mt-3 space-y-3">
-                {history.data.map((h: any) => (
+                {history.data.map((h) => (
                   <li key={h.id} className="border-l-2 border-primary/40 pl-3">
                     <p className="text-sm font-medium">
                       {statusLabel(h.status)} · {statusLabel(h.payment_status)}
@@ -332,7 +332,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
               <p className="mt-2 text-sm text-muted-foreground">{w.noRequests}</p>
             ) : (
               <div className="mt-3 space-y-3">
-                {tickets.data.map((t: any) => (
+                {tickets.data.map((t) => (
                   <article key={t.id} className="rounded-md bg-muted/30 p-3">
                     <div className="flex flex-wrap justify-between gap-2">
                       <strong className="text-sm">

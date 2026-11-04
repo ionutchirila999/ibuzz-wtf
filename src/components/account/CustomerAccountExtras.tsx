@@ -157,7 +157,7 @@ export function CustomerAccountExtras() {
     queryKey: ['customer-wishlist', userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('customer_wishlist')
         .select(
           'id,product_id,created_at,products(id,title,title_th,title_ro,price,status,images,stock)',
@@ -185,7 +185,7 @@ export function CustomerAccountExtras() {
     queryKey: ['customer-order-notifications', userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('orders')
         .select('id,order_number,status,payment_status,updated_at')
         .eq('user_id', userId)
@@ -199,7 +199,7 @@ export function CustomerAccountExtras() {
     queryKey: ['customer-account-updates', userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .select('id,subject,status,admin_reply,replied_at,updated_at')
         .eq('user_id', userId)
@@ -258,7 +258,7 @@ export function CustomerAccountExtras() {
 
   async function addProduct(productId: string) {
     if (!userId) return;
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('customer_wishlist')
       .insert({ user_id: userId, product_id: productId });
     if (error) {
@@ -270,7 +270,7 @@ export function CustomerAccountExtras() {
   }
 
   async function removeProduct(id: string) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('customer_wishlist')
       .delete()
       .eq('id', id)
@@ -458,7 +458,7 @@ export function CustomerAccountExtras() {
           <p className="mt-3 text-sm text-muted-foreground">{w.noUpdates}</p>
         ) : (
           <ul className="mt-3 space-y-3">
-            {(orderUpdates.data ?? []).map((order: any) => (
+            {(orderUpdates.data ?? []).map((order) => (
               <li key={order.id} className="rounded-lg bg-muted/30 p-3">
                 <p className="text-sm font-medium">
                   {w.orderUpdate}: {order.order_number}
@@ -473,7 +473,7 @@ export function CustomerAccountExtras() {
                 </p>
               </li>
             ))}
-            {(tickets.data ?? []).map((ticket: any) => (
+            {(tickets.data ?? []).map((ticket) => (
               <li key={ticket.id} className="rounded-lg bg-muted/30 p-3">
                 <p className="text-sm font-medium">
                   {w.ticketUpdate}: {ticket.subject}

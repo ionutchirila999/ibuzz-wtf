@@ -248,7 +248,7 @@ function Checkout() {
       let items = localItems;
 
       if (user) {
-        const { data: savedProfile } = await (supabase as any)
+        const { data: savedProfile } = await supabase
           .from('customer_profiles')
           .select('full_name,phone,delivery_addresses')
           .eq('user_id', user.id)
@@ -277,7 +277,7 @@ function Checkout() {
               : fallbackAddress),
         );
 
-        const { data: savedCart } = await (supabase as any)
+        const { data: savedCart } = await supabase
           .from('customer_carts')
           .select('items')
           .eq('user_id', user.id)
@@ -341,7 +341,7 @@ function Checkout() {
     void (async () => {
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
-      await (supabase as any).from('customer_carts').upsert(
+      await supabase.from('customer_carts').upsert(
         {
           user_id: data.user.id,
           items: cart,
@@ -388,10 +388,15 @@ function Checkout() {
       );
       return;
     }
-    const { data, error } = await (supabase as any).rpc('validate_discount_code', {
+    const { data: rawDiscount, error } = await supabase.rpc('validate_discount_code', {
       p_code: code,
       p_subtotal: total,
     });
+    const data = rawDiscount as {
+      valid?: boolean;
+      message?: string;
+      discount_amount?: number | string;
+    } | null;
     if (error || !data?.valid) {
       setAppliedDiscount(null);
       toast.error(
@@ -620,7 +625,7 @@ function Checkout() {
       }
       let orderNumber = createdOrderNumber;
       if (!orderNumber) {
-        const { data, error } = await (supabase as any).rpc('create_customer_order', {
+        const { data, error } = await supabase.rpc('create_customer_order', {
           p_buyer_name: name.trim(),
           p_buyer_contact: contact.trim(),
           p_shipping_address: shippingAddress.trim(),
@@ -628,7 +633,8 @@ function Checkout() {
           p_discount_code: appliedDiscountAmount > 0 ? (appliedDiscount?.code ?? null) : null,
         });
         if (error) throw error;
-        orderNumber = typeof data?.order_number === 'string' ? data.order_number : null;
+        const created = data as { order_number?: unknown } | null;
+        orderNumber = typeof created?.order_number === 'string' ? created.order_number : null;
         if (!orderNumber) throw new Error('Order number was not returned');
         setCreatedOrderNumber(orderNumber);
         trackEvent('order_request_created', {

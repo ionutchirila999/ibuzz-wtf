@@ -123,7 +123,7 @@ export function OrderSupport({
     (async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return;
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('order_support_requests')
         .select('id,request_type,subject,status,created_at')
         .eq('user_id', auth.user.id)
@@ -131,18 +131,19 @@ export function OrderSupport({
         .order('created_at', { ascending: false });
       if (alive && data) setRequests(data as SupportRequest[]);
       if (data?.length) {
-        const { data: messages } = await (supabase as any)
+        const { data: messages } = await supabase
           .from('order_support_messages')
           .select('id,request_id,message,is_internal,created_at')
           .in(
             'request_id',
-            data.map((r: any) => r.id),
+            data.map((r) => r.id),
           )
           .eq('is_internal', false)
           .order('created_at', { ascending: true });
         if (alive && messages) {
           const grouped: Record<string, { id: string; message: string; created_at: string }[]> = {};
-          for (const item of messages as any[]) {
+          for (const item of messages) {
+            if (!item.request_id) continue;
             (grouped[item.request_id] ??= []).push(item);
           }
           setResponses(grouped);
@@ -168,7 +169,7 @@ export function OrderSupport({
       return;
     }
     setBusy(true);
-    const { data, error: insertError } = await (supabase as any)
+    const { data, error: insertError } = await supabase
       .from('order_support_requests')
       .insert({
         user_id: auth.user.id,

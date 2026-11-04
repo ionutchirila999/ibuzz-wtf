@@ -66,7 +66,7 @@ export function OwnerOrders() {
   const orders = useQuery({
     queryKey: ['owner-orders'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('orders')
         .select('*, order_items(*)')
         .order('created_at', { ascending: false });
@@ -77,7 +77,7 @@ export function OwnerOrders() {
   const refunds = useQuery({
     queryKey: ['owner-refunds'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_refunds')
         .select('id,order_id,amount,reason,created_at')
         .order('created_at', { ascending: false });
@@ -96,7 +96,7 @@ export function OwnerOrders() {
     }
     setRefundSubmitting((old) => ({ ...old, [order.id]: true }));
     try {
-      const { error } = await (supabase as any).rpc('record_order_refund', {
+      const { error } = await supabase.rpc('record_order_refund', {
         p_order_id: order.id,
         p_amount: amount,
         p_reason: draft.reason.trim(),
@@ -166,7 +166,7 @@ export function OwnerOrders() {
       toast.error('Tracking URL must start with https://');
       return;
     }
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('orders')
       .update({
         status: d.status,

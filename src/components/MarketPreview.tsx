@@ -15,7 +15,7 @@ export const previewQuery = queryOptions({
   queryFn: async () => {
     // Avoid ordering by optional schema columns in SQL: older databases may not have
     // is_featured yet, which would otherwise hide the entire homepage product preview.
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('products')
       .select('*')
       .neq('status', 'hidden')

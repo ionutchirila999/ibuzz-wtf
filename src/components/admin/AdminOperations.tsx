@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+import { untypedDb } from '@/lib/untyped-db';
 import { useT } from '@/lib/i18n';
 import { formatPrice } from '@/lib/shop';
 import { getPaidSalesTotals } from '@/lib/admin-dashboard';
@@ -361,7 +363,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const products = useQuery({
     queryKey: ['ops-products'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from('products').select('*').order('title');
+      const { data, error } = await supabase.from('products').select('*').order('title');
       if (error) throw error;
       return data ?? [];
     },
@@ -369,7 +371,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const orders = useQuery({
     queryKey: ['ops-orders'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('orders')
         .select(
           'id,order_number,total,status,payment_status,created_at,updated_at,order_items(product_id,quantity)',
@@ -383,7 +385,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-admin-notifications'],
     enabled: section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await untypedDb
         .from('admin_notifications')
         .select('id,event_type,order_id,product_id,title,message,metadata,read_at,created_at')
         .order('created_at', { ascending: false })
@@ -396,7 +398,7 @@ export function AdminOperations({ section }: { section: Section }) {
   const enquiries = useQuery({
     queryKey: ['ops-enquiries'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('service_enquiries')
         .select('*')
         .order('created_at', { ascending: false })
@@ -409,7 +411,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-resale-offers'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('resale_offers')
         .select('*')
         .order('created_at', { ascending: false })
@@ -423,7 +425,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-inventory'],
     enabled: section === 'inventory' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('inventory_movements')
         .select('id,product_id,quantity_delta,stock_after,reason,note,created_at,products(title)')
         .order('created_at', { ascending: false })
@@ -436,7 +438,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-repairs'],
     enabled: section === 'repairs' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('repair_jobs')
         .select('*')
         .order('created_at', { ascending: false })
@@ -449,7 +451,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-tickets'],
     enabled: section === 'support' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
         .order('created_at', { ascending: false })
@@ -462,7 +464,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-ticket-messages'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_ticket_messages')
         .select('id,ticket_id,author_id,message,is_internal,created_at')
         .order('created_at', { ascending: true })
@@ -476,7 +478,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-order-support'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_support_requests')
         .select(
           'id,user_id,order_id,request_type,subject,message,status,created_at,updated_at,assigned_to,internal_notes,admin_reply,replied_at,orders(order_number,buyer_name,buyer_contact,total,status,payment_status)',
@@ -492,7 +494,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-order-support-messages'],
     enabled: section === 'support',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_support_messages')
         .select('id,request_id,author_id,message,is_internal,created_at')
         .order('created_at', { ascending: true })
@@ -506,7 +508,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-audit'],
     enabled: section === 'audit',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('admin_audit_log')
         .select('*')
         .order('created_at', { ascending: false })
@@ -519,7 +521,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-expenses'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('expense_entries')
         .select('*')
         .order('occurred_on', { ascending: false })
@@ -532,7 +534,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-costs'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('product_costs')
         .select('product_id,purchase_cost,repair_cost,shipping_cost,platform_fees,other_expenses');
       if (error) throw error;
@@ -543,7 +545,7 @@ export function AdminOperations({ section }: { section: Section }) {
     queryKey: ['ops-refunds'],
     enabled: section === 'finance' || section === 'overview',
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('order_refunds')
         .select('id,order_id,amount,reason,created_at')
         .order('created_at', { ascending: false })
@@ -591,12 +593,12 @@ export function AdminOperations({ section }: { section: Section }) {
   ].some(Boolean);
   const { lowStock, outOfStock } = classifyInventory(products.data ?? [], stockThreshold);
   const pendingOrders = (orders.data ?? []).filter(
-    (o: any) => o.status !== 'completed' && o.status !== 'cancelled',
+    (o) => o.status !== 'completed' && o.status !== 'cancelled',
   );
   const salesTotals = getPaidSalesTotals(orders.data ?? []);
   const paidTotal = salesTotals.paidOrderTotal;
   const newEnquiries = (enquiries.data ?? []).filter(
-    (e: any) => e.status === 'new' || e.status === 'received',
+    (e) => e.status === 'new' || e.status === 'received',
   );
   const now = new Date();
   const rangeStart =
@@ -611,32 +613,32 @@ export function AdminOperations({ section }: { section: Section }) {
     const d = new Date(value);
     return !Number.isNaN(d.getTime()) && dateKey(d) >= rangeStart && dateKey(d) <= rangeEnd;
   };
-  const rangeOrders = (orders.data ?? []).filter((o: any) => inRange(o.created_at));
+  const rangeOrders = (orders.data ?? []).filter((o) => inRange(o.created_at));
   const completedPaidSales = rangeOrders
-    .filter((o: any) => o.payment_status === 'paid' && o.status === 'completed')
-    .reduce((sum: number, o: any) => sum + Number(o.total || 0), 0);
+    .filter((o) => o.payment_status === 'paid' && o.status === 'completed')
+    .reduce((sum: number, o) => sum + Number(o.total || 0), 0);
   const outstandingOrders = rangeOrders.filter(
-    (o: any) => ['pending', 'submitted'].includes(o.payment_status) && o.status !== 'cancelled',
+    (o) => ['pending', 'submitted'].includes(o.payment_status) && o.status !== 'cancelled',
   );
   const outstandingAmount = outstandingOrders.reduce(
-    (sum: number, o: any) => sum + Number(o.total || 0),
+    (sum: number, o) => sum + Number(o.total || 0),
     0,
   );
   const rangePendingOrders = rangeOrders.filter(
-    (o: any) => o.status !== 'completed' && o.status !== 'cancelled',
+    (o) => o.status !== 'completed' && o.status !== 'cancelled',
   );
-  const failedPayments = rangeOrders.filter((o: any) => o.payment_status === 'failed');
+  const failedPayments = rangeOrders.filter((o) => o.payment_status === 'failed');
   const newOrders = rangeOrders.filter(
-    (o: any) => ['received', 'confirmed'].includes(o.status) && o.status !== 'cancelled',
+    (o) => ['received', 'confirmed'].includes(o.status) && o.status !== 'cancelled',
   );
-  const rangeRefunds = (refunds.data ?? []).filter((r: any) => inRange(r.created_at));
+  const rangeRefunds = (refunds.data ?? []).filter((r) => inRange(r.created_at));
 
-  const rangeEnquiries = newEnquiries.filter((e: any) => inRange(e.created_at));
+  const rangeEnquiries = newEnquiries.filter((e) => inRange(e.created_at));
   const rangeExpenses = (expenses.data ?? [])
-    .filter((e: any) => String(e.occurred_on) >= rangeStart && String(e.occurred_on) <= rangeEnd)
-    .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+    .filter((e) => String(e.occurred_on) >= rangeStart && String(e.occurred_on) <= rangeEnd)
+    .reduce((sum: number, e) => sum + Number(e.amount || 0), 0);
   const costByProduct = new Map(
-    (costs.data ?? []).map((item: any) => [
+    (costs.data ?? []).map((item) => [
       item.product_id,
       Number(item.purchase_cost || 0) +
         Number(item.repair_cost || 0) +
@@ -646,13 +648,13 @@ export function AdminOperations({ section }: { section: Section }) {
     ]),
   );
   const rangeProductCosts = rangeOrders
-    .filter((o: any) => o.payment_status === 'paid' && o.status === 'completed')
+    .filter((o) => o.payment_status === 'paid' && o.status === 'completed')
     .reduce(
-      (sum: number, o: any) =>
+      (sum: number, o) =>
         sum +
         (o.order_items ?? []).reduce(
-          (itemSum: number, item: any) =>
-            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+          (itemSum: number, item) =>
+            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
@@ -660,34 +662,34 @@ export function AdminOperations({ section }: { section: Section }) {
   const estimatedOperatingResult = completedPaidSales - rangeProductCosts - rangeExpenses;
   const inboxTerm = inboxSearch.trim().toLowerCase();
   const visibleTickets = (tickets.data ?? []).filter(
-    (t: any) =>
+    (t) =>
       !inboxTerm ||
-      [t.ticket_number, t.subject, t.message, t.customer_email].some((v: any) =>
+      [t.ticket_number, t.subject, t.message, t.customer_email].some((v) =>
         String(v ?? '')
           .toLowerCase()
           .includes(inboxTerm),
       ),
   );
   const visibleEnquiries = (enquiries.data ?? []).filter(
-    (e: any) =>
+    (e) =>
       !inboxTerm ||
-      [e.name, e.contact, e.service, e.description, e.kind].some((v: any) =>
+      [e.name, e.contact, e.service, e.description, e.kind].some((v) =>
         String(v ?? '')
           .toLowerCase()
           .includes(inboxTerm),
       ),
   );
   const visibleOffers = (resaleOffers.data ?? []).filter(
-    (o: any) =>
+    (o) =>
       !inboxTerm ||
-      [o.name, o.contact, o.category, o.item_description, o.condition_notes].some((v: any) =>
+      [o.name, o.contact, o.category, o.item_description, o.condition_notes].some((v) =>
         String(v ?? '')
           .toLowerCase()
           .includes(inboxTerm),
       ),
   );
   const visibleOrderSupport = (orderSupportRequests.data ?? []).filter(
-    (r: any) =>
+    (r) =>
       !inboxTerm ||
       [
         r.subject,
@@ -696,7 +698,7 @@ export function AdminOperations({ section }: { section: Section }) {
         r.orders?.order_number,
         r.orders?.buyer_name,
         r.orders?.buyer_contact,
-      ].some((v: any) =>
+      ].some((v) =>
         String(v ?? '')
           .toLowerCase()
           .includes(inboxTerm),
@@ -719,11 +721,11 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a valid stock quantity and low-stock threshold.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_adjust_inventory', {
+    const { error } = await supabase.rpc('ibuzz_adjust_inventory', {
       p_product_id: stockAdjustment.product_id,
       p_new_stock: newStock,
       p_reason: stockAdjustment.reason,
-      p_note: stockAdjustment.note.trim() || null,
+      ...(stockAdjustment.note.trim() ? { p_note: stockAdjustment.note.trim() } : {}),
     });
     if (error) {
       toast.error(
@@ -732,7 +734,7 @@ export function AdminOperations({ section }: { section: Section }) {
       );
       return;
     }
-    const { error: thresholdError } = await (supabase as any)
+    const { error: thresholdError } = await supabase
       .from('products')
       .update({ low_stock_threshold: threshold })
       .eq('id', stockAdjustment.product_id);
@@ -760,7 +762,7 @@ export function AdminOperations({ section }: { section: Section }) {
       return;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any).from('expense_entries').insert({
+    const { error } = await supabase.from('expense_entries').insert({
       category: expense.category.trim(),
       description: expense.description.trim(),
       amount,
@@ -792,16 +794,18 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter valid non-negative costs.');
       return;
     }
+    const [purchase_cost = 0, repair_cost = 0, shipping_cost = 0, platform_fees = 0, other_expenses = 0] =
+      values;
     const payload = {
       product_id: costDraft.product_id,
-      purchase_cost: values[0],
-      repair_cost: values[1],
-      shipping_cost: values[2],
-      platform_fees: values[3],
-      other_expenses: values[4],
+      purchase_cost,
+      repair_cost,
+      shipping_cost,
+      platform_fees,
+      other_expenses,
       updated_at: new Date().toISOString(),
     };
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('product_costs')
       .upsert(payload, { onConflict: 'product_id' });
     if (error) {
@@ -813,7 +817,7 @@ export function AdminOperations({ section }: { section: Section }) {
   }
   async function createJob(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const { error } = await (supabase as any).from('repair_jobs').insert({
+    const { error } = await supabase.from('repair_jobs').insert({
       customer_name: job.customer_name.trim(),
       customer_contact: job.customer_contact.trim(),
       device: job.device.trim(),
@@ -853,8 +857,8 @@ export function AdminOperations({ section }: { section: Section }) {
     });
     await invalidate();
   }
-  async function saveRepair(id: string, values: Record<string, any>) {
-    const { error } = await (supabase as any).from('repair_jobs').update(values).eq('id', id);
+  async function saveRepair(id: string, values: TablesUpdate<'repair_jobs'>) {
+    const { error } = await supabase.from('repair_jobs').update(values).eq('id', id);
     if (error) {
       toast.error(
         lang === 'th'
@@ -868,8 +872,8 @@ export function AdminOperations({ section }: { section: Section }) {
     toast.success(w.save);
     await invalidate();
   }
-  async function saveTicket(ticket: any) {
-    const { error } = await (supabase as any)
+  async function saveTicket(ticket: Tables<'support_tickets'>) {
+    const { error } = await supabase
       .from('support_tickets')
       .update({
         status: ticketState[ticket.id] ?? ticket.status,
@@ -890,7 +894,7 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a message first.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_add_support_message', {
+    const { error } = await supabase.rpc('ibuzz_add_support_message', {
       p_ticket_id: id,
       p_message: message,
       p_is_internal: isInternal,
@@ -909,7 +913,7 @@ export function AdminOperations({ section }: { section: Section }) {
     ]);
   }
   async function updateServiceEnquiry(id: string, status: string) {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('service_enquiries')
       .update({ status })
       .eq('id', id);
@@ -921,7 +925,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await invalidate();
   }
   async function markAdminNotificationRead(id: string) {
-    const { error } = await (supabase as any)
+    const { error } = await untypedDb
       .from('admin_notifications')
       .update({ read_at: new Date().toISOString() })
       .eq('id', id);
@@ -932,7 +936,7 @@ export function AdminOperations({ section }: { section: Section }) {
     await qc.invalidateQueries({ queryKey: ['ops-admin-notifications'] });
   }
   async function updateResaleOffer(id: string, status: string) {
-    const { error } = await (supabase as any).from('resale_offers').update({ status }).eq('id', id);
+    const { error } = await supabase.from('resale_offers').update({ status }).eq('id', id);
     if (error) {
       toast.error('Could not update resale offer');
       return;
@@ -940,8 +944,8 @@ export function AdminOperations({ section }: { section: Section }) {
     toast.success(w.save);
     await invalidate();
   }
-  async function saveOrderSupportRequest(request: any) {
-    const { error } = await (supabase as any)
+  async function saveOrderSupportRequest(request: (typeof visibleOrderSupport)[number]) {
+    const { error } = await supabase
       .from('order_support_requests')
       .update({
         status: orderRequestStatus[request.id] ?? request.status,
@@ -962,7 +966,7 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter a message first.');
       return;
     }
-    const { error } = await (supabase as any).rpc('ibuzz_add_order_support_message', {
+    const { error } = await supabase.rpc('ibuzz_add_order_support_message', {
       p_request_id: id,
       p_message: message,
       p_is_internal: isInternal,
@@ -972,7 +976,7 @@ export function AdminOperations({ section }: { section: Section }) {
       return;
     }
     if (isInternal)
-      await (supabase as any)
+      await supabase
         .from('order_support_requests')
         .update({ internal_notes: message })
         .eq('id', id);
@@ -999,7 +1003,7 @@ export function AdminOperations({ section }: { section: Section }) {
       ['Estimated operating result (THB)', estimatedOperatingResult.toFixed(2)],
       [],
       ['Order number', 'Created at', 'Order status', 'Payment status', 'Total (THB)'],
-      ...rangeOrders.map((order: any) => [
+      ...rangeOrders.map((order) => [
         String(order.order_number ?? order.id),
         String(order.created_at ?? ''),
         String(order.status ?? ''),
@@ -1137,7 +1141,7 @@ export function AdminOperations({ section }: { section: Section }) {
                   : 'Admin notifications'}
             </h3>
             <Badge variant="outline">
-              {(adminNotifications.data ?? []).filter((n: any) => !n.read_at).length}{' '}
+              {(adminNotifications.data ?? []).filter((n) => !n.read_at).length}{' '}
               {lang === 'th' ? 'ยังไม่อ่าน' : lang === 'ro' ? 'necitite' : 'unread'}
             </Badge>
           </div>
@@ -1157,7 +1161,7 @@ export function AdminOperations({ section }: { section: Section }) {
             </p>
           ) : (
             <div className="mt-3 space-y-2">
-              {(adminNotifications.data ?? []).slice(0, 10).map((n: any) => (
+              {(adminNotifications.data ?? []).slice(0, 10).map((n) => (
                 <article
                   key={n.id}
                   className={`flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between ${n.read_at ? 'opacity-70' : 'border-primary/30 bg-primary/5'}`}
@@ -1211,7 +1215,7 @@ export function AdminOperations({ section }: { section: Section }) {
                 {lang === 'th' ? 'คำสั่งซื้อใหม่' : lang === 'ro' ? 'Comenzi noi' : 'New orders'}
               </p>
               <p className="mt-1 text-xl font-bold">{newOrders.length}</p>
-              {newOrders.slice(0, 2).map((o: any) => (
+              {newOrders.slice(0, 2).map((o) => (
                 <p key={o.id} className="mt-1 truncate text-xs">
                   {o.order_number ?? o.id.slice(0, 8)}
                 </p>
@@ -1226,7 +1230,7 @@ export function AdminOperations({ section }: { section: Section }) {
                     : 'Failed payments'}
               </p>
               <p className="mt-1 text-xl font-bold">{failedPayments.length}</p>
-              {failedPayments.slice(0, 2).map((o: any) => (
+              {failedPayments.slice(0, 2).map((o) => (
                 <p key={o.id} className="mt-1 truncate text-xs">
                   {o.order_number ?? o.id.slice(0, 8)} · {formatPrice(Number(o.total || 0))}
                 </p>
@@ -1241,7 +1245,7 @@ export function AdminOperations({ section }: { section: Section }) {
                     : 'Recent refunds'}
               </p>
               <p className="mt-1 text-xl font-bold">{rangeRefunds.length}</p>
-              {rangeRefunds.slice(0, 2).map((r: any) => (
+              {rangeRefunds.slice(0, 2).map((r) => (
                 <p key={r.id} className="mt-1 truncate text-xs">
                   {formatPrice(Number(r.amount || 0))} · {fmt(r.created_at)}
                 </p>
@@ -1300,7 +1304,7 @@ export function AdminOperations({ section }: { section: Section }) {
               <p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>
             ) : (
               <ul className="mt-3 space-y-2">
-                {lowStock.slice(0, 8).map((p: any) => (
+                {lowStock.slice(0, 8).map((p) => (
                   <li key={p.id} className="flex justify-between gap-3 text-sm">
                     <span className="min-w-0 truncate">{p.title}</span>
                     <Badge variant="destructive">{p.stock}</Badge>
@@ -1315,7 +1319,7 @@ export function AdminOperations({ section }: { section: Section }) {
               <p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>
             ) : (
               <ul className="mt-3 space-y-2">
-                {outOfStock.slice(0, 8).map((p: any) => (
+                {outOfStock.slice(0, 8).map((p) => (
                   <li key={p.id} className="flex justify-between gap-3 text-sm">
                     <span className="min-w-0 truncate">{p.title}</span>
                     <Badge variant="destructive">{p.stock}</Badge>
@@ -1330,7 +1334,7 @@ export function AdminOperations({ section }: { section: Section }) {
               <p className="mt-3 text-sm text-muted-foreground">{w.noEnquiries}</p>
             ) : (
               <ul className="mt-3 space-y-2">
-                {rangeEnquiries.slice(0, 8).map((e: any) => (
+                {rangeEnquiries.slice(0, 8).map((e) => (
                   <li key={e.id} className="flex justify-between gap-3 text-sm">
                     <span className="min-w-0 truncate">
                       {e.name} · {e.service}
@@ -1348,7 +1352,7 @@ export function AdminOperations({ section }: { section: Section }) {
             <p className="mt-3 text-sm text-muted-foreground">{w.noRecentOrders}</p>
           ) : (
             <div className="mt-3 space-y-2">
-              {rangeOrders.slice(0, 5).map((o: any) => (
+              {rangeOrders.slice(0, 5).map((o) => (
                 <div
                   key={o.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/40 p-3"
@@ -1388,24 +1392,24 @@ export function AdminOperations({ section }: { section: Section }) {
 
   if (section === 'finance') {
     const expenseTotal = (expenses.data ?? []).reduce(
-      (sum: number, e: any) => sum + Number(e.amount || 0),
+      (sum: number, e) => sum + Number(e.amount || 0),
       0,
     );
     const completedPaidOrders = (orders.data ?? []).filter(
-      (o: any) => o.status === 'completed' && o.payment_status === 'paid',
+      (o) => o.status === 'completed' && o.payment_status === 'paid',
     );
     const recordedCost = completedPaidOrders.reduce(
-      (sum: number, o: any) =>
+      (sum: number, o) =>
         sum +
         (o.order_items ?? []).reduce(
-          (itemSum: number, item: any) =>
-            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+          (itemSum: number, item) =>
+            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
     );
     const refundTotal = (refunds.data ?? []).reduce(
-      (sum: number, r: any) => sum + Number(r.amount || 0),
+      (sum: number, r) => sum + Number(r.amount || 0),
       0,
     );
     const netSales = salesTotals.paidCompletedSales - refundTotal;
@@ -1434,7 +1438,7 @@ export function AdminOperations({ section }: { section: Section }) {
       },
     ] as const;
     const selectedCost = (costs.data ?? []).find(
-      (row: any) => row.product_id === costDraft.product_id,
+      (row) => row.product_id === costDraft.product_id,
     );
     return (
       <div className="space-y-4">
@@ -1497,7 +1501,7 @@ export function AdminOperations({ section }: { section: Section }) {
               value={costDraft.product_id}
               onChange={(e) => {
                 const id = e.target.value;
-                const row = (costs.data ?? []).find((item: any) => item.product_id === id);
+                const row = (costs.data ?? []).find((item) => item.product_id === id);
                 setCostDraft({
                   product_id: id,
                   purchase_cost: String(row?.purchase_cost ?? 0),
@@ -1510,7 +1514,7 @@ export function AdminOperations({ section }: { section: Section }) {
               className="h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"
             >
               <option value="">Choose a product</option>
-              {(products.data ?? []).map((p: any) => (
+              {(products.data ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
                 </option>
@@ -1610,7 +1614,7 @@ export function AdminOperations({ section }: { section: Section }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {(expenses.data ?? []).map((e: any) => (
+                  {(expenses.data ?? []).map((e) => (
                     <tr key={e.id} className="border-b border-border/40">
                       <td className="p-2">{e.occurred_on}</td>
                       <td className="p-2">{e.category}</td>
@@ -1641,7 +1645,7 @@ export function AdminOperations({ section }: { section: Section }) {
               required
               value={stockAdjustment.product_id}
               onChange={(e) => {
-                const product = (products.data ?? []).find((p: any) => p.id === e.target.value);
+                const product = (products.data ?? []).find((p) => p.id === e.target.value);
                 setStockAdjustment((old) => ({
                   ...old,
                   product_id: e.target.value,
@@ -1652,7 +1656,7 @@ export function AdminOperations({ section }: { section: Section }) {
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Choose a product</option>
-              {(products.data ?? []).map((p: any) => (
+              {(products.data ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title} · stock {p.stock}
                 </option>
@@ -1731,7 +1735,7 @@ export function AdminOperations({ section }: { section: Section }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {inventory.data.map((m: any) => (
+                  {(inventory.data ?? []).map((m) => (
                     <tr key={m.id} className="border-b border-border/40">
                       <td className="p-2">{fmt(m.created_at)}</td>
                       <td className="p-2">{m.products?.title ?? m.product_id}</td>
@@ -1871,7 +1875,7 @@ export function AdminOperations({ section }: { section: Section }) {
         ) : !(repairs.data ?? []).length ? (
           <p className="py-8 text-center text-muted-foreground">{w.noRepairs}</p>
         ) : (
-          (repairs.data ?? []).map((r: any) => (
+          (repairs.data ?? []).map((r) => (
             <article key={r.id} className="space-y-3 rounded-xl border bg-card p-4">
               <div className="flex flex-wrap justify-between gap-2">
                 <div>
@@ -2036,7 +2040,7 @@ export function AdminOperations({ section }: { section: Section }) {
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   Service enquiries ({visibleEnquiries.length})
                 </h3>
-                {visibleEnquiries.map((e: any) => (
+                {visibleEnquiries.map((e) => (
                   <article key={e.id} className="space-y-2 rounded-xl border bg-card p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
@@ -2081,7 +2085,7 @@ export function AdminOperations({ section }: { section: Section }) {
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   Resale offers ({visibleOffers.length})
                 </h3>
-                {visibleOffers.map((o: any) => (
+                {visibleOffers.map((o) => (
                   <article key={o.id} className="space-y-2 rounded-xl border bg-card p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
@@ -2125,9 +2129,9 @@ export function AdminOperations({ section }: { section: Section }) {
                 ))}
               </section>
             )}
-            {visibleOrderSupport.map((r: any) => {
+            {visibleOrderSupport.map((r) => {
               const messages = (orderSupportMessages.data ?? []).filter(
-                (m: any) => m.request_id === r.id,
+                (m) => m.request_id === r.id,
               );
               return (
                 <article key={r.id} className="space-y-3 rounded-xl border bg-card p-4">
@@ -2201,7 +2205,7 @@ export function AdminOperations({ section }: { section: Section }) {
                       </p>
                     ) : (
                       <div className="mt-2 space-y-2">
-                        {messages.map((m: any) => (
+                        {messages.map((m) => (
                           <div
                             key={m.id}
                             className={`rounded-md p-2 text-sm ${m.is_internal ? 'border border-amber-500/30 bg-amber-500/5' : 'bg-muted/40'}`}
@@ -2253,8 +2257,8 @@ export function AdminOperations({ section }: { section: Section }) {
                 </article>
               );
             })}
-            {visibleTickets.map((t: any) => {
-              const messages = (ticketMessages.data ?? []).filter((m: any) => m.ticket_id === t.id);
+            {visibleTickets.map((t) => {
+              const messages = (ticketMessages.data ?? []).filter((m) => m.ticket_id === t.id);
               return (
                 <article key={t.id} className="space-y-3 rounded-xl border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -2310,7 +2314,7 @@ export function AdminOperations({ section }: { section: Section }) {
                       </p>
                     ) : (
                       <div className="mt-2 space-y-2">
-                        {messages.map((m: any) => (
+                        {messages.map((m) => (
                           <div
                             key={m.id}
                             className={`rounded-md p-2 text-sm ${m.is_internal ? 'border border-amber-500/30 bg-amber-500/5' : 'bg-muted/40'}`}
@@ -2372,7 +2376,7 @@ export function AdminOperations({ section }: { section: Section }) {
       ) : !(audit.data ?? []).length ? (
         <p className="py-8 text-center text-muted-foreground">{w.noAudit}</p>
       ) : (
-        (audit.data ?? []).map((a: any) => (
+        (audit.data ?? []).map((a) => (
           <article key={a.id} className="rounded-lg border p-3 text-sm">
             <div className="flex flex-wrap justify-between gap-2">
               <strong>

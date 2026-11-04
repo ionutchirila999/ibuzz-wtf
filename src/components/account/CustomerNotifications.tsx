@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Truck,
 } from 'lucide-react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -145,7 +146,7 @@ export function CustomerNotifications() {
         if (authError) setError(w.failedLoad);
         return;
       }
-      const { data, error: queryError } = await (supabase as any)
+      const { data, error: queryError } = await supabase
         .from('customer_notifications')
         .select('id,event_type,metadata,read_at,created_at,order_id,ticket_id')
         .eq('user_id', ownerId)
@@ -163,7 +164,7 @@ export function CustomerNotifications() {
 
   useEffect(() => {
     let alive = true;
-    let channel: any;
+    let channel: RealtimeChannel | undefined;
     (async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!alive || !auth.user) {
@@ -172,7 +173,7 @@ export function CustomerNotifications() {
       }
       await load(auth.user.id);
       if (!alive) return;
-      channel = (supabase as any)
+      channel = supabase
         .channel(`customer-notifications-${auth.user.id}`)
         .on(
           'postgres_changes',
@@ -190,7 +191,7 @@ export function CustomerNotifications() {
     })();
     return () => {
       alive = false;
-      if (channel) void (supabase as any).removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [load]);
 
@@ -201,7 +202,7 @@ export function CustomerNotifications() {
       setBusyId(null);
       return;
     }
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('customer_notifications')
       .update({ read_at: new Date().toISOString() })
       .eq('id', id)
@@ -222,7 +223,7 @@ export function CustomerNotifications() {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     const now = new Date().toISOString();
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('customer_notifications')
       .update({ read_at: now })
       .eq('user_id', auth.user.id)
