@@ -8,6 +8,8 @@ import { RecoveryEmail } from '@/lib/email-templates/recovery';
 import { EmailChangeEmail } from '@/lib/email-templates/email-change';
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication';
 
+// Each auth email takes its own prop shape, so the lookup table stores them loosely.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   signup: SignupEmail,
   invite: InviteEmail,

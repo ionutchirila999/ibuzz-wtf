@@ -142,7 +142,8 @@ export function OrderSupport({
           .order('created_at', { ascending: true });
         if (alive && messages) {
           const grouped: Record<string, { id: string; message: string; created_at: string }[]> = {};
-          for (const item of messages as any[]) {
+          for (const item of messages) {
+            if (!item.request_id) continue;
             (grouped[item.request_id] ??= []).push(item);
           }
           setResponses(grouped);

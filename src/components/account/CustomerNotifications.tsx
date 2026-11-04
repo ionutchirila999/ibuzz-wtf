@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Truck,
 } from 'lucide-react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -163,7 +164,7 @@ export function CustomerNotifications() {
 
   useEffect(() => {
     let alive = true;
-    let channel: any;
+    let channel: RealtimeChannel | undefined;
     (async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!alive || !auth.user) {
