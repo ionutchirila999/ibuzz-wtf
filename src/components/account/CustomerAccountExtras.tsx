@@ -458,7 +458,7 @@ export function CustomerAccountExtras() {
           <p className="mt-3 text-sm text-muted-foreground">{w.noUpdates}</p>
         ) : (
           <ul className="mt-3 space-y-3">
-            {(orderUpdates.data ?? []).map((order: any) => (
+            {(orderUpdates.data ?? []).map((order) => (
               <li key={order.id} className="rounded-lg bg-muted/30 p-3">
                 <p className="text-sm font-medium">
                   {w.orderUpdate}: {order.order_number}
@@ -473,7 +473,7 @@ export function CustomerAccountExtras() {
                 </p>
               </li>
             ))}
-            {(tickets.data ?? []).map((ticket: any) => (
+            {(tickets.data ?? []).map((ticket) => (
               <li key={ticket.id} className="rounded-lg bg-muted/30 p-3">
                 <p className="text-sm font-medium">
                   {w.ticketUpdate}: {ticket.subject}

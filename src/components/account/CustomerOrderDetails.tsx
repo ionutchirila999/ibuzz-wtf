@@ -277,7 +277,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
               <p className="mt-2 text-sm text-muted-foreground">{w.noHistory}</p>
             ) : (
               <ol className="mt-3 space-y-3">
-                {history.data.map((h: any) => (
+                {history.data.map((h) => (
                   <li key={h.id} className="border-l-2 border-primary/40 pl-3">
                     <p className="text-sm font-medium">
                       {statusLabel(h.status)} · {statusLabel(h.payment_status)}
@@ -332,7 +332,7 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
               <p className="mt-2 text-sm text-muted-foreground">{w.noRequests}</p>
             ) : (
               <div className="mt-3 space-y-3">
-                {tickets.data.map((t: any) => (
+                {tickets.data.map((t) => (
                   <article key={t.id} className="rounded-md bg-muted/30 p-3">
                     <div className="flex flex-wrap justify-between gap-2">
                       <strong className="text-sm">

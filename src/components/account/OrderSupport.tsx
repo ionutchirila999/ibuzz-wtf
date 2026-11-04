@@ -136,7 +136,7 @@ export function OrderSupport({
           .select('id,request_id,message,is_internal,created_at')
           .in(
             'request_id',
-            data.map((r: any) => r.id),
+            data.map((r) => r.id),
           )
           .eq('is_internal', false)
           .order('created_at', { ascending: true });
