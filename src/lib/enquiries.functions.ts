@@ -66,31 +66,27 @@ export const submitEnquiry = createServerFn({ method: 'POST' })
       }
       const result =
         data.kind === 'sell'
-          ? await supabaseAdmin
-              .from('resale_offers')
-              .insert({
-                name: data.name,
-                contact: data.contact,
-                category: 'technology',
-                item_description: data.description,
-                condition_notes: data.description,
-                device_type: data.service,
-                brand: data.brand,
-                model: data.model,
-                device_condition: data.deviceCondition,
-                asking_price: data.price,
-                photos: paths,
-              })
-          : await supabaseAdmin
-              .from('service_enquiries')
-              .insert({
-                kind: data.kind,
-                name: data.name,
-                contact: data.contact,
-                service: data.service,
-                description: data.description,
-                photos: paths,
-              });
+          ? await supabaseAdmin.from('resale_offers').insert({
+              name: data.name,
+              contact: data.contact,
+              category: 'technology',
+              item_description: data.description,
+              condition_notes: data.description,
+              device_type: data.service,
+              brand: data.brand,
+              model: data.model,
+              device_condition: data.deviceCondition,
+              asking_price: data.price,
+              photos: paths,
+            })
+          : await supabaseAdmin.from('service_enquiries').insert({
+              kind: data.kind,
+              name: data.name,
+              contact: data.contact,
+              service: data.service,
+              description: data.description,
+              photos: paths,
+            });
       if (result.error) throw result.error;
       await supabaseAdmin.from('enquiry_rate_limits').insert({ visitor_hash: visitor });
       await supabaseAdmin

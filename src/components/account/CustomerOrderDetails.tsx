@@ -190,14 +190,12 @@ export function CustomerOrderDetails({ order }: { order: CustomerOrder }) {
       setBusy(false);
       return;
     }
-    const { error } = await (supabase as any)
-      .from('support_tickets')
-      .insert({
-        user_id: data.user.id,
-        order_id: order.id,
-        subject: subject.trim(),
-        message: message.trim(),
-      });
+    const { error } = await (supabase as any).from('support_tickets').insert({
+      user_id: data.user.id,
+      order_id: order.id,
+      subject: subject.trim(),
+      message: message.trim(),
+    });
     setBusy(false);
     if (error) {
       toast.error(w.failed);

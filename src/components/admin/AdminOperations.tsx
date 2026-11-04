@@ -760,15 +760,13 @@ export function AdminOperations({ section }: { section: Section }) {
       return;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any)
-      .from('expense_entries')
-      .insert({
-        category: expense.category.trim(),
-        description: expense.description.trim(),
-        amount,
-        occurred_on: expense.occurred_on,
-        created_by: auth.user?.id ?? null,
-      });
+    const { error } = await (supabase as any).from('expense_entries').insert({
+      category: expense.category.trim(),
+      description: expense.description.trim(),
+      amount,
+      occurred_on: expense.occurred_on,
+      created_by: auth.user?.id ?? null,
+    });
     if (error) {
       toast.error(w.failed);
       return;
@@ -815,22 +813,20 @@ export function AdminOperations({ section }: { section: Section }) {
   }
   async function createJob(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const { error } = await (supabase as any)
-      .from('repair_jobs')
-      .insert({
-        customer_name: job.customer_name.trim(),
-        customer_contact: job.customer_contact.trim(),
-        device: job.device.trim(),
-        issue_description: job.issue_description.trim(),
-        quoted_price: Number(job.quoted_price || 0),
-        final_price: Number(job.final_price || 0),
-        parts_cost: Number(job.parts_cost || 0),
-        labour_cost: Number(job.labour_cost || 0),
-        warranty_until: job.warranty_until || null,
-        diagnosis: job.diagnosis.trim() || null,
-        internal_notes: job.internal_notes.trim() || null,
-        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
-      });
+    const { error } = await (supabase as any).from('repair_jobs').insert({
+      customer_name: job.customer_name.trim(),
+      customer_contact: job.customer_contact.trim(),
+      device: job.device.trim(),
+      issue_description: job.issue_description.trim(),
+      quoted_price: Number(job.quoted_price || 0),
+      final_price: Number(job.final_price || 0),
+      parts_cost: Number(job.parts_cost || 0),
+      labour_cost: Number(job.labour_cost || 0),
+      warranty_until: job.warranty_until || null,
+      diagnosis: job.diagnosis.trim() || null,
+      internal_notes: job.internal_notes.trim() || null,
+      created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+    });
     if (error) {
       toast.error(error.message);
       return;

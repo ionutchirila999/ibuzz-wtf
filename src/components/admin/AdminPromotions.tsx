@@ -124,21 +124,19 @@ export function AdminPromotions() {
       return;
     }
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any)
-      .from('discount_codes')
-      .insert({
-        code,
-        discount_type: codeForm.discount_type,
-        discount_value: value,
-        min_order_amount: minimum,
-        starts_at: new Date(codeForm.starts_at + 'T00:00:00').toISOString(),
-        expires_at: codeForm.expires_at
-          ? new Date(codeForm.expires_at + 'T23:59:59').toISOString()
-          : null,
-        max_redemptions: max,
-        is_active: codeForm.is_active,
-        created_by: auth.user?.id ?? null,
-      });
+    const { error } = await (supabase as any).from('discount_codes').insert({
+      code,
+      discount_type: codeForm.discount_type,
+      discount_value: value,
+      min_order_amount: minimum,
+      starts_at: new Date(codeForm.starts_at + 'T00:00:00').toISOString(),
+      expires_at: codeForm.expires_at
+        ? new Date(codeForm.expires_at + 'T23:59:59').toISOString()
+        : null,
+      max_redemptions: max,
+      is_active: codeForm.is_active,
+      created_by: auth.user?.id ?? null,
+    });
     if (error) {
       toast.error(error.message);
       return;
@@ -150,23 +148,19 @@ export function AdminPromotions() {
   async function createBanner(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const { data: auth } = await supabase.auth.getUser();
-    const { error } = await (supabase as any)
-      .from('site_banners')
-      .insert({
-        title: bannerForm.title.trim(),
-        body: bannerForm.body.trim() || null,
-        image_url: bannerForm.image_url.trim() || null,
-        link_url: bannerForm.link_url.trim() || null,
-        sort_order: Number(bannerForm.sort_order) || 0,
-        starts_at: bannerForm.starts_at
-          ? new Date(bannerForm.starts_at + 'T00:00:00').toISOString()
-          : null,
-        ends_at: bannerForm.ends_at
-          ? new Date(bannerForm.ends_at + 'T23:59:59').toISOString()
-          : null,
-        is_active: bannerForm.is_active,
-        created_by: auth.user?.id ?? null,
-      });
+    const { error } = await (supabase as any).from('site_banners').insert({
+      title: bannerForm.title.trim(),
+      body: bannerForm.body.trim() || null,
+      image_url: bannerForm.image_url.trim() || null,
+      link_url: bannerForm.link_url.trim() || null,
+      sort_order: Number(bannerForm.sort_order) || 0,
+      starts_at: bannerForm.starts_at
+        ? new Date(bannerForm.starts_at + 'T00:00:00').toISOString()
+        : null,
+      ends_at: bannerForm.ends_at ? new Date(bannerForm.ends_at + 'T23:59:59').toISOString() : null,
+      is_active: bannerForm.is_active,
+      created_by: auth.user?.id ?? null,
+    });
     if (error) {
       toast.error(error.message);
       return;
