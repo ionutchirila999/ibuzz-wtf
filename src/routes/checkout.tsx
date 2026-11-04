@@ -388,10 +388,15 @@ function Checkout() {
       );
       return;
     }
-    const { data, error } = await supabase.rpc('validate_discount_code', {
+    const { data: rawDiscount, error } = await supabase.rpc('validate_discount_code', {
       p_code: code,
       p_subtotal: total,
     });
+    const data = rawDiscount as {
+      valid?: boolean;
+      message?: string;
+      discount_amount?: number | string;
+    } | null;
     if (error || !data?.valid) {
       setAppliedDiscount(null);
       toast.error(
@@ -628,7 +633,8 @@ function Checkout() {
           p_discount_code: appliedDiscountAmount > 0 ? (appliedDiscount?.code ?? null) : null,
         });
         if (error) throw error;
-        orderNumber = typeof data?.order_number === 'string' ? data.order_number : null;
+        const created = data as { order_number?: unknown } | null;
+        orderNumber = typeof created?.order_number === 'string' ? created.order_number : null;
         if (!orderNumber) throw new Error('Order number was not returned');
         setCreatedOrderNumber(orderNumber);
         trackEvent('order_request_created', {

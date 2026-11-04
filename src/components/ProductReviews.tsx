@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { untypedDb } from '@/lib/untyped-db';
 import { useT } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,7 +90,7 @@ export function ProductReviews({ productId }: { productId: string }) {
   const reviews = useQuery({
     queryKey: ['product-reviews', productId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await untypedDb
         .from('product_reviews')
         .select('id,rating,title,body,created_at')
         .eq('product_id', productId)
@@ -109,12 +110,12 @@ export function ProductReviews({ productId }: { productId: string }) {
         .from('order_items')
         .select('order_id,orders!inner(order_number,created_at,status,payment_status,user_id)')
         .eq('product_id', productId)
-        .eq('orders.user_id', userId)
+        .eq('orders.user_id', userId ?? '')
         .eq('orders.payment_status', 'paid')
         .eq('orders.status', 'completed')
         .order('created_at', { ascending: false, referencedTable: 'orders' });
       if (error) throw error;
-      return (data ?? []).map((row: any) => ({
+      return (data ?? []).map((row) => ({
         order_id: String(row.order_id),
         order_number: String(row.orders?.order_number ?? row.order_id),
         created_at: String(row.orders?.created_at ?? ''),
@@ -138,7 +139,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from('product_reviews').insert({
+    const { error } = await untypedDb.from('product_reviews').insert({
       product_id: productId,
       order_id: orderId,
       user_id: userId,
