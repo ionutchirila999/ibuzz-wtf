@@ -1,126 +1,1013 @@
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useT } from "@/lib/i18n";
-import { formatPrice } from "@/lib/shop";
-import { getPaidSalesTotals } from "@/lib/admin-dashboard";
-import { classifyInventory, inventoryReasonLabel } from "@/lib/inventory-stock";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { OfferPhotos } from "@/components/admin/OwnerEnquiries";
-import { AlertTriangle, ClipboardList, Package, Wrench, Inbox, ShieldCheck, CalendarDays, Banknote, CircleDollarSign } from "lucide-react";
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useT } from '@/lib/i18n';
+import { formatPrice } from '@/lib/shop';
+import { getPaidSalesTotals } from '@/lib/admin-dashboard';
+import { classifyInventory, inventoryReasonLabel } from '@/lib/inventory-stock';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { OfferPhotos } from '@/components/admin/OwnerEnquiries';
+import {
+  AlertTriangle,
+  ClipboardList,
+  Package,
+  Wrench,
+  Inbox,
+  ShieldCheck,
+  CalendarDays,
+  Banknote,
+  CircleDollarSign,
+} from 'lucide-react';
 
-type Section = "overview" | "inventory" | "repairs" | "support" | "audit" | "finance";
-function dateKey(date: Date) { return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0"); }
+type Section = 'overview' | 'inventory' | 'repairs' | 'support' | 'audit' | 'finance';
+function dateKey(date: Date) {
+  return (
+    date.getFullYear() +
+    '-' +
+    String(date.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(date.getDate()).padStart(2, '0')
+  );
+}
 const COPY = {
-  en: { loading:"Loading…", period:"Date range", today:"Today", thisMonth:"This month", custom:"Custom range", from:"From", to:"To", totalSales:"Completed paid sales", outstanding:"Outstanding payments", profitEstimate:"Estimated net profit", profitNote:"Reconciliation required", failed:"Could not load data. Check that the operations migration has been applied.", listed:"Available listings", pending:"Pending orders", enquiries:"New enquiries", stock:"Low stock", outOfStock:"Out of stock", stockThreshold:"Alert at or below", sales:"Paid order total", overview:"Operations overview", recentOrders:"Recent orders", orderTotal:"Total", noRecentOrders:"No orders yet.", inventory:"Inventory history", repairs:"Repair jobs", support:"Support inbox", audit:"Audit history", finance:"Profit & expenses", expenseCategory:"Expense category", expenseDescription:"Description", expenseAmount:"Amount (฿)", expenseDate:"Date", addExpense:"Record expense", expenses:"Recorded expenses", paidSales:"Paid completed sales", estimatedProfit:"Estimated operating balance", costsNote:"Reconciliation required · Verify payment payouts, refunds, and inventory.", noRows:"Nothing to show yet.", product:"Product", delta:"Change", after:"Stock after", reason:"Reason", date:"Date", customer:"Customer", contact:"Contact", device:"Device", issue:"Issue description", create:"Create repair job", status:"Status", quote:"Quote (฿)", save:"Save", reply:"Reply to customer", priority:"Priority", subject:"Subject", message:"Message", assign:"Update ticket", noStock:"No low-stock products.", newJob:"New repair job", diagnose:"Diagnosing", approval:"Awaiting approval", parts:"Awaiting parts", repairing:"Repairing", testing:"Testing", ready:"Ready for collection", completed:"Completed", received:"Received", cancelled:"Cancelled", open:"Open", progress:"In progress", waiting:"Waiting for customer", resolved:"Resolved", closed:"Closed", urgent:"Urgent", high:"High", normal:"Normal", low:"Low", cost:"Parts cost", labour:"Labour cost", diagnosis:"Diagnosis / internal notes", details:"Details", saveJob:"Save repair job", tickets:"Tickets", order:"Order", noTickets:"No support tickets.", noRepairs:"No repair jobs.", noHistory:"No inventory movements yet.", noAudit:"No audit events yet.", noEnquiries:"No new enquiries." },
-  th: { loading:"กำลังโหลด…", period:"ช่วงวันที่", today:"วันนี้", thisMonth:"เดือนนี้", custom:"กำหนดเอง", from:"ตั้งแต่", to:"ถึง", totalSales:"ยอดขายที่ชำระและเสร็จสิ้น", outstanding:"ยอดชำระค้าง", profitEstimate:"กำไรสุทธิโดยประมาณ", profitNote:"ต้องตรวจสอบและกระทบยอด", failed:"โหลดข้อมูลไม่ได้ โปรดตรวจสอบว่าได้ใช้ migration สำหรับแดชบอร์ดแล้ว", listed:"สินค้าที่พร้อมขาย", pending:"คำสั่งซื้อที่รอดำเนินการ", enquiries:"คำถามใหม่", stock:"สินค้าใกล้หมด", outOfStock:"สินค้าหมด", stockThreshold:"แจ้งเตือนเมื่อสต็อกไม่เกิน", sales:"ยอดคำสั่งซื้อที่ชำระแล้ว", overview:"ภาพรวมการดำเนินงาน", recentOrders:"คำสั่งซื้อล่าสุด", orderTotal:"ยอดรวม", noRecentOrders:"ยังไม่มีคำสั่งซื้อ", inventory:"ประวัติสต็อก", repairs:"งานซ่อม", support:"กล่องข้อความช่วยเหลือ", audit:"ประวัติการเปลี่ยนแปลง", finance:"กำไรและค่าใช้จ่าย", expenseCategory:"หมวดค่าใช้จ่าย", expenseDescription:"รายละเอียด", expenseAmount:"จำนวนเงิน (฿)", expenseDate:"วันที่", addExpense:"บันทึกค่าใช้จ่าย", expenses:"ค่าใช้จ่ายที่บันทึก", paidSales:"ยอดขายที่ชำระและเสร็จสิ้น", estimatedProfit:"ยอดคงเหลือโดยประมาณ", costsNote:"ต้องกระทบยอด · ตรวจสอบยอดรับเงินจริง การคืนเงิน และสต็อก", noRows:"ยังไม่มีข้อมูล", product:"สินค้า", delta:"เปลี่ยนแปลง", after:"สต็อกคงเหลือ", reason:"เหตุผล", date:"วันที่", customer:"ลูกค้า", contact:"ติดต่อ", device:"อุปกรณ์", issue:"อาการเสีย", create:"สร้างงานซ่อม", status:"สถานะ", quote:"ราคาประเมิน (฿)", save:"บันทึก", reply:"ตอบลูกค้า", priority:"ความสำคัญ", subject:"หัวข้อ", message:"ข้อความ", assign:"อัปเดตคำขอ", noStock:"ไม่มีสินค้าที่ใกล้หมด", newJob:"งานซ่อมใหม่", diagnose:"กำลังวิเคราะห์", approval:"รออนุมัติ", parts:"รออะไหล่", repairing:"กำลังซ่อม", testing:"กำลังทดสอบ", ready:"พร้อมรับสินค้า", completed:"เสร็จสิ้น", received:"รับเครื่องแล้ว", cancelled:"ยกเลิก", open:"เปิด", progress:"กำลังดำเนินการ", waiting:"รอลูกค้า", resolved:"แก้ไขแล้ว", closed:"ปิด", urgent:"เร่งด่วน", high:"สูง", normal:"ปกติ", low:"ต่ำ", cost:"ค่าอะไหล่", labour:"ค่าแรง", diagnosis:"ผลวิเคราะห์ / บันทึกภายใน", details:"รายละเอียด", saveJob:"บันทึกงานซ่อม", tickets:"คำขอ", noTickets:"ยังไม่มีคำขอช่วยเหลือ", noRepairs:"ยังไม่มีงานซ่อม", noHistory:"ยังไม่มีประวัติสต็อก", noAudit:"ยังไม่มีประวัติการเปลี่ยนแปลง", noEnquiries:"ไม่มีคำถามใหม่" },
-  ro: { loading:"Se încarcă…", period:"Interval", today:"Astăzi", thisMonth:"Luna aceasta", custom:"Interval personalizat", from:"De la", to:"Până la", totalSales:"Vânzări plătite finalizate", outstanding:"Plăți restante", profitEstimate:"Profit net estimat", profitNote:"Necesită reconciliere", failed:"Datele nu s-au putut încărca. Verifică dacă migrarea operațională a fost aplicată.", listed:"Produse disponibile", pending:"Comenzi în așteptare", enquiries:"Solicitări noi", stock:"Stoc redus", outOfStock:"Fără stoc", stockThreshold:"Avertizează la stoc de cel mult", sales:"Total comenzi plătite", overview:"Prezentare operațională", recentOrders:"Comenzi recente", orderTotal:"Total", noRecentOrders:"Nu există comenzi încă.", inventory:"Istoric inventar", repairs:"Reparații", support:"Asistență clienți", audit:"Istoric audit", finance:"Profit și cheltuieli", expenseCategory:"Categorie cheltuială", expenseDescription:"Descriere", expenseAmount:"Sumă (฿)", expenseDate:"Data", addExpense:"Înregistrează cheltuiala", expenses:"Cheltuieli înregistrate", paidSales:"Vânzări plătite și finalizate", estimatedProfit:"Sold operațional estimat", costsNote:"Necesită reconciliere · Verifică încasările, rambursările și inventarul.", noRows:"Nu există date încă.", product:"Produs", delta:"Modificare", after:"Stoc rămas", reason:"Motiv", date:"Data", customer:"Client", contact:"Contact", device:"Dispozitiv", issue:"Descriere problemă", create:"Creează reparație", status:"Stare", quote:"Estimare (฿)", save:"Salvează", reply:"Răspunde clientului", priority:"Prioritate", subject:"Subiect", message:"Mesaj", assign:"Actualizează tichetul", noStock:"Nu există produse cu stoc redus.", newJob:"Reparație nouă", diagnose:"Diagnosticare", approval:"Așteaptă aprobarea", parts:"Așteaptă piese", repairing:"În reparație", testing:"Testare", ready:"Pregătit pentru ridicare", completed:"Finalizat", received:"Primit", cancelled:"Anulat", open:"Deschis", progress:"În lucru", waiting:"Așteaptă clientul", resolved:"Rezolvat", closed:"Închis", urgent:"Urgent", high:"Ridicată", normal:"Normală", low:"Scăzută", cost:"Cost piese", labour:"Cost manoperă", diagnosis:"Diagnostic / note interne", details:"Detalii", saveJob:"Salvează reparația", tickets:"Tichete", order:"Comandă", noTickets:"Nu există tichete.", noRepairs:"Nu există reparații.", noHistory:"Nu există mișcări de inventar.", noAudit:"Nu există evenimente de audit.", noEnquiries:"Nu există solicitări noi." }
+  en: {
+    loading: 'Loading…',
+    period: 'Date range',
+    today: 'Today',
+    thisMonth: 'This month',
+    custom: 'Custom range',
+    from: 'From',
+    to: 'To',
+    totalSales: 'Completed paid sales',
+    outstanding: 'Outstanding payments',
+    profitEstimate: 'Estimated net profit',
+    profitNote: 'Reconciliation required',
+    failed: 'Could not load data. Check that the operations migration has been applied.',
+    listed: 'Available listings',
+    pending: 'Pending orders',
+    enquiries: 'New enquiries',
+    stock: 'Low stock',
+    outOfStock: 'Out of stock',
+    stockThreshold: 'Alert at or below',
+    sales: 'Paid order total',
+    overview: 'Operations overview',
+    recentOrders: 'Recent orders',
+    orderTotal: 'Total',
+    noRecentOrders: 'No orders yet.',
+    inventory: 'Inventory history',
+    repairs: 'Repair jobs',
+    support: 'Support inbox',
+    audit: 'Audit history',
+    finance: 'Profit & expenses',
+    expenseCategory: 'Expense category',
+    expenseDescription: 'Description',
+    expenseAmount: 'Amount (฿)',
+    expenseDate: 'Date',
+    addExpense: 'Record expense',
+    expenses: 'Recorded expenses',
+    paidSales: 'Paid completed sales',
+    estimatedProfit: 'Estimated operating balance',
+    costsNote: 'Reconciliation required · Verify payment payouts, refunds, and inventory.',
+    noRows: 'Nothing to show yet.',
+    product: 'Product',
+    delta: 'Change',
+    after: 'Stock after',
+    reason: 'Reason',
+    date: 'Date',
+    customer: 'Customer',
+    contact: 'Contact',
+    device: 'Device',
+    issue: 'Issue description',
+    create: 'Create repair job',
+    status: 'Status',
+    quote: 'Quote (฿)',
+    save: 'Save',
+    reply: 'Reply to customer',
+    priority: 'Priority',
+    subject: 'Subject',
+    message: 'Message',
+    assign: 'Update ticket',
+    noStock: 'No low-stock products.',
+    newJob: 'New repair job',
+    diagnose: 'Diagnosing',
+    approval: 'Awaiting approval',
+    parts: 'Awaiting parts',
+    repairing: 'Repairing',
+    testing: 'Testing',
+    ready: 'Ready for collection',
+    completed: 'Completed',
+    received: 'Received',
+    cancelled: 'Cancelled',
+    open: 'Open',
+    progress: 'In progress',
+    waiting: 'Waiting for customer',
+    resolved: 'Resolved',
+    closed: 'Closed',
+    urgent: 'Urgent',
+    high: 'High',
+    normal: 'Normal',
+    low: 'Low',
+    cost: 'Parts cost',
+    labour: 'Labour cost',
+    diagnosis: 'Diagnosis / internal notes',
+    details: 'Details',
+    saveJob: 'Save repair job',
+    tickets: 'Tickets',
+    order: 'Order',
+    noTickets: 'No support tickets.',
+    noRepairs: 'No repair jobs.',
+    noHistory: 'No inventory movements yet.',
+    noAudit: 'No audit events yet.',
+    noEnquiries: 'No new enquiries.',
+  },
+  th: {
+    loading: 'กำลังโหลด…',
+    period: 'ช่วงวันที่',
+    today: 'วันนี้',
+    thisMonth: 'เดือนนี้',
+    custom: 'กำหนดเอง',
+    from: 'ตั้งแต่',
+    to: 'ถึง',
+    totalSales: 'ยอดขายที่ชำระและเสร็จสิ้น',
+    outstanding: 'ยอดชำระค้าง',
+    profitEstimate: 'กำไรสุทธิโดยประมาณ',
+    profitNote: 'ต้องตรวจสอบและกระทบยอด',
+    failed: 'โหลดข้อมูลไม่ได้ โปรดตรวจสอบว่าได้ใช้ migration สำหรับแดชบอร์ดแล้ว',
+    listed: 'สินค้าที่พร้อมขาย',
+    pending: 'คำสั่งซื้อที่รอดำเนินการ',
+    enquiries: 'คำถามใหม่',
+    stock: 'สินค้าใกล้หมด',
+    outOfStock: 'สินค้าหมด',
+    stockThreshold: 'แจ้งเตือนเมื่อสต็อกไม่เกิน',
+    sales: 'ยอดคำสั่งซื้อที่ชำระแล้ว',
+    overview: 'ภาพรวมการดำเนินงาน',
+    recentOrders: 'คำสั่งซื้อล่าสุด',
+    orderTotal: 'ยอดรวม',
+    noRecentOrders: 'ยังไม่มีคำสั่งซื้อ',
+    inventory: 'ประวัติสต็อก',
+    repairs: 'งานซ่อม',
+    support: 'กล่องข้อความช่วยเหลือ',
+    audit: 'ประวัติการเปลี่ยนแปลง',
+    finance: 'กำไรและค่าใช้จ่าย',
+    expenseCategory: 'หมวดค่าใช้จ่าย',
+    expenseDescription: 'รายละเอียด',
+    expenseAmount: 'จำนวนเงิน (฿)',
+    expenseDate: 'วันที่',
+    addExpense: 'บันทึกค่าใช้จ่าย',
+    expenses: 'ค่าใช้จ่ายที่บันทึก',
+    paidSales: 'ยอดขายที่ชำระและเสร็จสิ้น',
+    estimatedProfit: 'ยอดคงเหลือโดยประมาณ',
+    costsNote: 'ต้องกระทบยอด · ตรวจสอบยอดรับเงินจริง การคืนเงิน และสต็อก',
+    noRows: 'ยังไม่มีข้อมูล',
+    product: 'สินค้า',
+    delta: 'เปลี่ยนแปลง',
+    after: 'สต็อกคงเหลือ',
+    reason: 'เหตุผล',
+    date: 'วันที่',
+    customer: 'ลูกค้า',
+    contact: 'ติดต่อ',
+    device: 'อุปกรณ์',
+    issue: 'อาการเสีย',
+    create: 'สร้างงานซ่อม',
+    status: 'สถานะ',
+    quote: 'ราคาประเมิน (฿)',
+    save: 'บันทึก',
+    reply: 'ตอบลูกค้า',
+    priority: 'ความสำคัญ',
+    subject: 'หัวข้อ',
+    message: 'ข้อความ',
+    assign: 'อัปเดตคำขอ',
+    noStock: 'ไม่มีสินค้าที่ใกล้หมด',
+    newJob: 'งานซ่อมใหม่',
+    diagnose: 'กำลังวิเคราะห์',
+    approval: 'รออนุมัติ',
+    parts: 'รออะไหล่',
+    repairing: 'กำลังซ่อม',
+    testing: 'กำลังทดสอบ',
+    ready: 'พร้อมรับสินค้า',
+    completed: 'เสร็จสิ้น',
+    received: 'รับเครื่องแล้ว',
+    cancelled: 'ยกเลิก',
+    open: 'เปิด',
+    progress: 'กำลังดำเนินการ',
+    waiting: 'รอลูกค้า',
+    resolved: 'แก้ไขแล้ว',
+    closed: 'ปิด',
+    urgent: 'เร่งด่วน',
+    high: 'สูง',
+    normal: 'ปกติ',
+    low: 'ต่ำ',
+    cost: 'ค่าอะไหล่',
+    labour: 'ค่าแรง',
+    diagnosis: 'ผลวิเคราะห์ / บันทึกภายใน',
+    details: 'รายละเอียด',
+    saveJob: 'บันทึกงานซ่อม',
+    tickets: 'คำขอ',
+    noTickets: 'ยังไม่มีคำขอช่วยเหลือ',
+    noRepairs: 'ยังไม่มีงานซ่อม',
+    noHistory: 'ยังไม่มีประวัติสต็อก',
+    noAudit: 'ยังไม่มีประวัติการเปลี่ยนแปลง',
+    noEnquiries: 'ไม่มีคำถามใหม่',
+  },
+  ro: {
+    loading: 'Se încarcă…',
+    period: 'Interval',
+    today: 'Astăzi',
+    thisMonth: 'Luna aceasta',
+    custom: 'Interval personalizat',
+    from: 'De la',
+    to: 'Până la',
+    totalSales: 'Vânzări plătite finalizate',
+    outstanding: 'Plăți restante',
+    profitEstimate: 'Profit net estimat',
+    profitNote: 'Necesită reconciliere',
+    failed: 'Datele nu s-au putut încărca. Verifică dacă migrarea operațională a fost aplicată.',
+    listed: 'Produse disponibile',
+    pending: 'Comenzi în așteptare',
+    enquiries: 'Solicitări noi',
+    stock: 'Stoc redus',
+    outOfStock: 'Fără stoc',
+    stockThreshold: 'Avertizează la stoc de cel mult',
+    sales: 'Total comenzi plătite',
+    overview: 'Prezentare operațională',
+    recentOrders: 'Comenzi recente',
+    orderTotal: 'Total',
+    noRecentOrders: 'Nu există comenzi încă.',
+    inventory: 'Istoric inventar',
+    repairs: 'Reparații',
+    support: 'Asistență clienți',
+    audit: 'Istoric audit',
+    finance: 'Profit și cheltuieli',
+    expenseCategory: 'Categorie cheltuială',
+    expenseDescription: 'Descriere',
+    expenseAmount: 'Sumă (฿)',
+    expenseDate: 'Data',
+    addExpense: 'Înregistrează cheltuiala',
+    expenses: 'Cheltuieli înregistrate',
+    paidSales: 'Vânzări plătite și finalizate',
+    estimatedProfit: 'Sold operațional estimat',
+    costsNote: 'Necesită reconciliere · Verifică încasările, rambursările și inventarul.',
+    noRows: 'Nu există date încă.',
+    product: 'Produs',
+    delta: 'Modificare',
+    after: 'Stoc rămas',
+    reason: 'Motiv',
+    date: 'Data',
+    customer: 'Client',
+    contact: 'Contact',
+    device: 'Dispozitiv',
+    issue: 'Descriere problemă',
+    create: 'Creează reparație',
+    status: 'Stare',
+    quote: 'Estimare (฿)',
+    save: 'Salvează',
+    reply: 'Răspunde clientului',
+    priority: 'Prioritate',
+    subject: 'Subiect',
+    message: 'Mesaj',
+    assign: 'Actualizează tichetul',
+    noStock: 'Nu există produse cu stoc redus.',
+    newJob: 'Reparație nouă',
+    diagnose: 'Diagnosticare',
+    approval: 'Așteaptă aprobarea',
+    parts: 'Așteaptă piese',
+    repairing: 'În reparație',
+    testing: 'Testare',
+    ready: 'Pregătit pentru ridicare',
+    completed: 'Finalizat',
+    received: 'Primit',
+    cancelled: 'Anulat',
+    open: 'Deschis',
+    progress: 'În lucru',
+    waiting: 'Așteaptă clientul',
+    resolved: 'Rezolvat',
+    closed: 'Închis',
+    urgent: 'Urgent',
+    high: 'Ridicată',
+    normal: 'Normală',
+    low: 'Scăzută',
+    cost: 'Cost piese',
+    labour: 'Cost manoperă',
+    diagnosis: 'Diagnostic / note interne',
+    details: 'Detalii',
+    saveJob: 'Salvează reparația',
+    tickets: 'Tichete',
+    order: 'Comandă',
+    noTickets: 'Nu există tichete.',
+    noRepairs: 'Nu există reparații.',
+    noHistory: 'Nu există mișcări de inventar.',
+    noAudit: 'Nu există evenimente de audit.',
+    noEnquiries: 'Nu există solicitări noi.',
+  },
 } as const;
 
 export function AdminOperations({ section }: { section: Section }) {
   const { lang } = useT();
   const w = COPY[lang];
   const qc = useQueryClient();
-  const [job, setJob] = useState({ customer_name:"", customer_contact:"", device:"", issue_description:"", quoted_price:"", final_price:"", parts_cost:"", labour_cost:"", warranty_until:"", diagnosis:"", internal_notes:"" });
-  const [replies, setReplies] = useState<Record<string,string>>({});
-  const [internalNoteDrafts, setInternalNoteDrafts] = useState<Record<string,string>>({});
-  const [ticketAssignee, setTicketAssignee] = useState<Record<string,string>>({});
-  const [orderRequestStatus, setOrderRequestStatus] = useState<Record<string,string>>({});
-  const [orderRequestAssignee, setOrderRequestAssignee] = useState<Record<string,string>>({});
-  const [orderRequestReplies, setOrderRequestReplies] = useState<Record<string,string>>({});
-  const [orderRequestNotes, setOrderRequestNotes] = useState<Record<string,string>>({});
-  const [inboxSearch, setInboxSearch] = useState("");
-  const [jobStatus, setJobStatus] = useState<Record<string,string>>({});
-  const [ticketState, setTicketState] = useState<Record<string,string>>({});
+  const [job, setJob] = useState({
+    customer_name: '',
+    customer_contact: '',
+    device: '',
+    issue_description: '',
+    quoted_price: '',
+    final_price: '',
+    parts_cost: '',
+    labour_cost: '',
+    warranty_until: '',
+    diagnosis: '',
+    internal_notes: '',
+  });
+  const [replies, setReplies] = useState<Record<string, string>>({});
+  const [internalNoteDrafts, setInternalNoteDrafts] = useState<Record<string, string>>({});
+  const [ticketAssignee, setTicketAssignee] = useState<Record<string, string>>({});
+  const [orderRequestStatus, setOrderRequestStatus] = useState<Record<string, string>>({});
+  const [orderRequestAssignee, setOrderRequestAssignee] = useState<Record<string, string>>({});
+  const [orderRequestReplies, setOrderRequestReplies] = useState<Record<string, string>>({});
+  const [orderRequestNotes, setOrderRequestNotes] = useState<Record<string, string>>({});
+  const [inboxSearch, setInboxSearch] = useState('');
+  const [jobStatus, setJobStatus] = useState<Record<string, string>>({});
+  const [ticketState, setTicketState] = useState<Record<string, string>>({});
   const [stockThreshold] = useState(2);
-  const [stockAdjustment, setStockAdjustment] = useState({ product_id:"", new_stock:"", threshold:"2", reason:"restock", note:"" });
-  const [rangePreset, setRangePreset] = useState<"today"|"month"|"custom">("today");
+  const [stockAdjustment, setStockAdjustment] = useState({
+    product_id: '',
+    new_stock: '',
+    threshold: '2',
+    reason: 'restock',
+    note: '',
+  });
+  const [rangePreset, setRangePreset] = useState<'today' | 'month' | 'custom'>('today');
   const [customStart, setCustomStart] = useState(() => dateKey(new Date()));
   const [customEnd, setCustomEnd] = useState(() => dateKey(new Date()));
-  const [expense, setExpense] = useState({category:"",description:"",amount:"",occurred_on:new Date().toISOString().slice(0,10)});
-  const [costDraft, setCostDraft] = useState({product_id:"",purchase_cost:"0",repair_cost:"0",shipping_cost:"0",platform_fees:"0",other_expenses:"0"});
-  const products = useQuery({ queryKey:["ops-products"], queryFn:async()=>{ const {data,error}=await (supabase as any).from("products").select("*").order("title"); if(error)throw error; return data??[]; }});
-  const orders = useQuery({ queryKey:["ops-orders"], queryFn:async()=>{ const {data,error}=await (supabase as any).from("orders").select("id,order_number,total,status,payment_status,created_at,updated_at,order_items(product_id,quantity)").order("created_at",{ascending:false}); if(error)throw error; return data??[]; }});
-  const adminNotifications = useQuery({ queryKey:["ops-admin-notifications"], enabled:section==="overview", queryFn:async()=>{ const {data,error}=await (supabase as any).from("admin_notifications").select("id,event_type,order_id,product_id,title,message,metadata,read_at,created_at").order("created_at",{ascending:false}).limit(30); if(error)throw error; return data??[]; }, retry:false });
-  const enquiries = useQuery({ queryKey:["ops-enquiries"], queryFn:async()=>{ const {data,error}=await (supabase as any).from("service_enquiries").select("*").order("created_at",{ascending:false}).limit(300); if(error)throw error; return data??[]; }});
-  const resaleOffers = useQuery({queryKey:["ops-resale-offers"],enabled:section==="support",queryFn:async()=>{const {data,error}=await (supabase as any).from("resale_offers").select("*").order("created_at",{ascending:false}).limit(300);if(error)throw error;return data??[];},retry:false});
-  const inventory = useQuery({ queryKey:["ops-inventory"], enabled:section==="inventory"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("inventory_movements").select("id,product_id,quantity_delta,stock_after,reason,note,created_at,products(title)").order("created_at",{ascending:false}).limit(100);if(error)throw error;return data??[];}});
-  const repairs = useQuery({ queryKey:["ops-repairs"], enabled:section==="repairs"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("repair_jobs").select("*").order("created_at",{ascending:false}).limit(200);if(error)throw error;return data??[];}});
-  const tickets = useQuery({ queryKey:["ops-tickets"], enabled:section==="support"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("support_tickets").select("*").order("created_at",{ascending:false}).limit(200);if(error)throw error;return data??[];}});
-  const ticketMessages = useQuery({ queryKey:["ops-ticket-messages"], enabled:section==="support", queryFn:async()=>{const {data,error}=await (supabase as any).from("support_ticket_messages").select("id,ticket_id,author_id,message,is_internal,created_at").order("created_at",{ascending:true}).limit(1000);if(error)throw error;return data??[];}, retry:false});
-  const orderSupportRequests = useQuery({queryKey:["ops-order-support"],enabled:section==="support",queryFn:async()=>{const {data,error}=await (supabase as any).from("order_support_requests").select("id,user_id,order_id,request_type,subject,message,status,created_at,updated_at,assigned_to,internal_notes,admin_reply,replied_at,orders(order_number,buyer_name,buyer_contact,total,status,payment_status)").order("created_at",{ascending:false}).limit(300);if(error)throw error;return data??[];},retry:false});
-  const orderSupportMessages = useQuery({queryKey:["ops-order-support-messages"],enabled:section==="support",queryFn:async()=>{const {data,error}=await (supabase as any).from("order_support_messages").select("id,request_id,author_id,message,is_internal,created_at").order("created_at",{ascending:true}).limit(1500);if(error)throw error;return data??[];},retry:false});
-  const audit = useQuery({ queryKey:["ops-audit"], enabled:section==="audit", queryFn:async()=>{const {data,error}=await (supabase as any).from("admin_audit_log").select("*").order("created_at",{ascending:false}).limit(200);if(error)throw error;return data??[];}});
-  const expenses = useQuery({ queryKey:["ops-expenses"], enabled:section==="finance"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("expense_entries").select("*").order("occurred_on",{ascending:false}).limit(1000);if(error)throw error;return data??[];}});
-  const costs = useQuery({ queryKey:["ops-costs"], enabled:section==="finance"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("product_costs").select("product_id,purchase_cost,repair_cost,shipping_cost,platform_fees,other_expenses");if(error)throw error;return data??[];}});
-  const refunds = useQuery({ queryKey:["ops-refunds"], enabled:section==="finance"||section==="overview", queryFn:async()=>{const {data,error}=await (supabase as any).from("order_refunds").select("id,order_id,amount,reason,created_at").order("created_at",{ascending:false}).limit(1000);if(error)throw error;return data??[];}});
-  const invalidate = async () => { await Promise.all(["ops-products","ops-orders","ops-admin-notifications","ops-enquiries","ops-resale-offers","ops-inventory","ops-repairs","ops-tickets","ops-audit","admin-products","admin-offers"].map(queryKey=>qc.invalidateQueries({queryKey:[queryKey]}))); };
-  const anyError = [products.error,orders.error,enquiries.error, ...(section==="inventory"||section==="overview"?[inventory.error]:[]),...(section==="repairs"||section==="overview"?[repairs.error]:[]),...(section==="support"||section==="overview"?[tickets.error]:[]),...(section==="support"?[ticketMessages.error,orderSupportRequests.error,orderSupportMessages.error,resaleOffers.error]:[]),...(section==="audit"?[audit.error]:[]),...((section==="finance"||section==="overview")?[expenses.error,costs.error,refunds.error]:[])].some(Boolean);
+  const [expense, setExpense] = useState({
+    category: '',
+    description: '',
+    amount: '',
+    occurred_on: new Date().toISOString().slice(0, 10),
+  });
+  const [costDraft, setCostDraft] = useState({
+    product_id: '',
+    purchase_cost: '0',
+    repair_cost: '0',
+    shipping_cost: '0',
+    platform_fees: '0',
+    other_expenses: '0',
+  });
+  const products = useQuery({
+    queryKey: ['ops-products'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from('products').select('*').order('title');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const orders = useQuery({
+    queryKey: ['ops-orders'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('orders')
+        .select(
+          'id,order_number,total,status,payment_status,created_at,updated_at,order_items(product_id,quantity)',
+        )
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const adminNotifications = useQuery({
+    queryKey: ['ops-admin-notifications'],
+    enabled: section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('admin_notifications')
+        .select('id,event_type,order_id,product_id,title,message,metadata,read_at,created_at')
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (error) throw error;
+      return data ?? [];
+    },
+    retry: false,
+  });
+  const enquiries = useQuery({
+    queryKey: ['ops-enquiries'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('service_enquiries')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const resaleOffers = useQuery({
+    queryKey: ['ops-resale-offers'],
+    enabled: section === 'support',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('resale_offers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      return data ?? [];
+    },
+    retry: false,
+  });
+  const inventory = useQuery({
+    queryKey: ['ops-inventory'],
+    enabled: section === 'inventory' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('inventory_movements')
+        .select('id,product_id,quantity_delta,stock_after,reason,note,created_at,products(title)')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const repairs = useQuery({
+    queryKey: ['ops-repairs'],
+    enabled: section === 'repairs' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('repair_jobs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const tickets = useQuery({
+    queryKey: ['ops-tickets'],
+    enabled: section === 'support' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('support_tickets')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const ticketMessages = useQuery({
+    queryKey: ['ops-ticket-messages'],
+    enabled: section === 'support',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('support_ticket_messages')
+        .select('id,ticket_id,author_id,message,is_internal,created_at')
+        .order('created_at', { ascending: true })
+        .limit(1000);
+      if (error) throw error;
+      return data ?? [];
+    },
+    retry: false,
+  });
+  const orderSupportRequests = useQuery({
+    queryKey: ['ops-order-support'],
+    enabled: section === 'support',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('order_support_requests')
+        .select(
+          'id,user_id,order_id,request_type,subject,message,status,created_at,updated_at,assigned_to,internal_notes,admin_reply,replied_at,orders(order_number,buyer_name,buyer_contact,total,status,payment_status)',
+        )
+        .order('created_at', { ascending: false })
+        .limit(300);
+      if (error) throw error;
+      return data ?? [];
+    },
+    retry: false,
+  });
+  const orderSupportMessages = useQuery({
+    queryKey: ['ops-order-support-messages'],
+    enabled: section === 'support',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('order_support_messages')
+        .select('id,request_id,author_id,message,is_internal,created_at')
+        .order('created_at', { ascending: true })
+        .limit(1500);
+      if (error) throw error;
+      return data ?? [];
+    },
+    retry: false,
+  });
+  const audit = useQuery({
+    queryKey: ['ops-audit'],
+    enabled: section === 'audit',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('admin_audit_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const expenses = useQuery({
+    queryKey: ['ops-expenses'],
+    enabled: section === 'finance' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('expense_entries')
+        .select('*')
+        .order('occurred_on', { ascending: false })
+        .limit(1000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const costs = useQuery({
+    queryKey: ['ops-costs'],
+    enabled: section === 'finance' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('product_costs')
+        .select('product_id,purchase_cost,repair_cost,shipping_cost,platform_fees,other_expenses');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const refunds = useQuery({
+    queryKey: ['ops-refunds'],
+    enabled: section === 'finance' || section === 'overview',
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('order_refunds')
+        .select('id,order_id,amount,reason,created_at')
+        .order('created_at', { ascending: false })
+        .limit(1000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const invalidate = async () => {
+    await Promise.all(
+      [
+        'ops-products',
+        'ops-orders',
+        'ops-admin-notifications',
+        'ops-enquiries',
+        'ops-resale-offers',
+        'ops-inventory',
+        'ops-repairs',
+        'ops-tickets',
+        'ops-audit',
+        'admin-products',
+        'admin-offers',
+      ].map((queryKey) => qc.invalidateQueries({ queryKey: [queryKey] })),
+    );
+  };
+  const anyError = [
+    products.error,
+    orders.error,
+    enquiries.error,
+    ...(section === 'inventory' || section === 'overview' ? [inventory.error] : []),
+    ...(section === 'repairs' || section === 'overview' ? [repairs.error] : []),
+    ...(section === 'support' || section === 'overview' ? [tickets.error] : []),
+    ...(section === 'support'
+      ? [
+          ticketMessages.error,
+          orderSupportRequests.error,
+          orderSupportMessages.error,
+          resaleOffers.error,
+        ]
+      : []),
+    ...(section === 'audit' ? [audit.error] : []),
+    ...(section === 'finance' || section === 'overview'
+      ? [expenses.error, costs.error, refunds.error]
+      : []),
+  ].some(Boolean);
   const { lowStock, outOfStock } = classifyInventory(products.data ?? [], stockThreshold);
-  const pendingOrders=(orders.data??[]).filter((o:any)=>o.status!=="completed"&&o.status!=="cancelled");
+  const pendingOrders = (orders.data ?? []).filter(
+    (o: any) => o.status !== 'completed' && o.status !== 'cancelled',
+  );
   const salesTotals = getPaidSalesTotals(orders.data ?? []);
   const paidTotal = salesTotals.paidOrderTotal;
-  const newEnquiries=(enquiries.data??[]).filter((e:any)=>e.status==="new"||e.status==="received");
+  const newEnquiries = (enquiries.data ?? []).filter(
+    (e: any) => e.status === 'new' || e.status === 'received',
+  );
   const now = new Date();
-  const rangeStart = rangePreset === "today" ? dateKey(now) : rangePreset === "month" ? dateKey(new Date(now.getFullYear(), now.getMonth(), 1)) : customStart;
-  const rangeEnd = rangePreset === "today" ? dateKey(now) : rangePreset === "month" ? dateKey(now) : customEnd;
-  const inRange = (value:string) => { const d=new Date(value); return !Number.isNaN(d.getTime()) && dateKey(d)>=rangeStart && dateKey(d)<=rangeEnd; };
-  const rangeOrders=(orders.data??[]).filter((o:any)=>inRange(o.created_at));
-  const completedPaidSales=rangeOrders.filter((o:any)=>o.payment_status==="paid"&&o.status==="completed").reduce((sum:number,o:any)=>sum+Number(o.total||0),0);
-  const outstandingOrders=rangeOrders.filter((o:any)=>["pending","submitted"].includes(o.payment_status)&&o.status!=="cancelled");
-  const outstandingAmount=outstandingOrders.reduce((sum:number,o:any)=>sum+Number(o.total||0),0);
-  const rangePendingOrders=rangeOrders.filter((o:any)=>o.status!=="completed"&&o.status!=="cancelled");
-  const failedPayments=rangeOrders.filter((o:any)=>o.payment_status==="failed");
-  const newOrders=rangeOrders.filter((o:any)=>["received","confirmed"].includes(o.status)&&o.status!=="cancelled");
-  const rangeRefunds=(refunds.data??[]).filter((r:any)=>inRange(r.created_at));
+  const rangeStart =
+    rangePreset === 'today'
+      ? dateKey(now)
+      : rangePreset === 'month'
+        ? dateKey(new Date(now.getFullYear(), now.getMonth(), 1))
+        : customStart;
+  const rangeEnd =
+    rangePreset === 'today' ? dateKey(now) : rangePreset === 'month' ? dateKey(now) : customEnd;
+  const inRange = (value: string) => {
+    const d = new Date(value);
+    return !Number.isNaN(d.getTime()) && dateKey(d) >= rangeStart && dateKey(d) <= rangeEnd;
+  };
+  const rangeOrders = (orders.data ?? []).filter((o: any) => inRange(o.created_at));
+  const completedPaidSales = rangeOrders
+    .filter((o: any) => o.payment_status === 'paid' && o.status === 'completed')
+    .reduce((sum: number, o: any) => sum + Number(o.total || 0), 0);
+  const outstandingOrders = rangeOrders.filter(
+    (o: any) => ['pending', 'submitted'].includes(o.payment_status) && o.status !== 'cancelled',
+  );
+  const outstandingAmount = outstandingOrders.reduce(
+    (sum: number, o: any) => sum + Number(o.total || 0),
+    0,
+  );
+  const rangePendingOrders = rangeOrders.filter(
+    (o: any) => o.status !== 'completed' && o.status !== 'cancelled',
+  );
+  const failedPayments = rangeOrders.filter((o: any) => o.payment_status === 'failed');
+  const newOrders = rangeOrders.filter(
+    (o: any) => ['received', 'confirmed'].includes(o.status) && o.status !== 'cancelled',
+  );
+  const rangeRefunds = (refunds.data ?? []).filter((r: any) => inRange(r.created_at));
 
-  const rangeEnquiries=newEnquiries.filter((e:any)=>inRange(e.created_at));
-  const rangeExpenses=(expenses.data??[]).filter((e:any)=>String(e.occurred_on)>=rangeStart&&String(e.occurred_on)<=rangeEnd).reduce((sum:number,e:any)=>sum+Number(e.amount||0),0);
-  const costByProduct=new Map((costs.data??[]).map((item:any)=>[item.product_id,Number(item.purchase_cost||0)+Number(item.repair_cost||0)+Number(item.shipping_cost||0)+Number(item.platform_fees||0)+Number(item.other_expenses||0)]));
-  const rangeProductCosts=rangeOrders.filter((o:any)=>o.payment_status==="paid"&&o.status==="completed").reduce((sum:number,o:any)=>sum+(o.order_items??[]).reduce((itemSum:number,item:any)=>itemSum+(Number(costByProduct.get(item.product_id)??0)*Number(item.quantity??0)),0),0);
-  const estimatedOperatingResult=completedPaidSales-rangeProductCosts-rangeExpenses;
-  const inboxTerm=inboxSearch.trim().toLowerCase();
-  const visibleTickets=(tickets.data??[]).filter((t:any)=>!inboxTerm||[t.ticket_number,t.subject,t.message,t.customer_email].some((v:any)=>String(v??"").toLowerCase().includes(inboxTerm)));
-  const visibleEnquiries=(enquiries.data??[]).filter((e:any)=>!inboxTerm||[e.name,e.contact,e.service,e.description,e.kind].some((v:any)=>String(v??"").toLowerCase().includes(inboxTerm)));
-  const visibleOffers=(resaleOffers.data??[]).filter((o:any)=>!inboxTerm||[o.name,o.contact,o.category,o.item_description,o.condition_notes].some((v:any)=>String(v??"").toLowerCase().includes(inboxTerm)));
-  const visibleOrderSupport=(orderSupportRequests.data??[]).filter((r:any)=>!inboxTerm||[r.subject,r.message,r.request_type,r.orders?.order_number,r.orders?.buyer_name,r.orders?.buyer_contact].some((v:any)=>String(v??"").toLowerCase().includes(inboxTerm)));
-  const fmt=(date:string)=>new Date(date).toLocaleString(lang==="th"?"th-TH":lang==="ro"?"ro-RO":"en-US");
-  async function adjustStock(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const newStock=Number(stockAdjustment.new_stock);const threshold=Number(stockAdjustment.threshold);if(!stockAdjustment.product_id||!Number.isInteger(newStock)||newStock<0||!Number.isInteger(threshold)||threshold<0||threshold>10000){toast.error("Enter a valid stock quantity and low-stock threshold.");return;}const {error}=await (supabase as any).rpc("ibuzz_adjust_inventory",{p_product_id:stockAdjustment.product_id,p_new_stock:newStock,p_reason:stockAdjustment.reason,p_note:stockAdjustment.note.trim()||null});if(error){toast.error(error.message||"Could not adjust stock. Apply the inventory migration and confirm admin access.");return;}const {error:thresholdError}=await (supabase as any).from("products").update({low_stock_threshold:threshold}).eq("id",stockAdjustment.product_id);if(thresholdError){toast.error("Stock was adjusted, but the alert threshold could not be saved. Apply the latest inventory migration.");}else{toast.success("Stock adjustment saved.");}setStockAdjustment({product_id:"",new_stock:"",threshold:"2",reason:"restock",note:""});await invalidate();}
-  async function addExpense(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const amount=Number(expense.amount);if(!Number.isFinite(amount)||amount<0){toast.error(w.failed);return;}const {data:auth}=await supabase.auth.getUser();const {error}=await (supabase as any).from("expense_entries").insert({category:expense.category.trim(),description:expense.description.trim(),amount,occurred_on:expense.occurred_on,created_by:auth.user?.id??null});if(error){toast.error(w.failed);return;}toast.success(w.addExpense);setExpense({...expense,category:"",description:"",amount:""});await invalidate();}
-  async function saveProductCost(e:React.FormEvent<HTMLFormElement>){e.preventDefault();if(!costDraft.product_id){toast.error("Choose a product first.");return;}const values=[costDraft.purchase_cost,costDraft.repair_cost,costDraft.shipping_cost,costDraft.platform_fees,costDraft.other_expenses].map(Number);if(values.some(value=>!Number.isFinite(value)||value<0)){toast.error("Enter valid non-negative costs.");return;}const payload={product_id:costDraft.product_id,purchase_cost:values[0],repair_cost:values[1],shipping_cost:values[2],platform_fees:values[3],other_expenses:values[4],updated_at:new Date().toISOString()};const {error}=await (supabase as any).from("product_costs").upsert(payload,{onConflict:"product_id"});if(error){toast.error(error.message||w.failed);return;}toast.success(w.save);await qc.invalidateQueries({queryKey:["ops-costs"]});}
-  async function createJob(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const {error}=await (supabase as any).from("repair_jobs").insert({customer_name:job.customer_name.trim(),customer_contact:job.customer_contact.trim(),device:job.device.trim(),issue_description:job.issue_description.trim(),quoted_price:Number(job.quoted_price||0),final_price:Number(job.final_price||0),parts_cost:Number(job.parts_cost||0),labour_cost:Number(job.labour_cost||0),warranty_until:job.warranty_until||null,diagnosis:job.diagnosis.trim()||null,internal_notes:job.internal_notes.trim()||null,created_by:(await supabase.auth.getUser()).data.user?.id??null});if(error){toast.error(error.message);return;}toast.success(lang==="th"?"สร้างงานซ่อมแล้ว":lang==="ro"?"Reparația a fost creată":"Repair job created");setJob({customer_name:"",customer_contact:"",device:"",issue_description:"",quoted_price:"",final_price:"",parts_cost:"",labour_cost:"",warranty_until:"",diagnosis:"",internal_notes:""});await invalidate();}
-  async function saveRepair(id:string,values:Record<string,any>){const {error}=await (supabase as any).from("repair_jobs").update(values).eq("id",id);if(error){toast.error(lang==="th"?"บันทึกงานซ่อมไม่สำเร็จ":lang==="ro"?"Nu s-a putut salva":"Could not save repair");return;}toast.success(w.save);await invalidate();}
-  async function saveTicket(ticket:any){const {error}=await (supabase as any).from("support_tickets").update({status:ticketState[ticket.id]??ticket.status,assigned_to:(ticketAssignee[ticket.id]??ticket.assigned_to??"").trim()||null,updated_at:new Date().toISOString()}).eq("id",ticket.id);if(error){toast.error(error.message);return;}toast.success(w.save);await invalidate();}
-  async function addTicketMessage(id:string,isInternal:boolean){const message=((isInternal?internalNoteDrafts[id]:replies[id])??"").trim();if(!message){toast.error("Enter a message first.");return;}const {error}=await (supabase as any).rpc("ibuzz_add_support_message",{p_ticket_id:id,p_message:message,p_is_internal:isInternal});if(error){toast.error(error.message||"Could not save message.");return;}toast.success(isInternal?"Internal note added":"Reply recorded");if(isInternal)setInternalNoteDrafts(old=>({...old,[id]:""}));else setReplies(old=>({...old,[id]:""}));await Promise.all([qc.invalidateQueries({queryKey:["ops-ticket-messages"]}),qc.invalidateQueries({queryKey:["ops-tickets"]}),qc.invalidateQueries({queryKey:["ops-audit"]})]);}
-  async function updateServiceEnquiry(id:string,status:string){const {error}=await (supabase as any).from("service_enquiries").update({status}).eq("id",id);if(error){toast.error("Could not update service enquiry");return;}toast.success(w.save);await invalidate();}
-  async function markAdminNotificationRead(id:string){const {error}=await (supabase as any).from("admin_notifications").update({read_at:new Date().toISOString()}).eq("id",id);if(error){toast.error("Could not mark notification as read.");return;}await qc.invalidateQueries({queryKey:["ops-admin-notifications"]});}
-  async function updateResaleOffer(id:string,status:string){const {error}=await (supabase as any).from("resale_offers").update({status}).eq("id",id);if(error){toast.error("Could not update resale offer");return;}toast.success(w.save);await invalidate();}
-  async function saveOrderSupportRequest(request:any){const {error}=await (supabase as any).from("order_support_requests").update({status:orderRequestStatus[request.id]??request.status,assigned_to:(orderRequestAssignee[request.id]??request.assigned_to??"").trim()||null,updated_at:new Date().toISOString()}).eq("id",request.id);if(error){toast.error(error.message);return;}toast.success(w.save);await invalidate();}
-  async function addOrderSupportMessage(id:string,isInternal:boolean){const message=((isInternal?orderRequestNotes[id]:orderRequestReplies[id])??"").trim();if(!message){toast.error("Enter a message first.");return;}const {error}=await (supabase as any).rpc("ibuzz_add_order_support_message",{p_request_id:id,p_message:message,p_is_internal:isInternal});if(error){toast.error(error.message||"Could not save message.");return;}if(isInternal)await (supabase as any).from("order_support_requests").update({internal_notes:message}).eq("id",id);toast.success(isInternal?"Internal note added":"Reply recorded");if(isInternal)setOrderRequestNotes(old=>({...old,[id]:""}));else setOrderRequestReplies(old=>({...old,[id]:""}));await Promise.all([qc.invalidateQueries({queryKey:["ops-order-support-messages"]}),qc.invalidateQueries({queryKey:["ops-order-support"]}),qc.invalidateQueries({queryKey:["ops-audit"]})]);}
+  const rangeEnquiries = newEnquiries.filter((e: any) => inRange(e.created_at));
+  const rangeExpenses = (expenses.data ?? [])
+    .filter((e: any) => String(e.occurred_on) >= rangeStart && String(e.occurred_on) <= rangeEnd)
+    .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+  const costByProduct = new Map(
+    (costs.data ?? []).map((item: any) => [
+      item.product_id,
+      Number(item.purchase_cost || 0) +
+        Number(item.repair_cost || 0) +
+        Number(item.shipping_cost || 0) +
+        Number(item.platform_fees || 0) +
+        Number(item.other_expenses || 0),
+    ]),
+  );
+  const rangeProductCosts = rangeOrders
+    .filter((o: any) => o.payment_status === 'paid' && o.status === 'completed')
+    .reduce(
+      (sum: number, o: any) =>
+        sum +
+        (o.order_items ?? []).reduce(
+          (itemSum: number, item: any) =>
+            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+          0,
+        ),
+      0,
+    );
+  const estimatedOperatingResult = completedPaidSales - rangeProductCosts - rangeExpenses;
+  const inboxTerm = inboxSearch.trim().toLowerCase();
+  const visibleTickets = (tickets.data ?? []).filter(
+    (t: any) =>
+      !inboxTerm ||
+      [t.ticket_number, t.subject, t.message, t.customer_email].some((v: any) =>
+        String(v ?? '')
+          .toLowerCase()
+          .includes(inboxTerm),
+      ),
+  );
+  const visibleEnquiries = (enquiries.data ?? []).filter(
+    (e: any) =>
+      !inboxTerm ||
+      [e.name, e.contact, e.service, e.description, e.kind].some((v: any) =>
+        String(v ?? '')
+          .toLowerCase()
+          .includes(inboxTerm),
+      ),
+  );
+  const visibleOffers = (resaleOffers.data ?? []).filter(
+    (o: any) =>
+      !inboxTerm ||
+      [o.name, o.contact, o.category, o.item_description, o.condition_notes].some((v: any) =>
+        String(v ?? '')
+          .toLowerCase()
+          .includes(inboxTerm),
+      ),
+  );
+  const visibleOrderSupport = (orderSupportRequests.data ?? []).filter(
+    (r: any) =>
+      !inboxTerm ||
+      [
+        r.subject,
+        r.message,
+        r.request_type,
+        r.orders?.order_number,
+        r.orders?.buyer_name,
+        r.orders?.buyer_contact,
+      ].some((v: any) =>
+        String(v ?? '')
+          .toLowerCase()
+          .includes(inboxTerm),
+      ),
+  );
+  const fmt = (date: string) =>
+    new Date(date).toLocaleString(lang === 'th' ? 'th-TH' : lang === 'ro' ? 'ro-RO' : 'en-US');
+  async function adjustStock(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const newStock = Number(stockAdjustment.new_stock);
+    const threshold = Number(stockAdjustment.threshold);
+    if (
+      !stockAdjustment.product_id ||
+      !Number.isInteger(newStock) ||
+      newStock < 0 ||
+      !Number.isInteger(threshold) ||
+      threshold < 0 ||
+      threshold > 10000
+    ) {
+      toast.error('Enter a valid stock quantity and low-stock threshold.');
+      return;
+    }
+    const { error } = await (supabase as any).rpc('ibuzz_adjust_inventory', {
+      p_product_id: stockAdjustment.product_id,
+      p_new_stock: newStock,
+      p_reason: stockAdjustment.reason,
+      p_note: stockAdjustment.note.trim() || null,
+    });
+    if (error) {
+      toast.error(
+        error.message ||
+          'Could not adjust stock. Apply the inventory migration and confirm admin access.',
+      );
+      return;
+    }
+    const { error: thresholdError } = await (supabase as any)
+      .from('products')
+      .update({ low_stock_threshold: threshold })
+      .eq('id', stockAdjustment.product_id);
+    if (thresholdError) {
+      toast.error(
+        'Stock was adjusted, but the alert threshold could not be saved. Apply the latest inventory migration.',
+      );
+    } else {
+      toast.success('Stock adjustment saved.');
+    }
+    setStockAdjustment({
+      product_id: '',
+      new_stock: '',
+      threshold: '2',
+      reason: 'restock',
+      note: '',
+    });
+    await invalidate();
+  }
+  async function addExpense(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const amount = Number(expense.amount);
+    if (!Number.isFinite(amount) || amount < 0) {
+      toast.error(w.failed);
+      return;
+    }
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await (supabase as any)
+      .from('expense_entries')
+      .insert({
+        category: expense.category.trim(),
+        description: expense.description.trim(),
+        amount,
+        occurred_on: expense.occurred_on,
+        created_by: auth.user?.id ?? null,
+      });
+    if (error) {
+      toast.error(w.failed);
+      return;
+    }
+    toast.success(w.addExpense);
+    setExpense({ ...expense, category: '', description: '', amount: '' });
+    await invalidate();
+  }
+  async function saveProductCost(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!costDraft.product_id) {
+      toast.error('Choose a product first.');
+      return;
+    }
+    const values = [
+      costDraft.purchase_cost,
+      costDraft.repair_cost,
+      costDraft.shipping_cost,
+      costDraft.platform_fees,
+      costDraft.other_expenses,
+    ].map(Number);
+    if (values.some((value) => !Number.isFinite(value) || value < 0)) {
+      toast.error('Enter valid non-negative costs.');
+      return;
+    }
+    const payload = {
+      product_id: costDraft.product_id,
+      purchase_cost: values[0],
+      repair_cost: values[1],
+      shipping_cost: values[2],
+      platform_fees: values[3],
+      other_expenses: values[4],
+      updated_at: new Date().toISOString(),
+    };
+    const { error } = await (supabase as any)
+      .from('product_costs')
+      .upsert(payload, { onConflict: 'product_id' });
+    if (error) {
+      toast.error(error.message || w.failed);
+      return;
+    }
+    toast.success(w.save);
+    await qc.invalidateQueries({ queryKey: ['ops-costs'] });
+  }
+  async function createJob(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const { error } = await (supabase as any)
+      .from('repair_jobs')
+      .insert({
+        customer_name: job.customer_name.trim(),
+        customer_contact: job.customer_contact.trim(),
+        device: job.device.trim(),
+        issue_description: job.issue_description.trim(),
+        quoted_price: Number(job.quoted_price || 0),
+        final_price: Number(job.final_price || 0),
+        parts_cost: Number(job.parts_cost || 0),
+        labour_cost: Number(job.labour_cost || 0),
+        warranty_until: job.warranty_until || null,
+        diagnosis: job.diagnosis.trim() || null,
+        internal_notes: job.internal_notes.trim() || null,
+        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+      });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(
+      lang === 'th'
+        ? 'สร้างงานซ่อมแล้ว'
+        : lang === 'ro'
+          ? 'Reparația a fost creată'
+          : 'Repair job created',
+    );
+    setJob({
+      customer_name: '',
+      customer_contact: '',
+      device: '',
+      issue_description: '',
+      quoted_price: '',
+      final_price: '',
+      parts_cost: '',
+      labour_cost: '',
+      warranty_until: '',
+      diagnosis: '',
+      internal_notes: '',
+    });
+    await invalidate();
+  }
+  async function saveRepair(id: string, values: Record<string, any>) {
+    const { error } = await (supabase as any).from('repair_jobs').update(values).eq('id', id);
+    if (error) {
+      toast.error(
+        lang === 'th'
+          ? 'บันทึกงานซ่อมไม่สำเร็จ'
+          : lang === 'ro'
+            ? 'Nu s-a putut salva'
+            : 'Could not save repair',
+      );
+      return;
+    }
+    toast.success(w.save);
+    await invalidate();
+  }
+  async function saveTicket(ticket: any) {
+    const { error } = await (supabase as any)
+      .from('support_tickets')
+      .update({
+        status: ticketState[ticket.id] ?? ticket.status,
+        assigned_to: (ticketAssignee[ticket.id] ?? ticket.assigned_to ?? '').trim() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', ticket.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(w.save);
+    await invalidate();
+  }
+  async function addTicketMessage(id: string, isInternal: boolean) {
+    const message = ((isInternal ? internalNoteDrafts[id] : replies[id]) ?? '').trim();
+    if (!message) {
+      toast.error('Enter a message first.');
+      return;
+    }
+    const { error } = await (supabase as any).rpc('ibuzz_add_support_message', {
+      p_ticket_id: id,
+      p_message: message,
+      p_is_internal: isInternal,
+    });
+    if (error) {
+      toast.error(error.message || 'Could not save message.');
+      return;
+    }
+    toast.success(isInternal ? 'Internal note added' : 'Reply recorded');
+    if (isInternal) setInternalNoteDrafts((old) => ({ ...old, [id]: '' }));
+    else setReplies((old) => ({ ...old, [id]: '' }));
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ['ops-ticket-messages'] }),
+      qc.invalidateQueries({ queryKey: ['ops-tickets'] }),
+      qc.invalidateQueries({ queryKey: ['ops-audit'] }),
+    ]);
+  }
+  async function updateServiceEnquiry(id: string, status: string) {
+    const { error } = await (supabase as any)
+      .from('service_enquiries')
+      .update({ status })
+      .eq('id', id);
+    if (error) {
+      toast.error('Could not update service enquiry');
+      return;
+    }
+    toast.success(w.save);
+    await invalidate();
+  }
+  async function markAdminNotificationRead(id: string) {
+    const { error } = await (supabase as any)
+      .from('admin_notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) {
+      toast.error('Could not mark notification as read.');
+      return;
+    }
+    await qc.invalidateQueries({ queryKey: ['ops-admin-notifications'] });
+  }
+  async function updateResaleOffer(id: string, status: string) {
+    const { error } = await (supabase as any).from('resale_offers').update({ status }).eq('id', id);
+    if (error) {
+      toast.error('Could not update resale offer');
+      return;
+    }
+    toast.success(w.save);
+    await invalidate();
+  }
+  async function saveOrderSupportRequest(request: any) {
+    const { error } = await (supabase as any)
+      .from('order_support_requests')
+      .update({
+        status: orderRequestStatus[request.id] ?? request.status,
+        assigned_to: (orderRequestAssignee[request.id] ?? request.assigned_to ?? '').trim() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', request.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(w.save);
+    await invalidate();
+  }
+  async function addOrderSupportMessage(id: string, isInternal: boolean) {
+    const message = ((isInternal ? orderRequestNotes[id] : orderRequestReplies[id]) ?? '').trim();
+    if (!message) {
+      toast.error('Enter a message first.');
+      return;
+    }
+    const { error } = await (supabase as any).rpc('ibuzz_add_order_support_message', {
+      p_request_id: id,
+      p_message: message,
+      p_is_internal: isInternal,
+    });
+    if (error) {
+      toast.error(error.message || 'Could not save message.');
+      return;
+    }
+    if (isInternal)
+      await (supabase as any)
+        .from('order_support_requests')
+        .update({ internal_notes: message })
+        .eq('id', id);
+    toast.success(isInternal ? 'Internal note added' : 'Reply recorded');
+    if (isInternal) setOrderRequestNotes((old) => ({ ...old, [id]: '' }));
+    else setOrderRequestReplies((old) => ({ ...old, [id]: '' }));
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ['ops-order-support-messages'] }),
+      qc.invalidateQueries({ queryKey: ['ops-order-support'] }),
+      qc.invalidateQueries({ queryKey: ['ops-audit'] }),
+    ]);
+  }
   function downloadDailySummary() {
     const rows: (string | number)[][] = [
-      ["iBuzz.wtf operations summary", `${rangeStart} to ${rangeEnd}`],
-      ["Completed paid sales (THB)", completedPaidSales.toFixed(2)],
-      ["Outstanding payments (THB)", outstandingAmount.toFixed(2)],
-      ["Outstanding payment orders", outstandingOrders.length],
-      ["Open orders", rangePendingOrders.length],
-      ["Failed payments", failedPayments.length],
-      ["New orders", newOrders.length],
-      ["Low-stock products", lowStock.length],
-      ["Out-of-stock products", outOfStock.length],
-      ["Estimated operating result (THB)", estimatedOperatingResult.toFixed(2)],
+      ['iBuzz.wtf operations summary', `${rangeStart} to ${rangeEnd}`],
+      ['Completed paid sales (THB)', completedPaidSales.toFixed(2)],
+      ['Outstanding payments (THB)', outstandingAmount.toFixed(2)],
+      ['Outstanding payment orders', outstandingOrders.length],
+      ['Open orders', rangePendingOrders.length],
+      ['Failed payments', failedPayments.length],
+      ['New orders', newOrders.length],
+      ['Low-stock products', lowStock.length],
+      ['Out-of-stock products', outOfStock.length],
+      ['Estimated operating result (THB)', estimatedOperatingResult.toFixed(2)],
       [],
-      ["Order number", "Created at", "Order status", "Payment status", "Total (THB)"],
+      ['Order number', 'Created at', 'Order status', 'Payment status', 'Total (THB)'],
       ...rangeOrders.map((order: any) => [
         String(order.order_number ?? order.id),
-        String(order.created_at ?? ""),
-        String(order.status ?? ""),
-        String(order.payment_status ?? ""),
+        String(order.created_at ?? ''),
+        String(order.status ?? ''),
+        String(order.payment_status ?? ''),
         Number(order.total ?? 0).toFixed(2),
       ]),
     ];
@@ -128,9 +1015,11 @@ export function AdminOperations({ section }: { section: Section }) {
       const text = String(value);
       return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     };
-    const csv = rows.map(row => row.map(value => escapeCsv(value ?? "")).join(",")).join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
-    const anchor = document.createElement("a");
+    const csv = rows
+      .map((row) => row.map((value) => escapeCsv(value ?? '')).join(','))
+      .join('\r\n');
+    const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `ibuzz-operations-${rangeStart}-to-${rangeEnd}.csv`;
     document.body.appendChild(anchor);
@@ -139,124 +1028,1394 @@ export function AdminOperations({ section }: { section: Section }) {
     URL.revokeObjectURL(url);
   }
 
-  if(anyError)return <p role="alert" className="rounded-xl border border-destructive/40 p-4 text-sm text-destructive">{w.failed}</p>;
-  if(products.isLoading||orders.isLoading||enquiries.isLoading)return <p className="py-6 text-muted-foreground">{w.loading}</p>;
+  if (anyError)
+    return (
+      <p
+        role="alert"
+        className="rounded-xl border border-destructive/40 p-4 text-sm text-destructive"
+      >
+        {w.failed}
+      </p>
+    );
+  if (products.isLoading || orders.isLoading || enquiries.isLoading)
+    return <p className="py-6 text-muted-foreground">{w.loading}</p>;
 
-  if(section==="overview")return <div className="space-y-5">
-    <div className="grid gap-4 rounded-xl border bg-card p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-      <div className="flex items-center gap-2 text-sm font-semibold"><CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground"/><span>{w.period}</span></div>
-      <div className={`grid min-w-0 gap-3 ${rangePreset==="custom"?"sm:grid-cols-3":"sm:grid-cols-1"} lg:min-w-[220px]`}>
-        <label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.period}</span><select value={rangePreset} onChange={e=>setRangePreset(e.target.value as "today"|"month"|"custom")} className="h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="today">{w.today}</option><option value="month">{w.thisMonth}</option><option value="custom">{w.custom}</option></select></label>
-        {rangePreset==="custom"&&<><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.from}</span><Input className="w-full min-w-0" type="date" value={customStart} max={customEnd} onChange={e=>setCustomStart(e.target.value)}/></label><label className="grid min-w-0 gap-1 text-xs text-muted-foreground"><span>{w.to}</span><Input className="w-full min-w-0" type="date" value={customEnd} min={customStart} onChange={e=>setCustomEnd(e.target.value)}/></label></>}
+  if (section === 'overview')
+    return (
+      <div className="space-y-5">
+        <div className="grid gap-4 rounded-xl border bg-card p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span>{w.period}</span>
+          </div>
+          <div
+            className={`grid min-w-0 gap-3 ${rangePreset === 'custom' ? 'sm:grid-cols-3' : 'sm:grid-cols-1'} lg:min-w-[220px]`}
+          >
+            <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
+              <span>{w.period}</span>
+              <select
+                value={rangePreset}
+                onChange={(e) => setRangePreset(e.target.value as 'today' | 'month' | 'custom')}
+                className="h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+              >
+                <option value="today">{w.today}</option>
+                <option value="month">{w.thisMonth}</option>
+                <option value="custom">{w.custom}</option>
+              </select>
+            </label>
+            {rangePreset === 'custom' && (
+              <>
+                <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
+                  <span>{w.from}</span>
+                  <Input
+                    className="w-full min-w-0"
+                    type="date"
+                    value={customStart}
+                    max={customEnd}
+                    onChange={(e) => setCustomStart(e.target.value)}
+                  />
+                </label>
+                <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
+                  <span>{w.to}</span>
+                  <Input
+                    className="w-full min-w-0"
+                    type="date"
+                    value={customEnd}
+                    min={customStart}
+                    onChange={(e) => setCustomEnd(e.target.value)}
+                  />
+                </label>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button size="sm" variant="outline" onClick={downloadDailySummary}>
+            {lang === 'th'
+              ? 'ดาวน์โหลดสรุปรายวัน CSV'
+              : lang === 'ro'
+                ? 'Descarcă rezumatul CSV'
+                : 'Download daily summary CSV'}
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Metric
+            icon={<Banknote className="h-4 w-4" />}
+            label={w.totalSales}
+            value={formatPrice(completedPaidSales)}
+          />
+          <Metric
+            icon={<ClipboardList className="h-4 w-4" />}
+            label={w.pending}
+            value={String(rangePendingOrders.length)}
+          />
+          <Metric
+            icon={<CircleDollarSign className="h-4 w-4" />}
+            label={w.outstanding}
+            value={formatPrice(outstandingAmount)}
+            detail={String(outstandingOrders.length) + ' orders'}
+          />
+          <Metric
+            icon={<Inbox className="h-4 w-4" />}
+            label={w.enquiries}
+            value={String(rangeEnquiries.length)}
+          />
+          <Metric
+            icon={<AlertTriangle className="h-4 w-4" />}
+            label={w.stock}
+            value={String(lowStock.length)}
+          />
+          <Metric
+            icon={<Wrench className="h-4 w-4" />}
+            label={w.profitEstimate}
+            value={formatPrice(estimatedOperatingResult)}
+          />
+        </div>
+        <section className="rounded-xl border bg-card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold">
+              {lang === 'th'
+                ? 'การแจ้งเตือนผู้ดูแล'
+                : lang === 'ro'
+                  ? 'Notificări administrator'
+                  : 'Admin notifications'}
+            </h3>
+            <Badge variant="outline">
+              {(adminNotifications.data ?? []).filter((n: any) => !n.read_at).length}{' '}
+              {lang === 'th' ? 'ยังไม่อ่าน' : lang === 'ro' ? 'necitite' : 'unread'}
+            </Badge>
+          </div>
+          {adminNotifications.isLoading ? (
+            <p className="mt-3 text-sm text-muted-foreground">{w.loading}</p>
+          ) : adminNotifications.error ? (
+            <p role="alert" className="mt-3 text-sm text-destructive">
+              Admin notifications require the latest database migration.
+            </p>
+          ) : !(adminNotifications.data ?? []).length ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {lang === 'th'
+                ? 'ยังไม่มีการแจ้งเตือน'
+                : lang === 'ro'
+                  ? 'Nu există notificări încă'
+                  : 'No admin notifications yet.'}
+            </p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {(adminNotifications.data ?? []).slice(0, 10).map((n: any) => (
+                <article
+                  key={n.id}
+                  className={`flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between ${n.read_at ? 'opacity-70' : 'border-primary/30 bg-primary/5'}`}
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{n.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{fmt(n.created_at)}</p>
+                  </div>
+                  {!n.read_at && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => void markAdminNotificationRead(n.id)}
+                    >
+                      {lang === 'th'
+                        ? 'ทำเครื่องหมายว่าอ่านแล้ว'
+                        : lang === 'ro'
+                          ? 'Marchează ca citită'
+                          : 'Mark read'}
+                    </Button>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+        <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold">
+                {lang === 'th'
+                  ? 'รายการที่ต้องตรวจสอบ'
+                  : lang === 'ro'
+                    ? 'Necesită atenție'
+                    : 'Needs attention'}
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {lang === 'th'
+                  ? 'ตรวจสอบคำสั่งซื้อ การชำระเงิน การคืนเงิน และสต็อก'
+                  : lang === 'ro'
+                    ? 'Verifică comenzile, plățile, rambursările și stocul'
+                    : 'Review orders, payments, refunds and inventory.'}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-lg border bg-background/70 p-3">
+              <p className="text-xs text-muted-foreground">
+                {lang === 'th' ? 'คำสั่งซื้อใหม่' : lang === 'ro' ? 'Comenzi noi' : 'New orders'}
+              </p>
+              <p className="mt-1 text-xl font-bold">{newOrders.length}</p>
+              {newOrders.slice(0, 2).map((o: any) => (
+                <p key={o.id} className="mt-1 truncate text-xs">
+                  {o.order_number ?? o.id.slice(0, 8)}
+                </p>
+              ))}
+            </div>
+            <div className="rounded-lg border bg-background/70 p-3">
+              <p className="text-xs text-muted-foreground">
+                {lang === 'th'
+                  ? 'ชำระเงินไม่สำเร็จ'
+                  : lang === 'ro'
+                    ? 'Plăți eșuate'
+                    : 'Failed payments'}
+              </p>
+              <p className="mt-1 text-xl font-bold">{failedPayments.length}</p>
+              {failedPayments.slice(0, 2).map((o: any) => (
+                <p key={o.id} className="mt-1 truncate text-xs">
+                  {o.order_number ?? o.id.slice(0, 8)} · {formatPrice(Number(o.total || 0))}
+                </p>
+              ))}
+            </div>
+            <div className="rounded-lg border bg-background/70 p-3">
+              <p className="text-xs text-muted-foreground">
+                {lang === 'th'
+                  ? 'คืนเงินล่าสุด'
+                  : lang === 'ro'
+                    ? 'Rambursări recente'
+                    : 'Recent refunds'}
+              </p>
+              <p className="mt-1 text-xl font-bold">{rangeRefunds.length}</p>
+              {rangeRefunds.slice(0, 2).map((r: any) => (
+                <p key={r.id} className="mt-1 truncate text-xs">
+                  {formatPrice(Number(r.amount || 0))} · {fmt(r.created_at)}
+                </p>
+              ))}
+            </div>
+            <div className="rounded-lg border bg-background/70 p-3">
+              <p className="text-xs text-muted-foreground">
+                {lang === 'th' ? 'สินค้าหมด' : lang === 'ro' ? 'Stoc epuizat' : 'Out of stock'}
+              </p>
+              <p className="mt-1 text-xl font-bold">{outOfStock.length}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {lowStock.length}{' '}
+                {lang === 'th'
+                  ? 'สินค้าใกล้หมด'
+                  : lang === 'ro'
+                    ? 'cu stoc redus'
+                    : 'low-stock items'}
+              </p>
+            </div>
+          </div>
+          {newOrders.length +
+            failedPayments.length +
+            rangeRefunds.length +
+            outOfStock.length +
+            lowStock.length ===
+            0 && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {lang === 'th'
+                ? 'ไม่มีรายการเร่งด่วนในช่วงเวลานี้'
+                : lang === 'ro'
+                  ? 'Nicio alertă pentru intervalul selectat'
+                  : 'No urgent items in this period.'}
+            </p>
+          )}
+        </section>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="outline">
+            {lang === 'th'
+              ? 'ต้องกระทบยอด'
+              : lang === 'ro'
+                ? 'Necesită reconciliere'
+                : 'Reconciliation required'}
+          </Badge>
+          <span>
+            {lang === 'th'
+              ? 'ตรวจสอบยอดรับเงินจริง การคืนเงิน และสต็อก'
+              : lang === 'ro'
+                ? 'Verifică încasările, rambursările și inventarul.'
+                : 'Verify payouts, refunds, and inventory.'}
+          </span>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border bg-card p-4">
+            <h3 className="font-semibold">{w.stock}</h3>
+            {lowStock.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {lowStock.slice(0, 8).map((p: any) => (
+                  <li key={p.id} className="flex justify-between gap-3 text-sm">
+                    <span className="min-w-0 truncate">{p.title}</span>
+                    <Badge variant="destructive">{p.stock}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="rounded-xl border border-destructive/30 bg-card p-4">
+            <h3 className="font-semibold">{w.outOfStock}</h3>
+            {outOfStock.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {outOfStock.slice(0, 8).map((p: any) => (
+                  <li key={p.id} className="flex justify-between gap-3 text-sm">
+                    <span className="min-w-0 truncate">{p.title}</span>
+                    <Badge variant="destructive">{p.stock}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="rounded-xl border bg-card p-4">
+            <h3 className="font-semibold">{w.enquiries}</h3>
+            {rangeEnquiries.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">{w.noEnquiries}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {rangeEnquiries.slice(0, 8).map((e: any) => (
+                  <li key={e.id} className="flex justify-between gap-3 text-sm">
+                    <span className="min-w-0 truncate">
+                      {e.name} · {e.service}
+                    </span>
+                    <Badge>{e.status}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-4">
+          <h3 className="font-semibold">{w.recentOrders}</h3>
+          {rangeOrders.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">{w.noRecentOrders}</p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {rangeOrders.slice(0, 5).map((o: any) => (
+                <div
+                  key={o.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/40 p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {o.order_number ?? o.id.slice(0, 8)}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{fmt(o.created_at)}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant={
+                        o.status === 'cancelled'
+                          ? 'destructive'
+                          : o.status === 'completed'
+                            ? 'default'
+                            : 'secondary'
+                      }
+                    >
+                      {String(o.status).replaceAll('_', ' ')}
+                    </Badge>
+                    <Badge variant={o.payment_status === 'paid' ? 'default' : 'outline'}>
+                      {String(o.payment_status).replaceAll('_', ' ')}
+                    </Badge>
+                    <span className="min-w-20 text-right text-sm font-semibold">
+                      {formatPrice(Number(o.total))}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-    <div className="flex justify-end"><Button size="sm" variant="outline" onClick={downloadDailySummary}>{lang === "th" ? "ดาวน์โหลดสรุปรายวัน CSV" : lang === "ro" ? "Descarcă rezumatul CSV" : "Download daily summary CSV"}</Button></div>
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      <Metric icon={<Banknote className="h-4 w-4"/>} label={w.totalSales} value={formatPrice(completedPaidSales)}/>
-      <Metric icon={<ClipboardList className="h-4 w-4"/>} label={w.pending} value={String(rangePendingOrders.length)}/>
-      <Metric icon={<CircleDollarSign className="h-4 w-4"/>} label={w.outstanding} value={formatPrice(outstandingAmount)} detail={String(outstandingOrders.length)+" orders"}/>
-      <Metric icon={<Inbox className="h-4 w-4"/>} label={w.enquiries} value={String(rangeEnquiries.length)}/>
-      <Metric icon={<AlertTriangle className="h-4 w-4"/>} label={w.stock} value={String(lowStock.length)}/>
-      <Metric icon={<Wrench className="h-4 w-4"/>} label={w.profitEstimate} value={formatPrice(estimatedOperatingResult)}/>
-    </div>
-    <section className="rounded-xl border bg-card p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">{lang==="th"?"การแจ้งเตือนผู้ดูแล":lang==="ro"?"Notificări administrator":"Admin notifications"}</h3><Badge variant="outline">{(adminNotifications.data??[]).filter((n:any)=>!n.read_at).length} {lang==="th"?"ยังไม่อ่าน":lang==="ro"?"necitite":"unread"}</Badge></div>
-      {adminNotifications.isLoading?<p className="mt-3 text-sm text-muted-foreground">{w.loading}</p>:adminNotifications.error?<p role="alert" className="mt-3 text-sm text-destructive">Admin notifications require the latest database migration.</p>:!(adminNotifications.data??[]).length?<p className="mt-3 text-sm text-muted-foreground">{lang==="th"?"ยังไม่มีการแจ้งเตือน":lang==="ro"?"Nu există notificări încă":"No admin notifications yet."}</p>:<div className="mt-3 space-y-2">{(adminNotifications.data??[]).slice(0,10).map((n:any)=><article key={n.id} className={`flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between ${n.read_at?"opacity-70":"border-primary/30 bg-primary/5"}`}><div className="min-w-0"><p className="text-sm font-semibold">{n.title}</p><p className="mt-1 text-sm text-muted-foreground">{n.message}</p><p className="mt-1 text-xs text-muted-foreground">{fmt(n.created_at)}</p></div>{!n.read_at&&<Button size="sm" variant="outline" onClick={()=>void markAdminNotificationRead(n.id)}>{lang==="th"?"ทำเครื่องหมายว่าอ่านแล้ว":lang==="ro"?"Marchează ca citită":"Mark read"}</Button>}</article>)}</div>}
-    </section>
-    <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-      <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"/><div className="min-w-0 flex-1"><h3 className="font-semibold">{lang==="th"?"รายการที่ต้องตรวจสอบ":lang==="ro"?"Necesită atenție":"Needs attention"}</h3><p className="mt-1 text-sm text-muted-foreground">{lang==="th"?"ตรวจสอบคำสั่งซื้อ การชำระเงิน การคืนเงิน และสต็อก":lang==="ro"?"Verifică comenzile, plățile, rambursările și stocul":"Review orders, payments, refunds and inventory."}</p></div></div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"คำสั่งซื้อใหม่":lang==="ro"?"Comenzi noi":"New orders"}</p><p className="mt-1 text-xl font-bold">{newOrders.length}</p>{newOrders.slice(0,2).map((o:any)=><p key={o.id} className="mt-1 truncate text-xs">{o.order_number??o.id.slice(0,8)}</p>)}</div>
-        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"ชำระเงินไม่สำเร็จ":lang==="ro"?"Plăți eșuate":"Failed payments"}</p><p className="mt-1 text-xl font-bold">{failedPayments.length}</p>{failedPayments.slice(0,2).map((o:any)=><p key={o.id} className="mt-1 truncate text-xs">{o.order_number??o.id.slice(0,8)} · {formatPrice(Number(o.total||0))}</p>)}</div>
-        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"คืนเงินล่าสุด":lang==="ro"?"Rambursări recente":"Recent refunds"}</p><p className="mt-1 text-xl font-bold">{rangeRefunds.length}</p>{rangeRefunds.slice(0,2).map((r:any)=><p key={r.id} className="mt-1 truncate text-xs">{formatPrice(Number(r.amount||0))} · {fmt(r.created_at)}</p>)}</div>
-        <div className="rounded-lg border bg-background/70 p-3"><p className="text-xs text-muted-foreground">{lang==="th"?"สินค้าหมด":lang==="ro"?"Stoc epuizat":"Out of stock"}</p><p className="mt-1 text-xl font-bold">{outOfStock.length}</p><p className="mt-1 text-xs text-muted-foreground">{lowStock.length} {lang==="th"?"สินค้าใกล้หมด":lang==="ro"?"cu stoc redus":"low-stock items"}</p></div>
-      </div>
-      {(newOrders.length+failedPayments.length+rangeRefunds.length+outOfStock.length+lowStock.length)===0&&<p className="mt-3 text-sm text-muted-foreground">{lang==="th"?"ไม่มีรายการเร่งด่วนในช่วงเวลานี้":lang==="ro"?"Nicio alertă pentru intervalul selectat":"No urgent items in this period."}</p>}
-    </section>
-    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><Badge variant="outline">{lang === "th" ? "ต้องกระทบยอด" : lang === "ro" ? "Necesită reconciliere" : "Reconciliation required"}</Badge><span>{lang === "th" ? "ตรวจสอบยอดรับเงินจริง การคืนเงิน และสต็อก" : lang === "ro" ? "Verifică încasările, rambursările și inventarul." : "Verify payouts, refunds, and inventory."}</span></div>
-    <div className="grid gap-4 lg:grid-cols-2">
-      <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.stock}</h3>{lowStock.length===0?<p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>:<ul className="mt-3 space-y-2">{lowStock.slice(0,8).map((p:any)=><li key={p.id} className="flex justify-between gap-3 text-sm"><span className="min-w-0 truncate">{p.title}</span><Badge variant="destructive">{p.stock}</Badge></li>)}</ul>}</div>
-      <div className="rounded-xl border border-destructive/30 bg-card p-4"><h3 className="font-semibold">{w.outOfStock}</h3>{outOfStock.length===0?<p className="mt-3 text-sm text-muted-foreground">{w.noStock}</p>:<ul className="mt-3 space-y-2">{outOfStock.slice(0,8).map((p:any)=><li key={p.id} className="flex justify-between gap-3 text-sm"><span className="min-w-0 truncate">{p.title}</span><Badge variant="destructive">{p.stock}</Badge></li>)}</ul>}</div>
-      <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.enquiries}</h3>{rangeEnquiries.length===0?<p className="mt-3 text-sm text-muted-foreground">{w.noEnquiries}</p>:<ul className="mt-3 space-y-2">{rangeEnquiries.slice(0,8).map((e:any)=><li key={e.id} className="flex justify-between gap-3 text-sm"><span className="min-w-0 truncate">{e.name} · {e.service}</span><Badge>{e.status}</Badge></li>)}</ul>}</div>
-    </div>
-    <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.recentOrders}</h3>{rangeOrders.length===0?<p className="mt-3 text-sm text-muted-foreground">{w.noRecentOrders}</p>:<div className="mt-3 space-y-2">{rangeOrders.slice(0,5).map((o:any)=><div key={o.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/40 p-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{o.order_number??o.id.slice(0,8)}</p><p className="mt-1 text-xs text-muted-foreground">{fmt(o.created_at)}</p></div><div className="flex flex-wrap items-center gap-2"><Badge variant={o.status==="cancelled"?"destructive":o.status==="completed"?"default":"secondary"}>{String(o.status).replaceAll("_"," ")}</Badge><Badge variant={o.payment_status==="paid"?"default":"outline"}>{String(o.payment_status).replaceAll("_"," ")}</Badge><span className="min-w-20 text-right text-sm font-semibold">{formatPrice(Number(o.total))}</span></div></div>)}</div>}</div>
-  </div>;
+    );
 
-  if(section==="finance") {
-    const expenseTotal=(expenses.data??[]).reduce((sum:number,e:any)=>sum+Number(e.amount||0),0);
-    const completedPaidOrders=(orders.data??[]).filter((o:any)=>o.status==="completed"&&o.payment_status==="paid");
-    const recordedCost=completedPaidOrders.reduce((sum:number,o:any)=>sum+(o.order_items??[]).reduce((itemSum:number,item:any)=>itemSum+(Number(costByProduct.get(item.product_id)??0)*Number(item.quantity??0)),0),0);
-    const refundTotal=(refunds.data??[]).reduce((sum:number,r:any)=>sum+Number(r.amount||0),0);
-    const netSales=salesTotals.paidCompletedSales-refundTotal;
-    const estimated=netSales-recordedCost-expenseTotal;
-    const costFields=[{key:"purchase_cost",label:lang==="th"?"ต้นทุนซื้อ":lang==="ro"?"Cost de achiziție":"Purchase cost"},{key:"repair_cost",label:lang==="th"?"ค่าซ่อม":lang==="ro"?"Cost reparație":"Repair cost"},{key:"shipping_cost",label:lang==="th"?"ค่าขนส่ง":lang==="ro"?"Cost livrare":"Shipping cost"},{key:"platform_fees",label:lang==="th"?"ค่าธรรมเนียม":lang==="ro"?"Comisioane":"Payment/platform fees"},{key:"other_expenses",label:lang==="th"?"ค่าใช้จ่ายอื่น":lang==="ro"?"Alte costuri":"Other costs"}] as const;
-    const selectedCost=(costs.data??[]).find((row:any)=>row.product_id===costDraft.product_id);
-    return <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric icon={<ClipboardList className="h-4 w-4"/>} label={w.paidSales} value={formatPrice(salesTotals.paidCompletedSales)}/><Metric icon={<CircleDollarSign className="h-4 w-4"/>} label={lang==="th"?"คืนเงินแล้ว":lang==="ro"?"Rambursări":"Refunds recorded"} value={formatPrice(refundTotal)}/><Metric icon={<AlertTriangle className="h-4 w-4"/>} label={w.expenses} value={formatPrice(expenseTotal)}/><Metric icon={<ShieldCheck className="h-4 w-4"/>} label={w.estimatedProfit} value={formatPrice(estimated)} detail={lang==="th"?"หักต้นทุนสินค้าและยอดคืนเงินแล้ว":lang==="ro"?"După costuri și rambursări":"After recorded costs and refunds"}/></div>
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><Badge variant="outline">{w.costsNote.split(" · ")[0]}</Badge><span>{lang==="th"?"กรอกต้นทุนจริงและค่าธรรมเนียมต่อสินค้าเพื่อให้ค่าประมาณแม่นยำขึ้น":lang==="ro"?"Introdu costurile reale și comisioanele pentru fiecare produs":"Enter actual per-product costs and fees to improve the estimate."}</span></div>
-      <form onSubmit={saveProductCost} className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 xl:grid-cols-3">
-        <h3 className="font-semibold sm:col-span-2 xl:col-span-3">{lang==="th"?"บันทึกต้นทุนสินค้า":lang==="ro"?"Înregistrează costurile produsului":"Record product costs"}</h3>
-        <label className="grid gap-1 text-xs text-muted-foreground">{w.product}<select required value={costDraft.product_id} onChange={e=>{const id=e.target.value;const row=(costs.data??[]).find((item:any)=>item.product_id===id);setCostDraft({product_id:id,purchase_cost:String(row?.purchase_cost??0),repair_cost:String(row?.repair_cost??0),shipping_cost:String(row?.shipping_cost??0),platform_fees:String(row?.platform_fees??0),other_expenses:String(row?.other_expenses??0)});}} className="h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"><option value="">Choose a product</option>{(products.data??[]).map((p:any)=><option key={p.id} value={p.id}>{p.title}</option>)}</select></label>
-        {costFields.map(field=><label key={field.key} className="grid gap-1 text-xs text-muted-foreground">{field.label} (฿)<Input type="number" min="0" step="0.01" required value={costDraft[field.key]} onChange={e=>setCostDraft(old=>({...old,[field.key]:e.target.value}))}/></label>)}
-        <Button type="submit" className="sm:col-span-2 xl:col-span-3" disabled={!costDraft.product_id}>{w.save}{selectedCost?" · Update existing costs":""}</Button>
-        <p className="text-xs text-muted-foreground sm:col-span-2 xl:col-span-3">These are treated as per-unit costs in the estimate. Keep shipping and platform fees here only if they are not already recorded as expenses.</p>
-      </form>
-      <form onSubmit={addExpense} className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2">
-       <h3 className="font-semibold sm:col-span-2">{w.addExpense}</h3>
-       <div><Label>{w.expenseCategory}</Label><Input value={expense.category} onChange={e=>setExpense({...expense,category:e.target.value})} required minLength={2} maxLength={80}/></div>
-       <div><Label>{w.expenseDescription}</Label><Input value={expense.description} onChange={e=>setExpense({...expense,description:e.target.value})} required minLength={2} maxLength={500}/></div>
-       <div><Label>{w.expenseAmount}</Label><Input type="number" min={0} step="0.01" value={expense.amount} onChange={e=>setExpense({...expense,amount:e.target.value})} required/></div>
-       <div><Label>{w.expenseDate}</Label><Input type="date" value={expense.occurred_on} onChange={e=>setExpense({...expense,occurred_on:e.target.value})} required/></div>
-       <Button type="submit" className="sm:col-span-2">{w.addExpense}</Button>
-      </form>
-      <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.expenses}</h3>{expenses.isLoading||costs.isLoading||refunds.isLoading?<p>{w.loading}</p>:!(expenses.data??[]).length?<p className="mt-3 text-sm text-muted-foreground">{w.noRows}</p>:<div className="mt-3 overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm"><thead><tr className="border-b text-muted-foreground"><th className="p-2">{w.expenseDate}</th><th className="p-2">{w.expenseCategory}</th><th className="p-2">{w.expenseDescription}</th><th className="p-2 text-right">{w.expenseAmount}</th></tr></thead><tbody>{(expenses.data??[]).map((e:any)=><tr key={e.id} className="border-b border-border/40"><td className="p-2">{e.occurred_on}</td><td className="p-2">{e.category}</td><td className="p-2">{e.description}</td><td className="p-2 text-right">{formatPrice(Number(e.amount))}</td></tr>)}</tbody></table></div>}</div>
-    </div>;
+  if (section === 'finance') {
+    const expenseTotal = (expenses.data ?? []).reduce(
+      (sum: number, e: any) => sum + Number(e.amount || 0),
+      0,
+    );
+    const completedPaidOrders = (orders.data ?? []).filter(
+      (o: any) => o.status === 'completed' && o.payment_status === 'paid',
+    );
+    const recordedCost = completedPaidOrders.reduce(
+      (sum: number, o: any) =>
+        sum +
+        (o.order_items ?? []).reduce(
+          (itemSum: number, item: any) =>
+            itemSum + Number(costByProduct.get(item.product_id) ?? 0) * Number(item.quantity ?? 0),
+          0,
+        ),
+      0,
+    );
+    const refundTotal = (refunds.data ?? []).reduce(
+      (sum: number, r: any) => sum + Number(r.amount || 0),
+      0,
+    );
+    const netSales = salesTotals.paidCompletedSales - refundTotal;
+    const estimated = netSales - recordedCost - expenseTotal;
+    const costFields = [
+      {
+        key: 'purchase_cost',
+        label: lang === 'th' ? 'ต้นทุนซื้อ' : lang === 'ro' ? 'Cost de achiziție' : 'Purchase cost',
+      },
+      {
+        key: 'repair_cost',
+        label: lang === 'th' ? 'ค่าซ่อม' : lang === 'ro' ? 'Cost reparație' : 'Repair cost',
+      },
+      {
+        key: 'shipping_cost',
+        label: lang === 'th' ? 'ค่าขนส่ง' : lang === 'ro' ? 'Cost livrare' : 'Shipping cost',
+      },
+      {
+        key: 'platform_fees',
+        label:
+          lang === 'th' ? 'ค่าธรรมเนียม' : lang === 'ro' ? 'Comisioane' : 'Payment/platform fees',
+      },
+      {
+        key: 'other_expenses',
+        label: lang === 'th' ? 'ค่าใช้จ่ายอื่น' : lang === 'ro' ? 'Alte costuri' : 'Other costs',
+      },
+    ] as const;
+    const selectedCost = (costs.data ?? []).find(
+      (row: any) => row.product_id === costDraft.product_id,
+    );
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric
+            icon={<ClipboardList className="h-4 w-4" />}
+            label={w.paidSales}
+            value={formatPrice(salesTotals.paidCompletedSales)}
+          />
+          <Metric
+            icon={<CircleDollarSign className="h-4 w-4" />}
+            label={
+              lang === 'th' ? 'คืนเงินแล้ว' : lang === 'ro' ? 'Rambursări' : 'Refunds recorded'
+            }
+            value={formatPrice(refundTotal)}
+          />
+          <Metric
+            icon={<AlertTriangle className="h-4 w-4" />}
+            label={w.expenses}
+            value={formatPrice(expenseTotal)}
+          />
+          <Metric
+            icon={<ShieldCheck className="h-4 w-4" />}
+            label={w.estimatedProfit}
+            value={formatPrice(estimated)}
+            detail={
+              lang === 'th'
+                ? 'หักต้นทุนสินค้าและยอดคืนเงินแล้ว'
+                : lang === 'ro'
+                  ? 'După costuri și rambursări'
+                  : 'After recorded costs and refunds'
+            }
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="outline">{w.costsNote.split(' · ')[0]}</Badge>
+          <span>
+            {lang === 'th'
+              ? 'กรอกต้นทุนจริงและค่าธรรมเนียมต่อสินค้าเพื่อให้ค่าประมาณแม่นยำขึ้น'
+              : lang === 'ro'
+                ? 'Introdu costurile reale și comisioanele pentru fiecare produs'
+                : 'Enter actual per-product costs and fees to improve the estimate.'}
+          </span>
+        </div>
+        <form
+          onSubmit={saveProductCost}
+          className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 xl:grid-cols-3"
+        >
+          <h3 className="font-semibold sm:col-span-2 xl:col-span-3">
+            {lang === 'th'
+              ? 'บันทึกต้นทุนสินค้า'
+              : lang === 'ro'
+                ? 'Înregistrează costurile produsului'
+                : 'Record product costs'}
+          </h3>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            {w.product}
+            <select
+              required
+              value={costDraft.product_id}
+              onChange={(e) => {
+                const id = e.target.value;
+                const row = (costs.data ?? []).find((item: any) => item.product_id === id);
+                setCostDraft({
+                  product_id: id,
+                  purchase_cost: String(row?.purchase_cost ?? 0),
+                  repair_cost: String(row?.repair_cost ?? 0),
+                  shipping_cost: String(row?.shipping_cost ?? 0),
+                  platform_fees: String(row?.platform_fees ?? 0),
+                  other_expenses: String(row?.other_expenses ?? 0),
+                });
+              }}
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"
+            >
+              <option value="">Choose a product</option>
+              {(products.data ?? []).map((p: any) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          {costFields.map((field) => (
+            <label key={field.key} className="grid gap-1 text-xs text-muted-foreground">
+              {field.label} (฿)
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                value={costDraft[field.key]}
+                onChange={(e) => setCostDraft((old) => ({ ...old, [field.key]: e.target.value }))}
+              />
+            </label>
+          ))}
+          <Button
+            type="submit"
+            className="sm:col-span-2 xl:col-span-3"
+            disabled={!costDraft.product_id}
+          >
+            {w.save}
+            {selectedCost ? ' · Update existing costs' : ''}
+          </Button>
+          <p className="text-xs text-muted-foreground sm:col-span-2 xl:col-span-3">
+            These are treated as per-unit costs in the estimate. Keep shipping and platform fees
+            here only if they are not already recorded as expenses.
+          </p>
+        </form>
+        <form
+          onSubmit={addExpense}
+          className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2"
+        >
+          <h3 className="font-semibold sm:col-span-2">{w.addExpense}</h3>
+          <div>
+            <Label>{w.expenseCategory}</Label>
+            <Input
+              value={expense.category}
+              onChange={(e) => setExpense({ ...expense, category: e.target.value })}
+              required
+              minLength={2}
+              maxLength={80}
+            />
+          </div>
+          <div>
+            <Label>{w.expenseDescription}</Label>
+            <Input
+              value={expense.description}
+              onChange={(e) => setExpense({ ...expense, description: e.target.value })}
+              required
+              minLength={2}
+              maxLength={500}
+            />
+          </div>
+          <div>
+            <Label>{w.expenseAmount}</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={expense.amount}
+              onChange={(e) => setExpense({ ...expense, amount: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <Label>{w.expenseDate}</Label>
+            <Input
+              type="date"
+              value={expense.occurred_on}
+              onChange={(e) => setExpense({ ...expense, occurred_on: e.target.value })}
+              required
+            />
+          </div>
+          <Button type="submit" className="sm:col-span-2">
+            {w.addExpense}
+          </Button>
+        </form>
+        <div className="rounded-xl border bg-card p-4">
+          <h3 className="font-semibold">{w.expenses}</h3>
+          {expenses.isLoading || costs.isLoading || refunds.isLoading ? (
+            <p>{w.loading}</p>
+          ) : !(expenses.data ?? []).length ? (
+            <p className="mt-3 text-sm text-muted-foreground">{w.noRows}</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left text-sm">
+                <thead>
+                  <tr className="border-b text-muted-foreground">
+                    <th className="p-2">{w.expenseDate}</th>
+                    <th className="p-2">{w.expenseCategory}</th>
+                    <th className="p-2">{w.expenseDescription}</th>
+                    <th className="p-2 text-right">{w.expenseAmount}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(expenses.data ?? []).map((e: any) => (
+                    <tr key={e.id} className="border-b border-border/40">
+                      <td className="p-2">{e.occurred_on}</td>
+                      <td className="p-2">{e.category}</td>
+                      <td className="p-2">{e.description}</td>
+                      <td className="p-2 text-right">{formatPrice(Number(e.amount))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
-  if(section==="inventory")return <div className="space-y-3">
-    <form onSubmit={adjustStock} className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2">
-      <h3 className="font-semibold sm:col-span-2">Adjust stock and alert threshold</h3>
-      <label className="grid gap-1 text-xs text-muted-foreground">Product<select required value={stockAdjustment.product_id} onChange={e=>{const product=(products.data??[]).find((p:any)=>p.id===e.target.value);setStockAdjustment(old=>({...old,product_id:e.target.value,new_stock:product?String(product.stock??0):"",threshold:String(product?.low_stock_threshold??2)}));}} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="">Choose a product</option>{(products.data??[]).map((p:any)=><option key={p.id} value={p.id}>{p.title} · stock {p.stock}</option>)}</select></label>
-      <label className="grid gap-1 text-xs text-muted-foreground">New stock quantity<Input required type="number" min={0} step={1} value={stockAdjustment.new_stock} onChange={e=>setStockAdjustment(old=>({...old,new_stock:e.target.value}))}/></label>
-      <label className="grid gap-1 text-xs text-muted-foreground">Low-stock alert threshold<Input required type="number" min={0} max={10000} step={1} value={stockAdjustment.threshold} onChange={e=>setStockAdjustment(old=>({...old,threshold:e.target.value}))}/></label>
-      <label className="grid gap-1 text-xs text-muted-foreground">Adjustment reason<select value={stockAdjustment.reason} onChange={e=>setStockAdjustment(old=>({...old,reason:e.target.value}))} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="restock">Restock received</option><option value="damaged">Damaged / written off</option><option value="stocktake">Stocktake</option><option value="correction">Correction</option></select></label>
-      <label className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">Note (optional)<Input maxLength={1000} value={stockAdjustment.note} onChange={e=>setStockAdjustment(old=>({...old,note:e.target.value}))} placeholder="Supplier delivery, damaged item, stock count…"/></label>
-      <Button type="submit" disabled={!products.data?.length} className="sm:col-span-2">Save stock adjustment</Button>
-      <p className="text-xs text-muted-foreground sm:col-span-2">Every change is recorded in stock history and the audit log.</p>
-    </form>
-    <div className="rounded-xl border bg-card p-4"><h3 className="font-semibold">{w.inventory}</h3>{inventory.isLoading?<p>{w.loading}</p>:!(inventory.data??[]).length?<p className="mt-3 text-sm text-muted-foreground">{w.noHistory}</p>:<div className="mt-3 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b text-muted-foreground"><th className="p-2">{w.date}</th><th className="p-2">{w.product}</th><th className="p-2">{w.delta}</th><th className="p-2">{w.after}</th><th className="p-2">{w.reason}</th><th className="p-2">Note</th></tr></thead><tbody>{inventory.data.map((m:any)=><tr key={m.id} className="border-b border-border/40"><td className="p-2">{fmt(m.created_at)}</td><td className="p-2">{m.products?.title??m.product_id}</td><td className="p-2">{m.quantity_delta>0?"+":""}{m.quantity_delta}</td><td className="p-2">{m.stock_after}</td><td className="p-2">{inventoryReasonLabel(m.reason, lang)}</td><td className="max-w-xs whitespace-pre-wrap break-words p-2 text-muted-foreground">{m.note??"—"}</td></tr>)}</tbody></table></div>}</div></div>;
+  if (section === 'inventory')
+    return (
+      <div className="space-y-3">
+        <form
+          onSubmit={adjustStock}
+          className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2"
+        >
+          <h3 className="font-semibold sm:col-span-2">Adjust stock and alert threshold</h3>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Product
+            <select
+              required
+              value={stockAdjustment.product_id}
+              onChange={(e) => {
+                const product = (products.data ?? []).find((p: any) => p.id === e.target.value);
+                setStockAdjustment((old) => ({
+                  ...old,
+                  product_id: e.target.value,
+                  new_stock: product ? String(product.stock ?? 0) : '',
+                  threshold: String(product?.low_stock_threshold ?? 2),
+                }));
+              }}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+            >
+              <option value="">Choose a product</option>
+              {(products.data ?? []).map((p: any) => (
+                <option key={p.id} value={p.id}>
+                  {p.title} · stock {p.stock}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            New stock quantity
+            <Input
+              required
+              type="number"
+              min={0}
+              step={1}
+              value={stockAdjustment.new_stock}
+              onChange={(e) => setStockAdjustment((old) => ({ ...old, new_stock: e.target.value }))}
+            />
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Low-stock alert threshold
+            <Input
+              required
+              type="number"
+              min={0}
+              max={10000}
+              step={1}
+              value={stockAdjustment.threshold}
+              onChange={(e) => setStockAdjustment((old) => ({ ...old, threshold: e.target.value }))}
+            />
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Adjustment reason
+            <select
+              value={stockAdjustment.reason}
+              onChange={(e) => setStockAdjustment((old) => ({ ...old, reason: e.target.value }))}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+            >
+              <option value="restock">Restock received</option>
+              <option value="damaged">Damaged / written off</option>
+              <option value="stocktake">Stocktake</option>
+              <option value="correction">Correction</option>
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">
+            Note (optional)
+            <Input
+              maxLength={1000}
+              value={stockAdjustment.note}
+              onChange={(e) => setStockAdjustment((old) => ({ ...old, note: e.target.value }))}
+              placeholder="Supplier delivery, damaged item, stock count…"
+            />
+          </label>
+          <Button type="submit" disabled={!products.data?.length} className="sm:col-span-2">
+            Save stock adjustment
+          </Button>
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            Every change is recorded in stock history and the audit log.
+          </p>
+        </form>
+        <div className="rounded-xl border bg-card p-4">
+          <h3 className="font-semibold">{w.inventory}</h3>
+          {inventory.isLoading ? (
+            <p>{w.loading}</p>
+          ) : !(inventory.data ?? []).length ? (
+            <p className="mt-3 text-sm text-muted-foreground">{w.noHistory}</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[720px] text-left text-sm">
+                <thead>
+                  <tr className="border-b text-muted-foreground">
+                    <th className="p-2">{w.date}</th>
+                    <th className="p-2">{w.product}</th>
+                    <th className="p-2">{w.delta}</th>
+                    <th className="p-2">{w.after}</th>
+                    <th className="p-2">{w.reason}</th>
+                    <th className="p-2">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventory.data.map((m: any) => (
+                    <tr key={m.id} className="border-b border-border/40">
+                      <td className="p-2">{fmt(m.created_at)}</td>
+                      <td className="p-2">{m.products?.title ?? m.product_id}</td>
+                      <td className="p-2">
+                        {m.quantity_delta > 0 ? '+' : ''}
+                        {m.quantity_delta}
+                      </td>
+                      <td className="p-2">{m.stock_after}</td>
+                      <td className="p-2">{inventoryReasonLabel(m.reason, lang)}</td>
+                      <td className="max-w-xs whitespace-pre-wrap break-words p-2 text-muted-foreground">
+                        {m.note ?? '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
 
-  if(section==="repairs")return <div className="space-y-4">
-    <form onSubmit={createJob} className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2"><h3 className="font-semibold sm:col-span-2">{w.newJob}</h3>
-      <div><Label>{w.customer}</Label><Input value={job.customer_name} onChange={e=>setJob({...job,customer_name:e.target.value})} required maxLength={120}/></div>
-      <div><Label>{w.contact}</Label><Input value={job.customer_contact} onChange={e=>setJob({...job,customer_contact:e.target.value})} required maxLength={200}/></div>
-      <div><Label>{w.device}</Label><Input value={job.device} onChange={e=>setJob({...job,device:e.target.value})} required maxLength={160}/></div>
-      <div><Label>{w.issue}</Label><Input value={job.issue_description} onChange={e=>setJob({...job,issue_description:e.target.value})} required maxLength={2000}/></div>
-      <div><Label>{w.quote}</Label><Input type="number" min={0} step="0.01" value={job.quoted_price} onChange={e=>setJob({...job,quoted_price:e.target.value})}/></div>
-      <div><Label>{w.cost}</Label><Input type="number" min={0} step="0.01" value={job.parts_cost} onChange={e=>setJob({...job,parts_cost:e.target.value})}/></div>
-      <div><Label>{w.labour}</Label><Input type="number" min={0} step="0.01" value={job.labour_cost} onChange={e=>setJob({...job,labour_cost:e.target.value})}/></div>
-      <div><Label>Final price (฿)</Label><Input type="number" min={0} step="0.01" value={job.final_price} onChange={e=>setJob({...job,final_price:e.target.value})}/></div>
-      <div><Label>Warranty until</Label><Input type="date" value={job.warranty_until} onChange={e=>setJob({...job,warranty_until:e.target.value})}/></div>
-      <div><Label>{w.diagnosis}</Label><Input value={job.diagnosis} onChange={e=>setJob({...job,diagnosis:e.target.value})}/></div>
-      <div className="sm:col-span-2"><Label>Internal notes</Label><Textarea rows={2} maxLength={5000} value={job.internal_notes} onChange={e=>setJob({...job,internal_notes:e.target.value})}/></div>
-      <Button type="submit" className="sm:col-span-2">{w.saveJob}</Button>
-    </form>
-    {repairs.isLoading?<p>{w.loading}</p>:!(repairs.data??[]).length?<p className="py-8 text-center text-muted-foreground">{w.noRepairs}</p>:(repairs.data??[]).map((r:any)=><article key={r.id} className="space-y-3 rounded-xl border bg-card p-4"><div className="flex flex-wrap justify-between gap-2"><div><p className="text-xs text-muted-foreground">{r.job_number} · {fmt(r.created_at)}</p><h3 className="font-semibold">{r.customer_name} · {r.device}</h3><p className="text-sm text-muted-foreground">{r.customer_contact}</p></div><Badge>{r.status.replaceAll("_"," ")}</Badge></div><p className="text-sm">{r.issue_description}</p><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs text-muted-foreground">{w.status}<select value={jobStatus[r.id]??r.status} onChange={e=>setJobStatus({...jobStatus,[r.id]:e.target.value})} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground">{["received","diagnosing","awaiting_approval","awaiting_parts","repairing","testing","ready_for_collection","completed","cancelled"].map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></label><label className="text-xs text-muted-foreground">{w.quote}<Input type="number" min={0} step="0.01" defaultValue={r.quoted_price} onBlur={e=>{if(Number(e.target.value)!==Number(r.quoted_price))void saveRepair(r.id,{quoted_price:Number(e.target.value)})}}/></label><label className="text-xs text-muted-foreground">Final price (฿)<Input type="number" min={0} step="0.01" defaultValue={r.final_price} onBlur={e=>{if(Number(e.target.value)!==Number(r.final_price))void saveRepair(r.id,{final_price:Number(e.target.value)})}}/></label><label className="text-xs text-muted-foreground">{w.cost}<Input type="number" min={0} step="0.01" defaultValue={r.parts_cost} onBlur={e=>{if(Number(e.target.value)!==Number(r.parts_cost))void saveRepair(r.id,{parts_cost:Number(e.target.value)})}}/></label><label className="text-xs text-muted-foreground">{w.labour}<Input type="number" min={0} step="0.01" defaultValue={r.labour_cost} onBlur={e=>{if(Number(e.target.value)!==Number(r.labour_cost))void saveRepair(r.id,{labour_cost:Number(e.target.value)})}}/></label><label className="text-xs text-muted-foreground">Warranty until<Input type="date" defaultValue={r.warranty_until??""} onBlur={e=>{if(e.target.value!==(r.warranty_until??""))void saveRepair(r.id,{warranty_until:e.target.value||null})}}/></label><label className="text-xs text-muted-foreground">{w.diagnosis}<Input defaultValue={r.diagnosis??""} onBlur={e=>{if(e.target.value!==(r.diagnosis??""))void saveRepair(r.id,{diagnosis:e.target.value})}}/></label><label className="text-xs text-muted-foreground sm:col-span-2">Internal notes<Textarea rows={2} maxLength={5000} defaultValue={r.internal_notes??""} onBlur={e=>{if(e.target.value!==(r.internal_notes??""))void saveRepair(r.id,{internal_notes:e.target.value})}}/></label></div><Button size="sm" onClick={()=>void saveRepair(r.id,{status:jobStatus[r.id]??r.status})}>{w.save}</Button></article>)}
-  </div>;
+  if (section === 'repairs')
+    return (
+      <div className="space-y-4">
+        <form
+          onSubmit={createJob}
+          className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2"
+        >
+          <h3 className="font-semibold sm:col-span-2">{w.newJob}</h3>
+          <div>
+            <Label>{w.customer}</Label>
+            <Input
+              value={job.customer_name}
+              onChange={(e) => setJob({ ...job, customer_name: e.target.value })}
+              required
+              maxLength={120}
+            />
+          </div>
+          <div>
+            <Label>{w.contact}</Label>
+            <Input
+              value={job.customer_contact}
+              onChange={(e) => setJob({ ...job, customer_contact: e.target.value })}
+              required
+              maxLength={200}
+            />
+          </div>
+          <div>
+            <Label>{w.device}</Label>
+            <Input
+              value={job.device}
+              onChange={(e) => setJob({ ...job, device: e.target.value })}
+              required
+              maxLength={160}
+            />
+          </div>
+          <div>
+            <Label>{w.issue}</Label>
+            <Input
+              value={job.issue_description}
+              onChange={(e) => setJob({ ...job, issue_description: e.target.value })}
+              required
+              maxLength={2000}
+            />
+          </div>
+          <div>
+            <Label>{w.quote}</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={job.quoted_price}
+              onChange={(e) => setJob({ ...job, quoted_price: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>{w.cost}</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={job.parts_cost}
+              onChange={(e) => setJob({ ...job, parts_cost: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>{w.labour}</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={job.labour_cost}
+              onChange={(e) => setJob({ ...job, labour_cost: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>Final price (฿)</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.01"
+              value={job.final_price}
+              onChange={(e) => setJob({ ...job, final_price: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>Warranty until</Label>
+            <Input
+              type="date"
+              value={job.warranty_until}
+              onChange={(e) => setJob({ ...job, warranty_until: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>{w.diagnosis}</Label>
+            <Input
+              value={job.diagnosis}
+              onChange={(e) => setJob({ ...job, diagnosis: e.target.value })}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Internal notes</Label>
+            <Textarea
+              rows={2}
+              maxLength={5000}
+              value={job.internal_notes}
+              onChange={(e) => setJob({ ...job, internal_notes: e.target.value })}
+            />
+          </div>
+          <Button type="submit" className="sm:col-span-2">
+            {w.saveJob}
+          </Button>
+        </form>
+        {repairs.isLoading ? (
+          <p>{w.loading}</p>
+        ) : !(repairs.data ?? []).length ? (
+          <p className="py-8 text-center text-muted-foreground">{w.noRepairs}</p>
+        ) : (
+          (repairs.data ?? []).map((r: any) => (
+            <article key={r.id} className="space-y-3 rounded-xl border bg-card p-4">
+              <div className="flex flex-wrap justify-between gap-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {r.job_number} · {fmt(r.created_at)}
+                  </p>
+                  <h3 className="font-semibold">
+                    {r.customer_name} · {r.device}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{r.customer_contact}</p>
+                </div>
+                <Badge>{r.status.replaceAll('_', ' ')}</Badge>
+              </div>
+              <p className="text-sm">{r.issue_description}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-xs text-muted-foreground">
+                  {w.status}
+                  <select
+                    value={jobStatus[r.id] ?? r.status}
+                    onChange={(e) => setJobStatus({ ...jobStatus, [r.id]: e.target.value })}
+                    className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"
+                  >
+                    {[
+                      'received',
+                      'diagnosing',
+                      'awaiting_approval',
+                      'awaiting_parts',
+                      'repairing',
+                      'testing',
+                      'ready_for_collection',
+                      'completed',
+                      'cancelled',
+                    ].map((s) => (
+                      <option key={s} value={s}>
+                        {s.replaceAll('_', ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  {w.quote}
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    defaultValue={r.quoted_price}
+                    onBlur={(e) => {
+                      if (Number(e.target.value) !== Number(r.quoted_price))
+                        void saveRepair(r.id, { quoted_price: Number(e.target.value) });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  Final price (฿)
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    defaultValue={r.final_price}
+                    onBlur={(e) => {
+                      if (Number(e.target.value) !== Number(r.final_price))
+                        void saveRepair(r.id, { final_price: Number(e.target.value) });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  {w.cost}
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    defaultValue={r.parts_cost}
+                    onBlur={(e) => {
+                      if (Number(e.target.value) !== Number(r.parts_cost))
+                        void saveRepair(r.id, { parts_cost: Number(e.target.value) });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  {w.labour}
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    defaultValue={r.labour_cost}
+                    onBlur={(e) => {
+                      if (Number(e.target.value) !== Number(r.labour_cost))
+                        void saveRepair(r.id, { labour_cost: Number(e.target.value) });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  Warranty until
+                  <Input
+                    type="date"
+                    defaultValue={r.warranty_until ?? ''}
+                    onBlur={(e) => {
+                      if (e.target.value !== (r.warranty_until ?? ''))
+                        void saveRepair(r.id, { warranty_until: e.target.value || null });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  {w.diagnosis}
+                  <Input
+                    defaultValue={r.diagnosis ?? ''}
+                    onBlur={(e) => {
+                      if (e.target.value !== (r.diagnosis ?? ''))
+                        void saveRepair(r.id, { diagnosis: e.target.value });
+                    }}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground sm:col-span-2">
+                  Internal notes
+                  <Textarea
+                    rows={2}
+                    maxLength={5000}
+                    defaultValue={r.internal_notes ?? ''}
+                    onBlur={(e) => {
+                      if (e.target.value !== (r.internal_notes ?? ''))
+                        void saveRepair(r.id, { internal_notes: e.target.value });
+                    }}
+                  />
+                </label>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => void saveRepair(r.id, { status: jobStatus[r.id] ?? r.status })}
+              >
+                {w.save}
+              </Button>
+            </article>
+          ))
+        )}
+      </div>
+    );
 
-  if(section==="support")return <div className="space-y-4">
-    <label className="relative block"><span className="sr-only">Search support inbox</span><Inbox className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/><Input value={inboxSearch} onChange={e=>setInboxSearch(e.target.value)} placeholder="Search customer, order, subject or message" className="pl-9"/></label>
-    {orderSupportRequests.isLoading||tickets.isLoading||resaleOffers.isLoading?<p>{w.loading}</p>:visibleEnquiries.length===0&&visibleOffers.length===0&&visibleOrderSupport.length===0&&visibleTickets.length===0?<p className="py-8 text-center text-muted-foreground">No requests match this search.</p>:<>
-      {visibleEnquiries.length>0&&<section className="space-y-2"><h3 className="text-sm font-semibold text-muted-foreground">Service enquiries ({visibleEnquiries.length})</h3>{visibleEnquiries.map((e:any)=><article key={e.id} className="space-y-2 rounded-xl border bg-card p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs text-muted-foreground">{e.kind} · {fmt(e.created_at)}</p><h4 className="font-semibold">{e.service}</h4><p className="text-sm">{e.name} · {e.contact}</p></div><Badge>{e.status}</Badge></div>{e.description&&<p className="whitespace-pre-wrap text-sm text-muted-foreground">{e.description}</p>}{Array.isArray(e.photos)&&<OfferPhotos paths={e.photos}/>}<div className="flex gap-2"><Button size="sm" variant="outline" onClick={()=>void updateServiceEnquiry(e.id,"contacted")}>Contacted</Button><Button size="sm" variant="ghost" onClick={()=>void updateServiceEnquiry(e.id,"closed")}>Close</Button></div></article>)}</section>}
-      {visibleOffers.length>0&&<section className="space-y-2"><h3 className="text-sm font-semibold text-muted-foreground">Resale offers ({visibleOffers.length})</h3>{visibleOffers.map((o:any)=><article key={o.id} className="space-y-2 rounded-xl border bg-card p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs text-muted-foreground">{o.category} · {fmt(o.created_at)}</p><h4 className="font-semibold">{o.name} · {o.contact}</h4></div><Badge>{o.status}</Badge></div><p className="whitespace-pre-wrap text-sm">{o.item_description}</p>{o.condition_notes&&<p className="text-sm text-muted-foreground">{o.condition_notes}</p>}<div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-semibold">{o.asking_price?formatPrice(Number(o.asking_price)):"Price not specified"}</span><div className="flex gap-2"><Button size="sm" variant="outline" onClick={()=>void updateResaleOffer(o.id,"contacted")}>Contacted</Button><Button size="sm" variant="ghost" onClick={()=>void updateResaleOffer(o.id,"closed")}>Close</Button></div></div></article>)}</section>}
-      {visibleOrderSupport.map((r:any)=>{const messages=(orderSupportMessages.data??[]).filter((m:any)=>m.request_id===r.id);return <article key={r.id} className="space-y-3 rounded-xl border bg-card p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs text-muted-foreground">Order request · {r.request_type} · {fmt(r.created_at)}{r.orders?.order_number?" · "+r.orders.order_number:""}</p><h3 className="font-semibold">{r.subject}</h3><p className="text-xs text-muted-foreground">{r.orders?.buyer_name??r.user_id}{r.orders?.buyer_contact?" · "+r.orders.buyer_contact:""}</p></div><Badge>{r.status.replaceAll("_"," ")}</Badge></div><p className="whitespace-pre-wrap text-sm">{r.message}</p>{r.request_type==="cancellation"&&r.orders?.payment_status==="paid"&&<p className="rounded-md bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-300">Paid-order cancellation requires manual review; no refund is triggered automatically.</p>}<div className="grid gap-3 sm:grid-cols-2"><label className="text-xs text-muted-foreground">Assigned to<Input value={orderRequestAssignee[r.id]??r.assigned_to??""} onChange={e=>setOrderRequestAssignee({...orderRequestAssignee,[r.id]:e.target.value})} maxLength={120} placeholder="Owner / team member"/></label><label className="text-xs text-muted-foreground">{w.status}<select value={orderRequestStatus[r.id]??r.status} onChange={e=>setOrderRequestStatus({...orderRequestStatus,[r.id]:e.target.value})} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground">{["open","in_review","waiting_for_customer","resolved","rejected"].map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></label></div><Button size="sm" variant="outline" onClick={()=>void saveOrderSupportRequest(r)}>{w.save} assignment/status</Button><div className="rounded-lg border border-border/50 p-3"><h4 className="text-sm font-semibold">Response history</h4>{messages.length===0?<p className="mt-2 text-xs text-muted-foreground">No replies or notes recorded yet.</p>:<div className="mt-2 space-y-2">{messages.map((m:any)=><div key={m.id} className={`rounded-md p-2 text-sm ${m.is_internal?"border border-amber-500/30 bg-amber-500/5":"bg-muted/40"}`}><div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span>{m.is_internal?"Internal note":"Customer reply"}</span><span>{fmt(m.created_at)}</span></div><p className="mt-1 whitespace-pre-wrap">{m.message}</p></div>)}</div>}</div><div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label>{w.reply}</Label><Textarea rows={3} maxLength={5000} value={orderRequestReplies[r.id]??""} onChange={e=>setOrderRequestReplies({...orderRequestReplies,[r.id]:e.target.value})}/><Button size="sm" onClick={()=>void addOrderSupportMessage(r.id,false)}>Record reply</Button></div><div className="space-y-2"><Label>Internal note (not visible to customer)</Label><Textarea rows={3} maxLength={5000} value={orderRequestNotes[r.id]??""} onChange={e=>setOrderRequestNotes({...orderRequestNotes,[r.id]:e.target.value})}/><Button size="sm" variant="outline" onClick={()=>void addOrderSupportMessage(r.id,true)}>Add internal note</Button></div></div></article>})}
-      {visibleTickets.map((t:any)=>{const messages=(ticketMessages.data??[]).filter((m:any)=>m.ticket_id===t.id);return <article key={t.id} className="space-y-3 rounded-xl border bg-card p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs text-muted-foreground">{t.ticket_number} · {fmt(t.created_at)}</p><h3 className="font-semibold">{t.subject}</h3><p className="text-xs text-muted-foreground">{t.customer_email||t.user_id} · {w.priority}: {t.priority}</p></div><Badge>{t.status}</Badge></div><p className="whitespace-pre-wrap text-sm">{t.message}</p><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs text-muted-foreground">Assigned to<Input value={ticketAssignee[t.id]??t.assigned_to??""} onChange={e=>setTicketAssignee({...ticketAssignee,[t.id]:e.target.value})} maxLength={120} placeholder="Owner / team member"/></label><label className="text-xs text-muted-foreground">{w.status}<select value={ticketState[t.id]??t.status} onChange={e=>setTicketState({...ticketState,[t.id]:e.target.value})} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground">{["open","in_progress","waiting_customer","resolved","closed"].map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></label></div><Button size="sm" variant="outline" onClick={()=>void saveTicket(t)}>{w.save} assignment/status</Button><div className="rounded-lg border border-border/50 p-3"><h4 className="text-sm font-semibold">Response history</h4>{messages.length===0?<p className="mt-2 text-xs text-muted-foreground">No replies or notes recorded yet.</p>:<div className="mt-2 space-y-2">{messages.map((m:any)=><div key={m.id} className={`rounded-md p-2 text-sm ${m.is_internal?"border border-amber-500/30 bg-amber-500/5":"bg-muted/40"}`}><div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span>{m.is_internal?"Internal note":"Customer reply"}</span><span>{fmt(m.created_at)}</span></div><p className="mt-1 whitespace-pre-wrap">{m.message}</p></div>)}</div>}</div><div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label>{w.reply}</Label><Textarea rows={3} maxLength={5000} value={replies[t.id]??""} onChange={e=>setReplies({...replies,[t.id]:e.target.value})}/><Button size="sm" onClick={()=>void addTicketMessage(t.id,false)}>Record reply</Button></div><div className="space-y-2"><Label>Internal note (not visible to customer)</Label><Textarea rows={3} maxLength={5000} value={internalNoteDrafts[t.id]??""} onChange={e=>setInternalNoteDrafts({...internalNoteDrafts,[t.id]:e.target.value})}/><Button size="sm" variant="outline" onClick={()=>void addTicketMessage(t.id,true)}>Add internal note</Button></div></div></article>})}
-    </>}
-  </div>;
+  if (section === 'support')
+    return (
+      <div className="space-y-4">
+        <label className="relative block">
+          <span className="sr-only">Search support inbox</span>
+          <Inbox className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={inboxSearch}
+            onChange={(e) => setInboxSearch(e.target.value)}
+            placeholder="Search customer, order, subject or message"
+            className="pl-9"
+          />
+        </label>
+        {orderSupportRequests.isLoading || tickets.isLoading || resaleOffers.isLoading ? (
+          <p>{w.loading}</p>
+        ) : visibleEnquiries.length === 0 &&
+          visibleOffers.length === 0 &&
+          visibleOrderSupport.length === 0 &&
+          visibleTickets.length === 0 ? (
+          <p className="py-8 text-center text-muted-foreground">No requests match this search.</p>
+        ) : (
+          <>
+            {visibleEnquiries.length > 0 && (
+              <section className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground">
+                  Service enquiries ({visibleEnquiries.length})
+                </h3>
+                {visibleEnquiries.map((e: any) => (
+                  <article key={e.id} className="space-y-2 rounded-xl border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {e.kind} · {fmt(e.created_at)}
+                        </p>
+                        <h4 className="font-semibold">{e.service}</h4>
+                        <p className="text-sm">
+                          {e.name} · {e.contact}
+                        </p>
+                      </div>
+                      <Badge>{e.status}</Badge>
+                    </div>
+                    {e.description && (
+                      <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                        {e.description}
+                      </p>
+                    )}
+                    {Array.isArray(e.photos) && <OfferPhotos paths={e.photos} />}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void updateServiceEnquiry(e.id, 'contacted')}
+                      >
+                        Contacted
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => void updateServiceEnquiry(e.id, 'closed')}
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            )}
+            {visibleOffers.length > 0 && (
+              <section className="space-y-2">
+                <h3 className="text-sm font-semibold text-muted-foreground">
+                  Resale offers ({visibleOffers.length})
+                </h3>
+                {visibleOffers.map((o: any) => (
+                  <article key={o.id} className="space-y-2 rounded-xl border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          {o.category} · {fmt(o.created_at)}
+                        </p>
+                        <h4 className="font-semibold">
+                          {o.name} · {o.contact}
+                        </h4>
+                      </div>
+                      <Badge>{o.status}</Badge>
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm">{o.item_description}</p>
+                    {o.condition_notes && (
+                      <p className="text-sm text-muted-foreground">{o.condition_notes}</p>
+                    )}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-sm font-semibold">
+                        {o.asking_price
+                          ? formatPrice(Number(o.asking_price))
+                          : 'Price not specified'}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void updateResaleOffer(o.id, 'contacted')}
+                        >
+                          Contacted
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => void updateResaleOffer(o.id, 'closed')}
+                        >
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            )}
+            {visibleOrderSupport.map((r: any) => {
+              const messages = (orderSupportMessages.data ?? []).filter(
+                (m: any) => m.request_id === r.id,
+              );
+              return (
+                <article key={r.id} className="space-y-3 rounded-xl border bg-card p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Order request · {r.request_type} · {fmt(r.created_at)}
+                        {r.orders?.order_number ? ' · ' + r.orders.order_number : ''}
+                      </p>
+                      <h3 className="font-semibold">{r.subject}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {r.orders?.buyer_name ?? r.user_id}
+                        {r.orders?.buyer_contact ? ' · ' + r.orders.buyer_contact : ''}
+                      </p>
+                    </div>
+                    <Badge>{r.status.replaceAll('_', ' ')}</Badge>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm">{r.message}</p>
+                  {r.request_type === 'cancellation' && r.orders?.payment_status === 'paid' && (
+                    <p className="rounded-md bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-300">
+                      Paid-order cancellation requires manual review; no refund is triggered
+                      automatically.
+                    </p>
+                  )}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-xs text-muted-foreground">
+                      Assigned to
+                      <Input
+                        value={orderRequestAssignee[r.id] ?? r.assigned_to ?? ''}
+                        onChange={(e) =>
+                          setOrderRequestAssignee({
+                            ...orderRequestAssignee,
+                            [r.id]: e.target.value,
+                          })
+                        }
+                        maxLength={120}
+                        placeholder="Owner / team member"
+                      />
+                    </label>
+                    <label className="text-xs text-muted-foreground">
+                      {w.status}
+                      <select
+                        value={orderRequestStatus[r.id] ?? r.status}
+                        onChange={(e) =>
+                          setOrderRequestStatus({ ...orderRequestStatus, [r.id]: e.target.value })
+                        }
+                        className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"
+                      >
+                        {['open', 'in_review', 'waiting_for_customer', 'resolved', 'rejected'].map(
+                          (s) => (
+                            <option key={s} value={s}>
+                              {s.replaceAll('_', ' ')}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </label>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void saveOrderSupportRequest(r)}
+                  >
+                    {w.save} assignment/status
+                  </Button>
+                  <div className="rounded-lg border border-border/50 p-3">
+                    <h4 className="text-sm font-semibold">Response history</h4>
+                    {messages.length === 0 ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        No replies or notes recorded yet.
+                      </p>
+                    ) : (
+                      <div className="mt-2 space-y-2">
+                        {messages.map((m: any) => (
+                          <div
+                            key={m.id}
+                            className={`rounded-md p-2 text-sm ${m.is_internal ? 'border border-amber-500/30 bg-amber-500/5' : 'bg-muted/40'}`}
+                          >
+                            <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
+                              <span>{m.is_internal ? 'Internal note' : 'Customer reply'}</span>
+                              <span>{fmt(m.created_at)}</span>
+                            </div>
+                            <p className="mt-1 whitespace-pre-wrap">{m.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>{w.reply}</Label>
+                      <Textarea
+                        rows={3}
+                        maxLength={5000}
+                        value={orderRequestReplies[r.id] ?? ''}
+                        onChange={(e) =>
+                          setOrderRequestReplies({ ...orderRequestReplies, [r.id]: e.target.value })
+                        }
+                      />
+                      <Button size="sm" onClick={() => void addOrderSupportMessage(r.id, false)}>
+                        Record reply
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Internal note (not visible to customer)</Label>
+                      <Textarea
+                        rows={3}
+                        maxLength={5000}
+                        value={orderRequestNotes[r.id] ?? ''}
+                        onChange={(e) =>
+                          setOrderRequestNotes({ ...orderRequestNotes, [r.id]: e.target.value })
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void addOrderSupportMessage(r.id, true)}
+                      >
+                        Add internal note
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+            {visibleTickets.map((t: any) => {
+              const messages = (ticketMessages.data ?? []).filter((m: any) => m.ticket_id === t.id);
+              return (
+                <article key={t.id} className="space-y-3 rounded-xl border bg-card p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {t.ticket_number} · {fmt(t.created_at)}
+                      </p>
+                      <h3 className="font-semibold">{t.subject}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {t.customer_email || t.user_id} · {w.priority}: {t.priority}
+                      </p>
+                    </div>
+                    <Badge>{t.status}</Badge>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm">{t.message}</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-xs text-muted-foreground">
+                      Assigned to
+                      <Input
+                        value={ticketAssignee[t.id] ?? t.assigned_to ?? ''}
+                        onChange={(e) =>
+                          setTicketAssignee({ ...ticketAssignee, [t.id]: e.target.value })
+                        }
+                        maxLength={120}
+                        placeholder="Owner / team member"
+                      />
+                    </label>
+                    <label className="text-xs text-muted-foreground">
+                      {w.status}
+                      <select
+                        value={ticketState[t.id] ?? t.status}
+                        onChange={(e) => setTicketState({ ...ticketState, [t.id]: e.target.value })}
+                        className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm text-foreground"
+                      >
+                        {['open', 'in_progress', 'waiting_customer', 'resolved', 'closed'].map(
+                          (s) => (
+                            <option key={s} value={s}>
+                              {s.replaceAll('_', ' ')}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </label>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => void saveTicket(t)}>
+                    {w.save} assignment/status
+                  </Button>
+                  <div className="rounded-lg border border-border/50 p-3">
+                    <h4 className="text-sm font-semibold">Response history</h4>
+                    {messages.length === 0 ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        No replies or notes recorded yet.
+                      </p>
+                    ) : (
+                      <div className="mt-2 space-y-2">
+                        {messages.map((m: any) => (
+                          <div
+                            key={m.id}
+                            className={`rounded-md p-2 text-sm ${m.is_internal ? 'border border-amber-500/30 bg-amber-500/5' : 'bg-muted/40'}`}
+                          >
+                            <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
+                              <span>{m.is_internal ? 'Internal note' : 'Customer reply'}</span>
+                              <span>{fmt(m.created_at)}</span>
+                            </div>
+                            <p className="mt-1 whitespace-pre-wrap">{m.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>{w.reply}</Label>
+                      <Textarea
+                        rows={3}
+                        maxLength={5000}
+                        value={replies[t.id] ?? ''}
+                        onChange={(e) => setReplies({ ...replies, [t.id]: e.target.value })}
+                      />
+                      <Button size="sm" onClick={() => void addTicketMessage(t.id, false)}>
+                        Record reply
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Internal note (not visible to customer)</Label>
+                      <Textarea
+                        rows={3}
+                        maxLength={5000}
+                        value={internalNoteDrafts[t.id] ?? ''}
+                        onChange={(e) =>
+                          setInternalNoteDrafts({ ...internalNoteDrafts, [t.id]: e.target.value })
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void addTicketMessage(t.id, true)}
+                      >
+                        Add internal note
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </>
+        )}
+      </div>
+    );
 
-  return <div className="space-y-3">{audit.isLoading?<p>{w.loading}</p>:!(audit.data??[]).length?<p className="py-8 text-center text-muted-foreground">{w.noAudit}</p>:(audit.data??[]).map((a:any)=><article key={a.id} className="rounded-lg border p-3 text-sm"><div className="flex flex-wrap justify-between gap-2"><strong>{a.action} · {a.entity_table}</strong><span className="text-xs text-muted-foreground">{fmt(a.created_at)}</span></div><p className="mt-1 text-xs text-muted-foreground">ID: {a.entity_id} · Actor: {a.actor_id??"system"}</p><pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs">{JSON.stringify(a.details,null,2)}</pre></article>)}</div>;
+  return (
+    <div className="space-y-3">
+      {audit.isLoading ? (
+        <p>{w.loading}</p>
+      ) : !(audit.data ?? []).length ? (
+        <p className="py-8 text-center text-muted-foreground">{w.noAudit}</p>
+      ) : (
+        (audit.data ?? []).map((a: any) => (
+          <article key={a.id} className="rounded-lg border p-3 text-sm">
+            <div className="flex flex-wrap justify-between gap-2">
+              <strong>
+                {a.action} · {a.entity_table}
+              </strong>
+              <span className="text-xs text-muted-foreground">{fmt(a.created_at)}</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              ID: {a.entity_id} · Actor: {a.actor_id ?? 'system'}
+            </p>
+            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words text-xs">
+              {JSON.stringify(a.details, null, 2)}
+            </pre>
+          </article>
+        ))
+      )}
+    </div>
+  );
 }
 
-function Metric({icon,label,value,detail}:{icon:React.ReactNode;label:string;value:string;detail?:string}) {
-  return <div className="min-w-0 rounded-xl border bg-card p-3 sm:p-4"><div className="flex items-center gap-2 text-xs text-muted-foreground">{icon}<span>{label}</span></div><p className="mt-2 break-words text-xl font-bold sm:text-2xl">{value}</p>{detail&&<p className="mt-1 text-xs text-muted-foreground">{detail}</p>}</div>;
+function Metric({
+  icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  detail?: string;
+}) {
+  return (
+    <div className="min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <p className="mt-2 break-words text-xl font-bold sm:text-2xl">{value}</p>
+      {detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Outlet,
   Link,
@@ -7,17 +7,17 @@ import {
   HeadContent,
   Scripts,
   type ErrorComponentProps,
-} from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+} from '@tanstack/react-router';
+import { useEffect, type ReactNode } from 'react';
 
-import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
-import { I18nProvider } from "@/lib/i18n";
-import { Toaster } from "@/components/ui/sonner";
-import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SHOP_NAME } from "@/lib/shop";
-import { registerServiceWorker } from "@/lib/pwa";
-import { trackPageView } from "@/lib/analytics";
+import { SiteHeader, SiteFooter } from '@/components/SiteHeader';
+import { I18nProvider } from '@/lib/i18n';
+import { Toaster } from '@/components/ui/sonner';
+import appCss from '../styles.css?url';
+import { reportLovableError } from '../lib/lovable-error-reporting';
+import { SHOP_NAME } from '@/lib/shop';
+import { registerServiceWorker } from '@/lib/pwa';
+import { trackPageView } from '@/lib/analytics';
 
 function NotFoundComponent() {
   return (
@@ -45,7 +45,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error, { boundary: 'tanstack_root_error_component' });
   }, [error]);
 
   return (
@@ -83,27 +83,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: SHOP_NAME },
-      { name: "description", content: "Repair. Build. Buy. Sell. Electronics repair, digital development and Market." },
-      { property: "og:type", content: "website" },
-      { property: "og:site_name", content: SHOP_NAME },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#1F1548" },
-      { name: "google-site-verification", content: "QHp28nwRJyJRwvnWv90E2sIy9nNwDGvmH75jIKf3A5g" },
-
+      {
+        name: 'description',
+        content: 'Repair. Build. Buy. Sell. Electronics repair, digital development and Market.',
+      },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: SHOP_NAME },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'theme-color', content: '#1F1548' },
+      { name: 'google-site-verification', content: 'QHp28nwRJyJRwvnWv90E2sIy9nNwDGvmH75jIKf3A5g' },
     ],
     links: [
       {
-        rel: "stylesheet",
+        rel: 'stylesheet',
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "apple-touch-icon", type: "image/png", href: "/apple-touch-icon.png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" },
+      { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+      { rel: 'apple-touch-icon', type: 'image/png', href: '/apple-touch-icon.png' },
+      { rel: 'manifest', href: '/manifest.webmanifest' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap',
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -137,13 +142,14 @@ function RootComponent() {
     trackPageView(router.state.location.pathname + router.state.location.searchStr);
   }, [router, router.state.location.pathname, router.state.location.searchStr]);
 
-
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <SiteHeader />
-        <main className="min-h-screen"><Outlet /></main>
+        <main className="min-h-screen">
+          <Outlet />
+        </main>
         <SiteFooter />
         <Toaster />
       </I18nProvider>
