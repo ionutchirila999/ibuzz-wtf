@@ -1151,9 +1151,30 @@ export function AdminOperations({ section }: { section: Section }) {
           {adminNotifications.isLoading ? (
             <p className="mt-3 text-sm text-muted-foreground">{w.loading}</p>
           ) : adminNotifications.error ? (
-            <p role="alert" className="mt-3 text-sm text-destructive">
-              Admin notifications require the latest database migration.
-            </p>
+            <div role="alert" className="mt-3 space-y-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+              <p className="text-sm font-medium text-destructive">
+                {lang === 'th'
+                  ? 'ไม่สามารถโหลดการแจ้งเตือนผู้ดูแลได้'
+                  : lang === 'ro'
+                    ? 'Notificările administratorului nu pot fi încărcate.'
+                    : 'Could not load admin notifications.'}
+              </p>
+              <p className="break-words text-xs text-muted-foreground">
+                {adminNotifications.error instanceof Error
+                  ? adminNotifications.error.message
+                  : String(adminNotifications.error)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {lang === 'th'
+                  ? 'หากไม่พบตาราง public.admin_notifications ให้ใช้ migration supabase/migrations/20261024100000_admin_notifications.sql กับฐานข้อมูล Supabase'
+                  : lang === 'ro'
+                    ? 'Dacă tabelul public.admin_notifications lipsește, aplică migration-ul supabase/migrations/20261024100000_admin_notifications.sql în baza de date Supabase.'
+                    : 'If public.admin_notifications is missing, apply supabase/migrations/20261024100000_admin_notifications.sql to the Supabase database.'}
+              </p>
+              <Button size="sm" variant="outline" onClick={() => void adminNotifications.refetch()}>
+                {lang === 'th' ? 'ลองอีกครั้ง' : lang === 'ro' ? 'Reîncearcă' : 'Retry'}
+              </Button>
+            </div>
           ) : !(adminNotifications.data ?? []).length ? (
             <p className="mt-3 text-sm text-muted-foreground">
               {lang === 'th'
