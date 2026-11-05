@@ -27,6 +27,24 @@ import {
 } from 'lucide-react';
 
 type Section = 'overview' | 'inventory' | 'repairs' | 'support' | 'audit' | 'finance';
+function getQueryErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object') {
+    const value = error as Record<string, unknown>;
+    const parts = [value.message, value.details, value.hint, value.code].filter(
+      (part): part is string => typeof part === 'string' && part.trim().length > 0,
+    );
+    if (parts.length > 0) return parts.join(' · ');
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'An unknown database error occurred.';
+    }
+  }
+  return String(error);
+}
+
 function dateKey(date: Date) {
   return (
     date.getFullYear() +
@@ -1160,9 +1178,7 @@ export function AdminOperations({ section }: { section: Section }) {
                     : 'Could not load admin notifications.'}
               </p>
               <p className="break-words text-xs text-muted-foreground">
-                {adminNotifications.error instanceof Error
-                  ? adminNotifications.error.message
-                  : String(adminNotifications.error)}
+                {getQueryErrorMessage(adminNotifications.error)}
               </p>
               <p className="text-xs text-muted-foreground">
                 {lang === 'th'
