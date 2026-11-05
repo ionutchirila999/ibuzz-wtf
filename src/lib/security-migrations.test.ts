@@ -136,7 +136,7 @@ describe('database security regression guards', () => {
 
 describe('loyalty points idempotency regression guards', () => {
   const loyaltySchema = migration('20261023200000_loyalty_points_and_referrals.sql');
-  const hardenedTrigger = migration('20261031090000_harden_loyalty_trigger_for_deleted_customers.sql');
+  const hardenedTrigger = migration('20261105090000_isolate_loyalty_reward_failures.sql');
 
   it('enforces one completed-order ledger entry per customer and order', () => {
     expect(loyaltySchema).toMatch(
@@ -167,6 +167,19 @@ describe('loyalty points idempotency regression guards', () => {
     expect(fn).toMatch(
       /if new\.status <> 'completed'\s+or new\.payment_status <> 'paid'\s+or \(old\.status = 'completed' and old\.payment_status = 'paid'\) then\s+return new;\s+end if;/,
     );
+  });
+
+  it('keeps order updates successful when loyalty reward creation raises an error', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    // The PL/pgSQL exception block rolls back only the trigger's reward work,
+    // catches reward-table failures, and returns NEW so the order update commits.
+    expect(fn).toMatch(/exception\\s+when others then\\s+raise warning[\\s\\S]*?return new;/);
+    expect(fn).toContain("loyalty reward skipped for order");
   });
 
   it('skips account-bound rewards for deleted or guest customers without blocking order updates', () => {
