@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Menu, ArrowUpRight, MessageCircle, ShoppingCart, UserRound } from 'lucide-react';
+import { Menu, ArrowUpRight, Bell, ShoppingCart, UserRound } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
 import { LOGO_NAME, SHOP_CONTACT, SHOP_NAME, lineLink } from '@/lib/shop';
 import { LANGS, useT, type Lang } from '@/lib/i18n';
@@ -15,6 +15,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { InstallGuide } from '@/components/InstallGuide';
+import { supabase } from '@/integrations/supabase/client';
 const nav = [
   { to: '/repair', label: 'repair' },
   { to: '/digital', label: 'digital' },
@@ -68,6 +69,58 @@ function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' |
 export function SiteHeader() {
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    let channel: ReturnType<typeof supabase.channel> | undefined;
+
+    const loadUnread = async (userId: string) => {
+      const { count, error } = await supabase
+        .from('customer_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .is('read_at', null);
+      if (alive && !error) setUnreadNotifications(count ?? 0);
+    };
+
+    const initialize = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!alive) return;
+      if (error || !data.user) {
+        setUnreadNotifications(0);
+        return;
+      }
+      const userId = data.user.id;
+      await loadUnread(userId);
+      if (!alive) return;
+      channel = supabase
+        .channel(`header-notifications-${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'customer_notifications',
+            filter: `user_id=eq.${userId}`,
+          },
+          () => void loadUnread(userId),
+        )
+        .subscribe();
+    };
+
+    void initialize();
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      void initialize();
+    });
+
+    return () => {
+      alive = false;
+      authListener.subscription.unsubscribe();
+      if (channel) void supabase.removeChannel(channel);
+    };
+  }, []);
+
   const label = (n: (typeof nav)[number]) => navigationLabel(n, lang, t);
   return (
     <header className="sticky top-0 z-40 border-b border-cyan-300/15 bg-slate-950/90 backdrop-blur-2xl shadow-[0_8px_32px_-24px_rgba(103,232,249,0.55)]">
@@ -129,6 +182,25 @@ export function SiteHeader() {
                 {lang === 'th' ? 'ชำระเงิน' : lang === 'ro' ? 'Comandă' : 'Checkout'}
               </span>
             </Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="relative h-9 w-9"
+          >
+            <a
+              href="/dashboard?section=customer-notifications"
+              aria-label={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
+              title={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
+            >
+              <Bell className="h-5 w-5" />
+              {unreadNotifications > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border-2 border-slate-950 bg-fuchsia-500 px-1 text-[9px] font-bold leading-none text-white shadow-[0_0_10px_rgba(217,70,239,0.55)]">
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </span>
+              )}
+            </a>
           </Button>
           <Button asChild variant="ghost" size="icon" className="h-9 w-9">
             <Link
