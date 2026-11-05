@@ -497,8 +497,7 @@ function Account() {
     if (queryError) {
       setError(w.error);
       setOrders([]);
-    } else setOrders((data ?? []) as Order[]);    setLoadingOrders(false);
-  }
+    } else setOrders((data ?? []) as Order[]);    setLoadingOrders(false);  }
 
   async function reorder(order: Order) {
     const orderItems = (order.order_items ?? []).filter((item) => item.product_id);
@@ -997,8 +996,7 @@ function Account() {
                     setNotice('');
                   }}
                 >                  {w.signIn}
-                </button>
-              </p>
+                </button>              </p>
             )}
             {error && (
               <p
@@ -1083,6 +1081,16 @@ function Account() {
                           : 'Orders & tracking',
                   },
                   {
+                    id: 'customer-notifications',
+                    icon: MonitorSmartphone,
+                    label:
+                      lang === 'th'
+                        ? 'การแจ้งเตือน'
+                        : lang === 'ro'
+                          ? 'Notificări'
+                          : 'Notifications',
+                  },
+                  {
                     id: 'customer-profile',
                     icon: MonitorSmartphone,
                     label:
@@ -1097,26 +1105,8 @@ function Account() {
                     icon: Heart,
                     label: lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist',
                   },
-                  {
-                    id: 'customer-support',
-                    icon: KeyRound,
-                    label:
-                      lang === 'th'
-                        ? 'การช่วยเหลือคำสั่งซื้อ'
-                        : lang === 'ro'
-                          ? 'Asistență comenzi'
-                          : 'Order support',
-                  },
-                  {
-                    id: 'customer-notifications',
-                    icon: MonitorSmartphone,
-                    label:
-                      lang === 'th'
-                        ? 'การแจ้งเตือน'
-                        : lang === 'ro'
-                          ? 'Notificări'
-                          : 'Notifications',
-                  },
+
+
                   {
                     id: 'customer-security',
                     icon: ShieldCheck,
@@ -1497,8 +1487,7 @@ function Account() {
                               <Button
                                 type="button"                                size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  setEditingAddressId(address.id);
+                                onClick={() => {                                  setEditingAddressId(address.id);
                                   setAddressLabel(address.label);
                                   setAddressText(address.address);
                                 }}
