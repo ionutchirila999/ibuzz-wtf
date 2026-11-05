@@ -225,22 +225,38 @@ function Dashboard() {
               </p>
             </div>
             <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-2 bg-transparent p-0 lg:flex lg:flex-col lg:items-stretch">
-              <TabsTrigger
+<TabsTrigger
                 className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm"
                 value="overview"
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" />
                 <span>{tabLabels.overview}</span>
               </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="listings">
-                <Package className="h-4 w-4 shrink-0" />
-                <span>Listings</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="orders">
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="orders">
                 <ShoppingBag className="h-4 w-4 shrink-0" />
                 <span>Orders</span>
               </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="offers">
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="listings">
+                <Package className="h-4 w-4 shrink-0" />
+                <span>Listings</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="inventory">
+                <Warehouse className="h-4 w-4 shrink-0" />
+                <span>{tabLabels.inventory}</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="repairs">
+                <Wrench className="h-4 w-4 shrink-0" />
+                <span>{tabLabels.repairs}</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="support">
+                <LifeBuoy className="h-4 w-4 shrink-0" />
+                <span>{tabLabels.support}</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="enquiries">
+                <LifeBuoy className="h-4 w-4 shrink-0" />
+                <span>Service enquiries</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="offers">
                 <Handshake className="h-4 w-4 shrink-0" />
                 <span>
                   Offers{' '}
@@ -249,37 +265,21 @@ function Dashboard() {
                     : ''}
                 </span>
               </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="enquiries">
-                <LifeBuoy className="h-4 w-4 shrink-0" />
-                <span>Service enquiries</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="calc">
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="calc">
                 <Calculator className="h-4 w-4 shrink-0" />
                 <span>Profit calculator</span>
               </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="inventory">
-                <Warehouse className="h-4 w-4 shrink-0" />
-                <span>{tabLabels.inventory}</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="repairs">
-                <Wrench className="h-4 w-4 shrink-0" />
-                <span>{tabLabels.repairs}</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="support">
-                <LifeBuoy className="h-4 w-4 shrink-0" />
-                <span>{tabLabels.support}</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="audit">
-                <ClipboardCheck className="h-4 w-4 shrink-0" />
-                <span>{tabLabels.audit}</span>
-              </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="finance">
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="finance">
                 <Wallet className="h-4 w-4 shrink-0" />
                 <span>{tabLabels.finance}</span>
               </TabsTrigger>
-              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="promotions">
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="promotions">
                 <Megaphone className="h-4 w-4 shrink-0" />
                 <span>{tabLabels.promotions}</span>
+              </TabsTrigger>
+<TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="audit">
+                <ClipboardCheck className="h-4 w-4 shrink-0" />
+                <span>{tabLabels.audit}</span>
               </TabsTrigger>
             </TabsList>
           </aside>
@@ -347,8 +347,7 @@ function Dashboard() {
                         />
                       ) : (
                         <img
-                          src={thumb}
-                          alt=""
+                          src={thumb}                          alt=""
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
