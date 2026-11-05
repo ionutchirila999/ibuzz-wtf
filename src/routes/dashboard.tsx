@@ -307,6 +307,24 @@ function Account() {
       ? requestedSection
       : 'customer-orders';
   });
+
+  // Re-read the requested dashboard section after the account session resolves.
+  // This keeps deep links (including the header's full-wishlist shortcut) active
+  // even when auth/session initialization or client-side navigation delays mount.
+  useEffect(() => {
+    const syncRequestedSection = () => {
+      const requestedSection = new URLSearchParams(window.location.search).get('section');
+      if (
+        requestedSection === 'customer-notifications' ||
+        requestedSection === 'customer-wishlist'
+      ) {
+        setActiveSection(requestedSection);
+      }
+    };
+    syncRequestedSection();
+    window.addEventListener('popstate', syncRequestedSection);
+    return () => window.removeEventListener('popstate', syncRequestedSection);
+  }, [sessionLoading]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'in' | 'up'>('in');
