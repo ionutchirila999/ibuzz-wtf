@@ -205,7 +205,7 @@ describe('loyalty points idempotency regression guards', () => {
     // Order status/history/audit triggers must still accept updates to the retained row.
     expect(operations).toContain('create or replace function public.ibuzz_record_order_status()');
     expect(operations).toContain('create or replace function public.ibuzz_audit_order_changes()');
-    expect(operations).toContain('after update on public.orders');
+    expect(operations).toContain('after insert or update on public.orders');
     expect(operations).toContain("values (auth.uid(), 'order_updated', 'orders', new.id::text");
   });
 });
