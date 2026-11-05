@@ -85,6 +85,10 @@ export function SiteHeader() {
     };
 
     const initialize = async () => {
+      if (channel) {
+        void supabase.removeChannel(channel);
+        channel = undefined;
+      }
       const { data, error } = await supabase.auth.getUser();
       if (!alive) return;
       if (error || !data.user) {
