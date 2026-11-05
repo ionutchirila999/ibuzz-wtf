@@ -265,7 +265,13 @@ function Checkout() {
           ? profile.delivery_addresses
           : [];
         const defaultAddress = addresses.find(
-          (item: any) => item && typeof item.address === 'string' && item.is_default === true,
+          (item: unknown): item is { address: string; is_default: true } =>
+            typeof item === 'object' &&
+            item !== null &&
+            'address' in item &&
+            typeof item.address === 'string' &&
+            'is_default' in item &&
+            item.is_default === true,
         );
         const fallbackAddress =
           typeof metadata['delivery_address'] === 'string' ? metadata['delivery_address'] : '';
@@ -283,13 +289,17 @@ function Checkout() {
           .eq('user_id', user.id)
           .maybeSingle();
         const remoteItems = Array.isArray(savedCart?.items)
-          ? (savedCart.items.filter(
-              (item: any) =>
-                item &&
+          ? savedCart.items.filter(
+              (item: unknown): item is CartItem =>
+                typeof item === 'object' &&
+                item !== null &&
+                'id' in item &&
                 typeof item.id === 'string' &&
+                'quantity' in item &&
+                typeof item.quantity === 'number' &&
                 Number.isInteger(item.quantity) &&
                 item.quantity > 0,
-            ) as CartItem[])
+            )
           : [];
         if (remoteItems.length) {
           const merged = new Map<string, number>();

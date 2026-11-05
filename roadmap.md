@@ -1,5 +1,7 @@
 ## Tasks
 
+- [ ] Finish checkout type narrowing, format the two remaining edited files, and verify lint with generated database files excluded.
+
 - [ ] Finish Google Search Console verification and submit the live sitemap
 - [x] Add zoomable product photos for the ZELOTES F-36A gallery — label zoom, wheel zoom, reset, keyboard navigation and mobile fit verified
 - [x] Add previous/next controls to the ZELOTES F-36A gallery main view (dialog already had them)
