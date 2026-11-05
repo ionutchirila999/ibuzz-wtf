@@ -8,7 +8,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // Run the real migration function in disposable PostgreSQL, never the app database.
 const migration = readFileSync(
-  path.resolve('supabase/migrations/20261031090000_harden_loyalty_trigger_for_deleted_customers.sql'),
+  path.resolve(
+    'supabase/migrations/20261031090000_harden_loyalty_trigger_for_deleted_customers.sql',
+  ),
   'utf8',
 );
 const functionSql = migration.match(/create or replace function[\s\S]*?\$\$;/i)?.[0];
@@ -42,8 +44,14 @@ beforeAll(async () => {
   pgCtl = binary('pg_ctl');
   run(binary('initdb'), ['-D', dataDirectory, '-U', 'regression', '--auth=trust', '--no-locale']);
   run(pgCtl, [
-    '-D', dataDirectory, '-l', path.join(directory, 'postgres.log'),
-    '-o', `-k ${directory} -c listen_addresses=''`, '-w', 'start',
+    '-D',
+    dataDirectory,
+    '-l',
+    path.join(directory, 'postgres.log'),
+    '-o',
+    `-k ${directory} -c listen_addresses=''`,
+    '-w',
+    'start',
   ]);
   started = true;
   sql = postgres({ host: directory, user: 'regression', database: 'postgres', max: 1 });
@@ -90,7 +98,8 @@ describe('accountless order completion with the real loyalty trigger', () => {
       if (sequence === 'paid first')
         await sql`UPDATE orders SET payment_status = 'paid' WHERE id = ${order.id}`;
       await sql`UPDATE orders SET status = 'completed', payment_status = 'paid' WHERE id = ${order.id}`;
-      const [saved] = await sql`SELECT user_id, status, payment_status FROM orders WHERE id = ${order.id}`;
+      const [saved] =
+        await sql`SELECT user_id, status, payment_status FROM orders WHERE id = ${order.id}`;
       expect(saved).toEqual({ user_id: null, status: 'completed', payment_status: 'paid' });
       const [rewards] = await sql`
         SELECT (SELECT count(*)::integer FROM loyalty_accounts) AS accounts,
@@ -108,9 +117,11 @@ describe('accountless order completion with the real loyalty trigger', () => {
     const [order] = await sql`INSERT INTO orders (user_id) VALUES (${userId}) RETURNING id`;
     if (!order) throw new Error('Test order missing.');
     await sql`UPDATE orders SET status = 'completed', payment_status = 'paid' WHERE id = ${order.id}`;
-    const [account] = await sql`SELECT points_balance FROM loyalty_accounts WHERE user_id = ${userId}`;
+    const [account] =
+      await sql`SELECT points_balance FROM loyalty_accounts WHERE user_id = ${userId}`;
     expect(account?.points_balance).toBe(5);
-    const ledger = await sql`SELECT points_delta, reason FROM loyalty_ledger WHERE order_id = ${order.id}`;
+    const ledger =
+      await sql`SELECT points_delta, reason FROM loyalty_ledger WHERE order_id = ${order.id}`;
     expect(ledger).toEqual([{ points_delta: 5, reason: 'completed_order' }]);
   });
 });
