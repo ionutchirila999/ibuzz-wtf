@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouterState } from '@tanstack/react-router';
 import { Menu, ArrowUpRight, Bell, Heart, ShoppingCart, UserRound, Trash2 } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
 import { LOGO_NAME, SHOP_CONTACT, SHOP_NAME, lineLink } from '@/lib/shop';
@@ -70,6 +70,11 @@ function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' |
 }
 export function SiteHeader() {
   const { t, lang, setLang } = useT();
+  const isWishlistPage = useRouterState({
+    select: (state) =>
+      state.location.pathname === '/dashboard' &&
+      state.location.searchStr.includes('section=customer-wishlist'),
+  });
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -337,7 +342,7 @@ export function SiteHeader() {
               type="button"
               variant="ghost"
               size="icon"
-              className={`relative h-9 w-9 transition-colors ${wishlistOpen ? 'bg-accent text-primary ring-1 ring-primary/40' : ''}`}
+              className={`relative h-9 w-9 transition-colors ${wishlistOpen || isWishlistPage ? 'bg-accent text-primary ring-1 ring-primary/40' : ''}`}
               aria-label={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
               title={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
               aria-expanded={wishlistOpen}
