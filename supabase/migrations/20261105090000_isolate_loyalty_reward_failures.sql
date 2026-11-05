@@ -91,7 +91,7 @@ exception
     raise warning 'iBuzz loyalty reward skipped for order %: %', new.id, sqlerrm;
     return new;
 end;
-$;
+$$;
 
 -- Recreate the trigger explicitly so this migration also repairs a missing or
 -- stale trigger definition in environments that have already run earlier SQL.
