@@ -84,18 +84,15 @@ export function SiteHeader() {
       if (alive && !error) setUnreadNotifications(count ?? 0);
     };
 
-    const initialize = async () => {
+    const connectUser = async (userId?: string) => {
       if (channel) {
         void supabase.removeChannel(channel);
         channel = undefined;
       }
-      const { data, error } = await supabase.auth.getUser();
-      if (!alive) return;
-      if (error || !data.user) {
+      if (!userId) {
         setUnreadNotifications(0);
         return;
       }
-      const userId = data.user.id;
       await loadUnread(userId);
       if (!alive) return;
       channel = supabase
@@ -113,9 +110,11 @@ export function SiteHeader() {
         .subscribe();
     };
 
-    void initialize();
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
-      void initialize();
+    void supabase.auth.getUser().then(({ data, error }) => {
+      if (alive) void connectUser(error ? undefined : data.user?.id);
+    });
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      void connectUser(session?.user?.id);
     });
 
     return () => {
