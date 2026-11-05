@@ -73,12 +73,27 @@ export function SiteHeader() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const isAdminDashboard = typeof window !== 'undefined' && window.location.pathname.startsWith('/ibuzz-dashboard');
+  const [adminNotifications, setAdminNotifications] = useState<Array<{ id: string; title: string; message: string; created_at: string; read_at: string | null }>>([]);
 
   useEffect(() => {
     let alive = true;
     let channel: ReturnType<typeof supabase.channel> | undefined;
 
     const loadUnread = async (userId: string) => {
+      if (isAdminDashboard) {
+        const { data, error } = await supabase
+          .from('admin_notifications')
+          .select('id,title,message,created_at,read_at')
+          .order('created_at', { ascending: false })
+          .limit(10);
+        if (alive && !error) {
+          const rows = data ?? [];
+          setAdminNotifications(rows);
+          setUnreadNotifications(rows.filter((row) => !row.read_at).length);
+        }
+        return;
+      }
       const { count, error } = await supabase
         .from('customer_notifications')
         .select('id', { count: 'exact', head: true })
@@ -212,7 +227,7 @@ export function SiteHeader() {
               type="button"
               variant="ghost"
               size="icon"
-              className="relative h-9 w-9"
+              className={`relative h-9 w-9 transition-colors ${notificationsOpen ? 'bg-accent text-primary ring-1 ring-primary/40' : ''}`}
               aria-label={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
               title={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
               aria-expanded={notificationsOpen}
@@ -232,7 +247,24 @@ export function SiteHeader() {
                 aria-label={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
                 className="absolute right-0 top-full z-50 mt-3 max-h-[min(75vh,680px)] w-[min(92vw,460px)] overflow-y-auto rounded-2xl border border-cyan-300/20 bg-slate-950 shadow-2xl shadow-black/50"
               >
-                <CustomerNotifications compact />
+                {isAdminDashboard ? (
+                  <div className="p-4">
+                    <h2 className="mb-3 text-base font-semibold">{lang === 'th' ? 'การแจ้งเตือนผู้ดูแล' : lang === 'ro' ? 'Notificări admin' : 'Admin notifications'}</h2>
+                    {adminNotifications.length === 0 ? (
+                      <p className="py-5 text-center text-sm text-muted-foreground">No admin notifications.</p>
+                    ) : (
+                      <ul className="divide-y divide-border/50">
+                        {adminNotifications.map((notification) => (
+                          <li key={notification.id} className="py-3">
+                            <p className="text-sm font-medium">{notification.title}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{notification.message}</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">{new Date(notification.created_at).toLocaleString(lang === 'th' ? 'th-TH' : lang === 'ro' ? 'ro-RO' : 'en-US')}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : <CustomerNotifications compact />}
               </div>
             )}
           </div>
