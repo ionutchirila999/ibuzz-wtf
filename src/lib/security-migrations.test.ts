@@ -202,9 +202,33 @@ describe('loyalty points idempotency regression guards', () => {
     // The documented deletion path must allow an anonymized order to remain.
     expect(customerWrites).toContain('alter table public.orders alter column user_id drop not null');
 
-    // Order status/history/audit triggers must still accept updates to the retained row.
-    expect(operations).toContain('create or replace function public.ibuzz_record_order_status()');
-    expect(operations).toContain('create or replace function public.ibuzz_audit_order_changes()');
+    // The retained order has no customer FK after deletion, but remains a
+    // normal row that admins can update. Actor references in history/audit
+    // records must also tolerate the deleted auth user.
+    expect(deletion).toMatch(/foreign key \\(user_id\\) references auth\\.users\\(id\\) on delete set null/);
+    expect(operations).toMatch(/changed_by uuid references auth\\.users\\(id\\) on delete set null/);
+
+    const statusStart = operations.indexOf('create or replace function public.ibuzz_record_order_status()');
+    const statusEnd = operations.indexOf('end $;', statusStart);
+    const auditStart = operations.indexOf('create or replace function public.ibuzz_audit_order_changes()');
+    const auditEnd = operations.indexOf('end $;', auditStart);
+    expect(statusStart).toBeGreaterThanOrEqual(0);
+    expect(statusEnd).toBeGreaterThan(statusStart);
+    expect(auditStart).toBeGreaterThanOrEqual(0);
+    expect(auditEnd).toBeGreaterThan(auditStart);
+
+    const statusTrigger = operations.slice(statusStart, statusEnd);
+    const auditTrigger = operations.slice(auditStart, auditEnd);
+
+    // These SECURITY DEFINER triggers record the edit and return NEW; neither
+    // requires a non-null customer ID, so anonymized orders remain editable.
+    expect(statusTrigger).toContain('security definer');
+    expect(statusTrigger).toContain('return new');
+    expect(statusTrigger).not.toMatch(/[new|old]\\.user_id/);
+    expect(auditTrigger).toContain('security definer');
+    expect(auditTrigger).toContain('return new');
+    expect(auditTrigger).not.toMatch(/[new|old]\\.user_id/);
+
     expect(operations).toContain('after insert or update on public.orders');
     expect(operations).toContain("values (auth.uid(), 'order_updated', 'orders', new.id::text");
   });
