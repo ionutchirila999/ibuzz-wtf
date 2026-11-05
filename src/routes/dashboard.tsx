@@ -303,7 +303,9 @@ function Account() {
   const [activeSection, setActiveSection] = useState(() => {
     if (typeof window === 'undefined') return 'customer-orders';
     const requestedSection = new URLSearchParams(window.location.search).get('section');
-    return requestedSection === 'customer-notifications' ? requestedSection : 'customer-orders';
+    return requestedSection === 'customer-notifications' || requestedSection === 'customer-wishlist'
+      ? requestedSection
+      : 'customer-orders';
   });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
