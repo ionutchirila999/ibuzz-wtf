@@ -231,17 +231,6 @@ export function SiteHeader() {
               </Button>
             ))}
           </div>
-          <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-2 sm:px-3">
-            <Link
-              to="/checkout"
-              aria-label={lang === 'th' ? 'ชำระเงิน' : lang === 'ro' ? 'Comandă' : 'Checkout'}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">
-                {lang === 'th' ? 'ชำระเงิน' : lang === 'ro' ? 'Comandă' : 'Checkout'}
-              </span>
-            </Link>
-          </Button>
           <div ref={notificationsRef} className="relative">
             <Button
               type="button"
@@ -289,8 +278,8 @@ export function SiteHeader() {
             )}
           </div>
           <Button asChild variant="ghost" size="icon" className="relative h-9 w-9">
-            <Link
-              to="/dashboard"
+            <a
+              href="/dashboard?section=customer-wishlist"
               aria-label={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
               title={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
             >
@@ -300,6 +289,17 @@ export function SiteHeader() {
                   {wishlistCount > 99 ? '99+' : wishlistCount}
                 </span>
               )}
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-2 sm:px-3">
+            <Link
+              to="/checkout"
+              aria-label={lang === 'th' ? 'ชำระเงิน' : lang === 'ro' ? 'Comandă' : 'Checkout'}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {lang === 'th' ? 'ชำระเงิน' : lang === 'ro' ? 'Comandă' : 'Checkout'}
+              </span>
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="h-9 w-9">
