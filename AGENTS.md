@@ -12,6 +12,7 @@
 <!-- LOVABLE:END -->
 
 - Exclude generated database types and preview auth storage from ESLint; regeneration owns their formatting, while handwritten integration files remain linted.
+- Loyalty trigger regression tests execute the migration function in disposable local PostgreSQL with no app credentials, so order updates are tested without touching live data.
 
 - Keep homepage copy in the shared three-language dictionary and category actions on the existing shop search routes, so language switching and collection navigation stay consistent.
 - Product detail photos use the shared ProductGallery with Radix focus management and react-zoom-pan-pinch for wheel, touch and drag zoom; gallery control translations stay in the shared gallery dictionary so all catalog photos behave consistently.
