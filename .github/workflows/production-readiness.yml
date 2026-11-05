@@ -1,0 +1,119 @@
+name: Production readiness
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 3 * * 1"
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/config.toml"
+      - ".github/workflows/production-readiness.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/config.toml"
+      - ".github/workflows/production-readiness.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  migration-audit:
+    name: Supabase migration safety audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Validate migration filenames and version collisions
+        shell: bash
+        run: |
+          bun - <<'BUN'
+          import { readdirSync, readFileSync } from "node:fs";
+          import { join } from "node:path";
+
+          const dir = "supabase/migrations";
+          const files = readdirSync(dir).filter((name) => name.endsWith(".sql")).sort();
+          const invalid = files.filter((name) => !/^\d{14}_[a-z0-9_]+\.sql$/.test(name));
+          if (files.length === 0) throw new Error("No Supabase SQL migrations found.");
+          if (invalid.length) throw new Error("Invalid migration filenames: " + invalid.join(", "));
+
+          const byVersion = new Map();
+          for (const name of files) {
+            const version = name.slice(0, 14);
+            byVersion.set(version, [...(byVersion.get(version) ?? []), name]);
+          }
+
+          // These two collisions pre-date this workflow and are documented in
+          // the open checkout/idempotency work. Do not silently add more.
+          const knownCollisions = new Set(["20261021130000", "20261021140000"]);
+          const collisions = [...byVersion.entries()].filter(([, names]) => names.length > 1);
+          const unexpected = collisions.filter(([version]) => !knownCollisions.has(version));
+          if (unexpected.length) {
+            throw new Error("Unexpected duplicate migration versions:\n" +
+              unexpected.map(([version, names]) => version + ": " + names.join(", ")).join("\n"));
+          }
+
+          const loyaltyFile = "20261031090000_harden_loyalty_trigger_for_deleted_customers.sql";
+          if (!files.includes(loyaltyFile)) throw new Error("Missing deleted-customer loyalty hardening migration.");
+          const sql = readFileSync(join(dir, loyaltyFile), "utf8").toLowerCase();
+          if (!/if\s+new\.user_id\s+is\s+null\s+then\s+return\s+new\s*;\s*end\s+if\s*;/.test(sql)) {
+            throw new Error("Loyalty trigger migration does not short-circuit NULL customer IDs.");
+          }
+
+          const summary = [
+            "## Supabase migration safety audit",
+            "- SQL migrations discovered: " + files.length,
+            "- Filename format: passed",
+            "- Deleted-customer loyalty guard: passed",
+            "- Unexpected duplicate versions: " + (unexpected.length ? "found" : "none"),
+            "- Existing duplicate versions retained for manual reconciliation: " +
+              (collisions.filter(([version]) => knownCollisions.has(version))
+                .map(([version, names]) => version + " (" + names.length + " files)").join("; ") || "none"),
+            "",
+            "This is a repository-level audit only. It does not prove which migrations have run in Supabase and does not deploy SQL."
+          ].join("\n");
+          await Bun.write(process.env.GITHUB_STEP_SUMMARY, summary);
+          console.log(summary);
+          BUN
+
+      - name: Confirm Supabase project reference is configured
+        run: grep -Eq '^project_id = "[a-z0-9]+"$' supabase/config.toml
+
+  application-gates:
+    name: Application publish gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile --registry https://registry.npmjs.org
+
+      - name: Dependency checks
+        run: bun run check:deps
+
+      - name: Type check
+        run: bunx tsc --noEmit
+
+      - name: Unit tests
+        run: bun run test
+
+      - name: Production build
+        run: bun run build

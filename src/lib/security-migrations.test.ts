@@ -132,3 +132,80 @@ describe('database security regression guards', () => {
     );
   });
 });
+
+
+describe('loyalty points idempotency regression guards', () => {
+  const loyaltySchema = migration('20261023200000_loyalty_points_and_referrals.sql');
+  const hardenedTrigger = migration('20261105090000_isolate_loyalty_reward_failures.sql');
+
+  it('enforces one completed-order ledger entry per customer and order', () => {
+    expect(loyaltySchema).toMatch(
+      /unique\s*\(\s*user_id\s*,\s*order_id\s*,\s*reason\s*\)/,
+    );
+    expect(loyaltySchema).toContain("reason in ('completed_order','referral_inviter','referral_new_customer')");
+  });
+
+  it('increments the balance only when the unique ledger entry was newly inserted', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toContain('on conflict (user_id, order_id, reason) do nothing');
+    expect(fn).toContain('returning id into v_inserted');
+    expect(fn).toMatch(
+      /if v_inserted is not null then\s+update public\.loyalty_accounts\s+set points_balance = points_balance \+ v_points/s,
+    );
+  });
+
+  it('does not award points again when an already completed and paid order is updated', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toMatch(
+      /if new\.status <> 'completed'\s+or new\.payment_status <> 'paid'\s+or \(old\.status = 'completed' and old\.payment_status = 'paid'\) then\s+return new;\s+end if;/,
+    );
+  });
+
+  it('keeps order updates successful when loyalty reward creation raises an error', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    // The PL/pgSQL exception block rolls back only the trigger's reward work,
+    // catches reward-table failures, and returns NEW so the order update commits.
+    expect(fn).toMatch(/exception\s+when others then[\s\S]*?raise warning[\s\S]*?return new;/);
+    expect(fn).toContain("loyalty reward skipped for order");
+  });
+
+  it('skips account-bound rewards for deleted or guest customers without blocking order updates', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toMatch(/if new\.user_id is null then\s+return new;\s+end if;/);
+  });
+ 
+  it('preserves and keeps orders editable after the customer account is deleted', () => {
+    const deletion = migration('20261022200000_account_deletion_preserves_orders.sql');
+    const customerWrites = migration('20261023000100_harden_customer_writes_and_deletion.sql');
+    const operations = migration('20261021100000_dashboard_operations.sql');
+
+    // Deleting auth.users must anonymize the FK, not cascade-delete the order.
+    expect(deletion).toContain('alter table public.orders alter column user_id drop not null');
+    expect(deletion).toMatch(/foreign key\s*\(user_id\)\s*references auth\.users\(id\)\s*on delete set null/);
+
+    // The documented deletion path must allow an anonymized order to remain.
+    expect(customerWrites).toContain('alter table public.orders alter column user_id drop not null');
+
+    // Order status/history/audit triggers must still accept updates to the retained row.
+    expect(operations).toContain('create or replace function public.ibuzz_record_order_status()');
+    expect(operations).toContain('create or replace function public.ibuzz_audit_order_changes()');
+    expect(operations).toContain('after insert or update on public.orders');
+    expect(operations).toContain("values (auth.uid(), 'order_updated', 'orders', new.id::text");
+  });
+});
