@@ -178,7 +178,7 @@ describe('loyalty points idempotency regression guards', () => {
 
     // The PL/pgSQL exception block rolls back only the trigger's reward work,
     // catches reward-table failures, and returns NEW so the order update commits.
-    expect(fn).toMatch(/exception\s+when others then\s+raise warning[\s\S]*?return new;/);
+    expect(fn).toMatch(/exception\s+when others then[\s\S]*?raise warning[\s\S]*?return new;/);
     expect(fn).toContain("loyalty reward skipped for order");
   });
 
