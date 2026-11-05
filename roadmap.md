@@ -1,5 +1,7 @@
 ## Tasks
 
+- [x] Add isolated PostgreSQL regression coverage for accountless completed/paid orders and zero loyalty awards — all 4 tests and targeted lint passed; live data untouched.
+
 - [x] Finish checkout type narrowing and targeted formatting; lint passed with 0 errors / 14 existing warnings, and all 5 checkout tests passed.
 
 - [ ] Finish Google Search Console verification and submit the live sitemap
