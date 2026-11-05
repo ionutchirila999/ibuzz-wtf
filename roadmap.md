@@ -1,6 +1,6 @@
 ## Tasks
 
-- [ ] Finish checkout type narrowing, format the two remaining edited files, and verify lint with generated database files excluded.
+- [x] Finish checkout type narrowing and targeted formatting; lint passed with 0 errors / 14 existing warnings, and all 5 checkout tests passed.
 
 - [ ] Finish Google Search Console verification and submit the live sitemap
 - [x] Add zoomable product photos for the ZELOTES F-36A gallery — label zoom, wheel zoom, reset, keyboard navigation and mobile fit verified
