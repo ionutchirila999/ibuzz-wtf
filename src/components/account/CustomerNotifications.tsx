@@ -123,7 +123,7 @@ const COPY = {
   },
 } as const;
 
-export function CustomerNotifications() {
+export function CustomerNotifications({ compact = false }: { compact?: boolean }) {
   const { lang } = useT();
   const w = COPY[lang];
   const [rows, setRows] = useState<NotificationRow[]>([]);
@@ -299,7 +299,7 @@ export function CustomerNotifications() {
   return (
     <section
       id="customer-notifications"
-      className="mb-7 scroll-mt-6 rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6"
+      className={compact ? 'mb-0 rounded-none border-0 bg-transparent p-4 sm:p-5' : 'mb-7 scroll-mt-6 rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6'}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
