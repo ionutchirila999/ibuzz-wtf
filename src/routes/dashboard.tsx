@@ -497,8 +497,7 @@ function Account() {
     if (queryError) {
       setError(w.error);
       setOrders([]);
-    } else setOrders((data ?? []) as Order[]);
-    setLoadingOrders(false);
+    } else setOrders((data ?? []) as Order[]);    setLoadingOrders(false);
   }
 
   async function reorder(order: Order) {
@@ -997,8 +996,7 @@ function Account() {
                     setError('');
                     setNotice('');
                   }}
-                >
-                  {w.signIn}
+                >                  {w.signIn}
                 </button>
               </p>
             )}
@@ -1136,9 +1134,9 @@ function Account() {
                           : 'Account settings',
                   },
                 ].map((item) => {
-                  const selected =
-                    activeSection === item.id ||
-                    (item.id === 'customer-support' && activeSection === 'customer-orders');
+                  // Order support is embedded within the orders view, so only
+                  // the Orders & tracking navigation item is active there.
+                  const selected = activeSection === item.id;
                   return (
                     <button
                       type="button"
@@ -1497,8 +1495,7 @@ function Account() {
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Button
-                                type="button"
-                                size="sm"
+                                type="button"                                size="sm"
                                 variant="outline"
                                 onClick={() => {
                                   setEditingAddressId(address.id);
