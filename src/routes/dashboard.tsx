@@ -300,7 +300,11 @@ function Account() {
   const w = WORDS[lang];
   const navigate = useNavigate();
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState('customer-orders');
+  const [activeSection, setActiveSection] = useState(() => {
+    if (typeof window === 'undefined') return 'customer-orders';
+    const requestedSection = new URLSearchParams(window.location.search).get('section');
+    return requestedSection === 'customer-notifications' ? requestedSection : 'customer-orders';
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'in' | 'up'>('in');
@@ -498,7 +502,6 @@ function Account() {
       setError(w.error);
       setOrders([]);
     } else setOrders((data ?? []) as Order[]);    setLoadingOrders(false);  }
-
   async function reorder(order: Order) {
     const orderItems = (order.order_items ?? []).filter((item) => item.product_id);
     if (!orderItems.length) {
@@ -997,8 +1000,7 @@ function Account() {
                   }}
                 >                  {w.signIn}
                 </button>              </p>
-            )}
-            {error && (
+            )}            {error && (
               <p
                 role="alert"
                 className="mt-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"
@@ -1497,8 +1499,7 @@ function Account() {
                               {!address.is_default && (
                                 <Button
                                   type="button"
-                                  size="sm"
-                                  variant="outline"
+                                  size="sm"                                  variant="outline"
                                   onClick={() =>
                                     setSavedAddresses((current) =>
                                       current.map((item) => ({
