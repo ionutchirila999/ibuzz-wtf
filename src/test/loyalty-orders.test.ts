@@ -90,7 +90,9 @@ describe('accountless order completion with the real loyalty trigger', () => {
     async (sequence) => {
       if (!sql) throw new Error('Test database not initialized.');
       await sql`TRUNCATE orders, loyalty_accounts, loyalty_ledger, loyalty_referrals`;
-      const [order] = await sql<{ id: string }[]>`INSERT INTO orders (user_id) VALUES (NULL) RETURNING id`;
+      const [order] = await sql<
+        { id: string }[]
+      >`INSERT INTO orders (user_id) VALUES (NULL) RETURNING id`;
       if (!order) throw new Error('Test order missing.');
       if (sequence === 'completed first')
         await sql`UPDATE orders SET status = 'completed' WHERE id = ${order.id}`;
@@ -113,11 +115,14 @@ describe('accountless order completion with the real loyalty trigger', () => {
     if (!sql) throw new Error('Test database not initialized.');
     await sql`TRUNCATE orders, loyalty_accounts, loyalty_ledger, loyalty_referrals`;
     const userId = '00000000-0000-4000-8000-000000000001';
-    const [order] = await sql<{ id: string }[]>`INSERT INTO orders (user_id) VALUES (${userId}) RETURNING id`;
+    const [order] = await sql<
+      { id: string }[]
+    >`INSERT INTO orders (user_id) VALUES (${userId}) RETURNING id`;
     if (!order) throw new Error('Test order missing.');
     await sql`UPDATE orders SET status = 'completed', payment_status = 'paid' WHERE id = ${order.id}`;
-    const [account] =
-      await sql<{ points_balance: number }[]>`SELECT points_balance FROM loyalty_accounts WHERE user_id = ${userId}`;
+    const [account] = await sql<
+      { points_balance: number }[]
+    >`SELECT points_balance FROM loyalty_accounts WHERE user_id = ${userId}`;
     expect(account?.points_balance).toBe(5);
     const ledger =
       await sql`SELECT points_delta, reason FROM loyalty_ledger WHERE order_id = ${order.id}`;
