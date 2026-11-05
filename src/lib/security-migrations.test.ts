@@ -205,13 +205,13 @@ describe('loyalty points idempotency regression guards', () => {
     // The retained order has no customer FK after deletion, but remains a
     // normal row that admins can update. Actor references in history/audit
     // records must also tolerate the deleted auth user.
-    expect(deletion).toMatch(/foreign key \\(user_id\\) references auth\\.users\\(id\\) on delete set null/);
-    expect(operations).toMatch(/changed_by uuid references auth\\.users\\(id\\) on delete set null/);
+    expect(deletion).toMatch(/foreign key \(user_id\) references auth\.users\(id\) on delete set null/);
+    expect(operations).toMatch(/changed_by uuid references auth\.users\(id\) on delete set null/);
 
     const statusStart = operations.indexOf('create or replace function public.ibuzz_record_order_status()');
-    const statusEnd = operations.indexOf('end $;', statusStart);
+    const statusEnd = operations.indexOf('end ' + '$$' + ';', statusStart);
     const auditStart = operations.indexOf('create or replace function public.ibuzz_audit_order_changes()');
-    const auditEnd = operations.indexOf('end $;', auditStart);
+    const auditEnd = operations.indexOf('end ' + '$$' + ';', auditStart);
     expect(statusStart).toBeGreaterThanOrEqual(0);
     expect(statusEnd).toBeGreaterThan(statusStart);
     expect(auditStart).toBeGreaterThanOrEqual(0);
@@ -224,10 +224,10 @@ describe('loyalty points idempotency regression guards', () => {
     // requires a non-null customer ID, so anonymized orders remain editable.
     expect(statusTrigger).toContain('security definer');
     expect(statusTrigger).toContain('return new');
-    expect(statusTrigger).not.toMatch(/[new|old]\\.user_id/);
+    expect(statusTrigger).not.toMatch(/(?:new|old)\.user_id/);
     expect(auditTrigger).toContain('security definer');
     expect(auditTrigger).toContain('return new');
-    expect(auditTrigger).not.toMatch(/[new|old]\\.user_id/);
+    expect(auditTrigger).not.toMatch(/(?:new|old)\.user_id/);
 
     expect(operations).toContain('after insert or update on public.orders');
     expect(operations).toContain("values (auth.uid(), 'order_updated', 'orders', new.id::text");
