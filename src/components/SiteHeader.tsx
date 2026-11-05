@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sheet';
 import { InstallGuide } from '@/components/InstallGuide';
 import { supabase } from '@/integrations/supabase/client';
+import { untypedDb } from '@/lib/untyped-db';
 import { CustomerNotifications } from '@/components/account/CustomerNotifications';
 const nav = [
   { to: '/repair', label: 'repair' },
@@ -82,7 +83,7 @@ export function SiteHeader() {
 
     const loadUnread = async (userId: string) => {
       if (isAdminDashboard) {
-        const { data, error } = await supabase
+        const { data, error } = await untypedDb
           .from('admin_notifications')
           .select('id,title,message,created_at,read_at')
           .order('created_at', { ascending: false })
