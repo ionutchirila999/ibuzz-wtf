@@ -654,7 +654,8 @@ export function AdminOperations({ section }: { section: Section }) {
         sum +
         (o.order_items ?? []).reduce(
           (itemSum: number, item) =>
-            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
+            itemSum +
+            Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
@@ -794,8 +795,13 @@ export function AdminOperations({ section }: { section: Section }) {
       toast.error('Enter valid non-negative costs.');
       return;
     }
-    const [purchase_cost = 0, repair_cost = 0, shipping_cost = 0, platform_fees = 0, other_expenses = 0] =
-      values;
+    const [
+      purchase_cost = 0,
+      repair_cost = 0,
+      shipping_cost = 0,
+      platform_fees = 0,
+      other_expenses = 0,
+    ] = values;
     const payload = {
       product_id: costDraft.product_id,
       purchase_cost,
@@ -913,10 +919,7 @@ export function AdminOperations({ section }: { section: Section }) {
     ]);
   }
   async function updateServiceEnquiry(id: string, status: string) {
-    const { error } = await supabase
-      .from('service_enquiries')
-      .update({ status })
-      .eq('id', id);
+    const { error } = await supabase.from('service_enquiries').update({ status }).eq('id', id);
     if (error) {
       toast.error('Could not update service enquiry');
       return;
@@ -1403,7 +1406,8 @@ export function AdminOperations({ section }: { section: Section }) {
         sum +
         (o.order_items ?? []).reduce(
           (itemSum: number, item) =>
-            itemSum + Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
+            itemSum +
+            Number(costByProduct.get(item.product_id ?? '') ?? 0) * Number(item.quantity ?? 0),
           0,
         ),
       0,
@@ -1437,9 +1441,7 @@ export function AdminOperations({ section }: { section: Section }) {
         label: lang === 'th' ? 'ค่าใช้จ่ายอื่น' : lang === 'ro' ? 'Alte costuri' : 'Other costs',
       },
     ] as const;
-    const selectedCost = (costs.data ?? []).find(
-      (row) => row.product_id === costDraft.product_id,
-    );
+    const selectedCost = (costs.data ?? []).find((row) => row.product_id === costDraft.product_id);
     return (
       <div className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
