@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Menu, ArrowUpRight, Bell, ShoppingCart, UserRound } from 'lucide-react';
+import { Menu, ArrowUpRight, Bell, Heart, ShoppingCart, UserRound } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
 import { LOGO_NAME, SHOP_CONTACT, SHOP_NAME, lineLink } from '@/lib/shop';
 import { LANGS, useT, type Lang } from '@/lib/i18n';
@@ -74,6 +74,7 @@ export function SiteHeader() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const isAdminDashboard = typeof window !== 'undefined' && window.location.pathname.startsWith('/ibuzz-dashboard');
   const [adminNotifications, setAdminNotifications] = useState<Array<{ id: string; title: string; message: string; created_at: string; read_at: string | null }>>([]);
 
@@ -95,12 +96,19 @@ export function SiteHeader() {
         }
         return;
       }
-      const { count, error } = await supabase
-        .from('customer_notifications')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .is('read_at', null);
+      const [{ count, error }, { count: savedCount, error: wishlistError }] = await Promise.all([
+        supabase
+          .from('customer_notifications')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .is('read_at', null),
+        supabase
+          .from('wishlist_items')
+          .select('product_id', { count: 'exact', head: true })
+          .eq('user_id', userId),
+      ]);
       if (alive && !error) setUnreadNotifications(count ?? 0);
+      if (alive && !wishlistError) setWishlistCount(savedCount ?? 0);
     };
 
     const connectUser = async (userId?: string) => {
@@ -110,6 +118,7 @@ export function SiteHeader() {
       }
       if (!userId) {
         setUnreadNotifications(0);
+        setWishlistCount(0);
         return;
       }
       await loadUnread(userId);
@@ -122,6 +131,16 @@ export function SiteHeader() {
             event: '*',
             schema: 'public',
             table: 'customer_notifications',
+            filter: `user_id=eq.${userId}`,
+          },
+          () => void loadUnread(userId),
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'wishlist_items',
             filter: `user_id=eq.${userId}`,
           },
           () => void loadUnread(userId),
@@ -269,6 +288,20 @@ export function SiteHeader() {
               </div>
             )}
           </div>
+          <Button asChild variant="ghost" size="icon" className="relative h-9 w-9">
+            <Link
+              to="/dashboard"
+              aria-label={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
+              title={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
+            >
+              <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border-2 border-slate-950 bg-rose-500 px-1 text-[9px] font-bold leading-none text-white shadow-[0_0_10px_rgba(244,63,94,0.5)]">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </span>
+              )}
+            </Link>
+          </Button>
           <Button asChild variant="ghost" size="icon" className="h-9 w-9">
             <Link
               to="/dashboard"
