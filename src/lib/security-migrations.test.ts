@@ -132,3 +132,48 @@ describe('database security regression guards', () => {
     );
   });
 });
+
+
+describe('loyalty points idempotency regression guards', () => {
+  const loyaltySchema = migration('20261023200000_loyalty_points_and_referrals.sql');
+  const hardenedTrigger = migration('20261031090000_harden_loyalty_trigger_for_deleted_customers.sql');
+
+  it('enforces one completed-order ledger entry per customer and order', () => {
+    expect(loyaltySchema).toMatch(
+      /unique\s*\(\s*user_id\s*,\s*order_id\s*,\s*reason\s*\)/,
+    );
+    expect(loyaltySchema).toContain("reason in ('completed_order','referral_inviter','referral_new_customer')");
+  });
+
+  it('increments the balance only when the unique ledger entry was newly inserted', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toContain('on conflict (user_id, order_id, reason) do nothing');
+    expect(fn).toContain('returning id into v_inserted');
+    expect(fn).toMatch(
+      /if v_inserted is not null then\s+update public\.loyalty_accounts\s+set points_balance = points_balance \+ v_points/s,
+    );
+  });
+
+  it('does not award points again when an already completed and paid order is updated', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toMatch(
+      /if new\.status <> 'completed'\s+or new\.payment_status <> 'paid'\s+or \(old\.status = 'completed' and old\.payment_status = 'paid'\) then\s+return new;\s+end if;/,
+    );
+  });
+
+  it('skips account-bound rewards for deleted or guest customers without blocking order updates', () => {
+    const start = hardenedTrigger.indexOf('create or replace function public.ibuzz_award_loyalty_points');
+    const end = hardenedTrigger.indexOf('$$;', start);
+    const fn = hardenedTrigger.slice(start, end);
+
+    expect(fn).toMatch(/if new\.user_id is null then\s+return new;\s+end if;/);
+  });
+});
