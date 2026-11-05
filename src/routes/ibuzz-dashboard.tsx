@@ -169,8 +169,8 @@ function Dashboard() {
   const rows = products.data ?? [];
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-3 py-5 sm:px-5 lg:px-8 lg:py-7">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card/50 px-4 py-3 sm:px-5">
+    <div className="mx-auto w-full max-w-[1920px] px-4 py-7 sm:px-6 lg:px-10 lg:py-10">
+      <div className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-border/60 bg-gradient-to-r from-card via-card/90 to-primary/[0.04] px-6 py-5 shadow-sm sm:px-7">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
             iBuzz.wtf · Admin
@@ -213,10 +213,10 @@ function Dashboard() {
         </div>
       )}
       <Tabs defaultValue="overview">
-        <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[244px_minmax(0,1fr)]">
-          <aside className="h-fit min-w-0 rounded-2xl border border-border/60 bg-card/65 p-2 shadow-sm lg:sticky lg:top-24 lg:p-3">
-            <div className="px-3 py-3">
-              <p className="text-xs font-semibold tracking-wide text-muted-foreground">
+        <div className="mt-6 grid min-w-0 items-start gap-5 xl:gap-7 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="h-fit min-w-0 rounded-3xl border border-border/70 bg-card/80 p-3 shadow-lg shadow-black/[0.035] backdrop-blur-xl lg:sticky lg:top-24 lg:p-4">
+            <div className="mb-2 rounded-2xl bg-muted/45 px-4 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">
                 {lang === 'th'
                   ? 'การจัดการร้าน'
                   : lang === 'ro'
@@ -224,15 +224,15 @@ function Dashboard() {
                     : 'STORE MANAGEMENT'}
               </p>
             </div>
-            <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-1.5 bg-transparent p-0 lg:flex lg:flex-col lg:items-stretch lg:rounded-lg lg:bg-transparent">
+            <TabsList className="grid h-auto w-full grid-cols-2 items-stretch justify-start gap-2 bg-transparent p-0 lg:flex lg:flex-col lg:items-stretch">
               <TabsTrigger
-                className="h-auto min-h-10 w-full justify-start gap-2 whitespace-normal rounded-lg px-2.5 py-2 text-left text-xs leading-snug sm:px-3 sm:text-sm lg:min-h-10"
+                className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm"
                 value="overview"
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" />
                 <span>{tabLabels.overview}</span>
               </TabsTrigger>
-              <TabsTrigger className="w-full justify-start gap-2 text-left" value="listings">
+              <TabsTrigger className="group h-auto min-h-12 w-full justify-start gap-3 whitespace-normal rounded-xl border border-transparent px-3 py-3 text-left text-xs leading-snug transition-all duration-200 data-[state=active]:border-primary/15 data-[state=active]:bg-primary/10 data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:border-border/70 hover:bg-muted/70 sm:px-3.5 sm:text-sm" value="listings">
                 <Package className="h-4 w-4 shrink-0" />
                 <span>Listings</span>
               </TabsTrigger>
@@ -283,7 +283,7 @@ function Dashboard() {
               </TabsTrigger>
             </TabsList>
           </aside>
-          <div className="min-w-0 space-y-3">
+          <div className="min-w-0 space-y-5">
             <TabsContent value="overview" className="mt-4">
               <AdminOperations section="overview" />
             </TabsContent>
