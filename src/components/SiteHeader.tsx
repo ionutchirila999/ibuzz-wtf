@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Menu, ArrowUpRight, Bell, Heart, ShoppingCart, UserRound } from 'lucide-react';
+import { Menu, ArrowUpRight, Bell, Heart, ShoppingCart, UserRound, Trash2 } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
 import { LOGO_NAME, SHOP_CONTACT, SHOP_NAME, lineLink } from '@/lib/shop';
 import { LANGS, useT, type Lang } from '@/lib/i18n';
@@ -75,6 +75,10 @@ export function SiteHeader() {
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const wishlistRef = useRef<HTMLDivElement>(null);
+  const [wishlistItems, setWishlistItems] = useState<Array<{ id: string; title: string; image: string | null; price: number | null; stock: number; status: string }>>([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const isAdminDashboard = typeof window !== 'undefined' && window.location.pathname.startsWith('/ibuzz-dashboard');
   const [adminNotifications, setAdminNotifications] = useState<Array<{ id: string; title: string; message: string; created_at: string; read_at: string | null }>>([]);
 
@@ -109,6 +113,38 @@ export function SiteHeader() {
       ]);
       if (alive && !error) setUnreadNotifications(count ?? 0);
       if (alive && !wishlistError) setWishlistCount(savedCount ?? 0);
+      if (alive) {
+        setWishlistLoading(true);
+        const { data: savedRows, error: savedError } = await supabase
+          .from('wishlist_items')
+          .select('product_id')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(25);
+        if (!savedError && savedRows?.length) {
+          const ids = savedRows.map((row) => row.product_id);
+          const { data: products, error: productsError } = await supabase
+            .from('products')
+            .select('id,title,title_th,title_ro,images,price,stock,status')
+            .in('id', ids);
+          if (!productsError && alive) {
+            const byId = new Map((products ?? []).map((product) => [product.id, product]));
+            setWishlistItems(ids.map((id) => byId.get(id)).filter(Boolean).map((product: any) => ({
+              id: product.id,
+              title: product.title,
+              title_th: product.title_th,
+              title_ro: product.title_ro,
+              image: product.images?.find((src: string) => typeof src === 'string' && src.trim() && !/\\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(src)) ?? null,
+              price: product.price,
+              stock: product.stock,
+              status: product.status,
+            })));
+          }
+        } else if (!savedError && alive) {
+          setWishlistItems([]);
+        }
+        if (alive) setWishlistLoading(false);
+      }
     };
 
     const connectUser = async (userId?: string) => {
@@ -119,6 +155,7 @@ export function SiteHeader() {
       if (!userId) {
         setUnreadNotifications(0);
         setWishlistCount(0);
+        setWishlistItems([]);
         return;
       }
       await loadUnread(userId);
@@ -161,6 +198,24 @@ export function SiteHeader() {
       if (channel) void supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (!wishlistOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !wishlistRef.current?.contains(event.target)) {
+        setWishlistOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setWishlistOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [wishlistOpen]);
 
   useEffect(() => {
     if (!notificationsOpen) return;
@@ -277,11 +332,17 @@ export function SiteHeader() {
               </div>
             )}
           </div>
-          <Button asChild variant="ghost" size="icon" className="relative h-9 w-9">
-            <a
-              href="/dashboard?section=customer-wishlist"
+          <div ref={wishlistRef} className="relative">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={`relative h-9 w-9 transition-colors ${wishlistOpen ? 'bg-accent text-primary ring-1 ring-primary/40' : ''}`}
               aria-label={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
               title={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
+              aria-expanded={wishlistOpen}
+              aria-haspopup="dialog"
+              onClick={() => setWishlistOpen((current) => !current)}
             >
               <Heart className="h-5 w-5" />
               {wishlistCount > 0 && (
@@ -289,8 +350,63 @@ export function SiteHeader() {
                   {wishlistCount > 99 ? '99+' : wishlistCount}
                 </span>
               )}
-            </a>
-          </Button>
+            </Button>
+            {wishlistOpen && (
+              <div
+                role="dialog"
+                aria-label={lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favorite' : 'Wishlist'}
+                className="absolute right-0 top-full z-50 mt-3 w-[min(92vw,460px)] overflow-hidden rounded-2xl border border-rose-300/20 bg-slate-950 shadow-2xl shadow-black/50"
+              >
+                <div className="border-b border-border/50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-semibold">{lang === 'th' ? 'รายการโปรด' : lang === 'ro' ? 'Favoritele mele' : 'My wishlist'}</h2>
+                    <span className="text-xs text-muted-foreground">{wishlistCount} {lang === 'th' ? 'รายการ' : lang === 'ro' ? 'produse' : 'items'}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{lang === 'th' ? 'แสดงสูงสุด 25 รายการ' : lang === 'ro' ? 'Se afișează până la 25 de produse' : 'Showing up to 25 saved products'}</p>
+                </div>
+                {wishlistLoading ? (
+                  <p className="p-6 text-center text-sm text-muted-foreground">…</p>
+                ) : wishlistItems.length === 0 ? (
+                  <div className="p-6 text-center text-sm text-muted-foreground">{lang === 'th' ? 'ยังไม่มีสินค้าที่บันทึกไว้' : lang === 'ro' ? 'Nu ai produse salvate.' : 'No saved products yet.'}</div>
+                ) : (
+                  <ul className="max-h-[min(65vh,380px)] divide-y divide-border/50 overflow-y-auto overscroll-contain">
+                    {wishlistItems.map((product) => {
+                      const title = (lang === 'th' ? (product as any).title_th : lang === 'ro' ? (product as any).title_ro : null) || product.title;
+                      const sold = product.status === 'sold' || product.stock <= 0;
+                      return (
+                        <li key={product.id} className="flex items-center gap-3 p-3">
+                          <a href={`/product/${product.id}`} className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                            {product.image ? <img src={product.image} alt={title} loading="lazy" className="h-full w-full object-cover" /> : <span className="grid h-full place-items-center"><Heart className="h-5 w-5 text-muted-foreground" /></span>}
+                          </a>
+                          <div className="min-w-0 flex-1">
+                            <a href={`/product/${product.id}`} className="line-clamp-2 text-sm font-medium hover:text-primary">{title}</a>
+                            <p className="mt-1 text-sm font-semibold text-primary">{typeof product.price === 'number' ? `฿${product.price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : ''}</p>
+                            <p className={`text-[11px] ${sold ? 'text-destructive' : 'text-emerald-500'}`}>{sold ? (lang === 'th' ? 'สินค้าหมด' : lang === 'ro' ? 'Stoc epuizat' : 'Sold out') : (lang === 'th' ? 'มีสินค้า' : lang === 'ro' ? 'În stoc' : 'In stock')}</p>
+                          </div>
+                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground" aria-label={lang === 'th' ? 'นำออก' : lang === 'ro' ? 'Elimină' : 'Remove'} onClick={async () => {
+                            const { data: auth } = await supabase.auth.getUser();
+                            if (!auth.user) return;
+                            const { error } = await supabase.from('wishlist_items').delete().eq('user_id', auth.user.id).eq('product_id', product.id);
+                            if (!error) {
+                              setWishlistItems((current) => current.filter((item) => item.id !== product.id));
+                              setWishlistCount((count) => Math.max(0, count - 1));
+                            }
+                          }}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <div className="border-t border-border/50 p-3">
+                  <a href="/dashboard?section=customer-wishlist" className="block rounded-lg border border-border/60 px-3 py-2 text-center text-sm font-medium hover:bg-accent">
+                    {lang === 'th' ? 'ดูรายการโปรดทั้งหมด' : lang === 'ro' ? 'Vezi toate favoritele' : 'View full wishlist'}
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
           <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 px-2 sm:px-3">
             <Link
               to="/checkout"
