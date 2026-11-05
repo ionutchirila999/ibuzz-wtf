@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Menu, ArrowUpRight, Bell, ShoppingCart, UserRound } from 'lucide-react';
 import logoWordmark from '@/assets/logo.png';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sheet';
 import { InstallGuide } from '@/components/InstallGuide';
 import { supabase } from '@/integrations/supabase/client';
+import { CustomerNotifications } from '@/components/account/CustomerNotifications';
 const nav = [
   { to: '/repair', label: 'repair' },
   { to: '/digital', label: 'digital' },
@@ -69,6 +70,8 @@ function BrandSocialIcon({ brand }: { brand: 'facebook' | 'tiktok' | 'youtube' |
 export function SiteHeader() {
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
@@ -123,6 +126,24 @@ export function SiteHeader() {
       if (channel) void supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !notificationsRef.current?.contains(event.target)) {
+        setNotificationsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNotificationsOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [notificationsOpen]);
 
   const label = (n: (typeof nav)[number]) => navigationLabel(n, lang, t);
   return (
@@ -186,16 +207,17 @@ export function SiteHeader() {
               </span>
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="relative h-9 w-9"
-          >
-            <a
-              href="/dashboard?section=customer-notifications"
+          <div ref={notificationsRef} className="relative">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="relative h-9 w-9"
               aria-label={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
               title={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
+              aria-expanded={notificationsOpen}
+              aria-haspopup="dialog"
+              onClick={() => setNotificationsOpen((current) => !current)}
             >
               <Bell className="h-5 w-5" />
               {unreadNotifications > 0 && (
@@ -203,8 +225,17 @@ export function SiteHeader() {
                   {unreadNotifications > 99 ? '99+' : unreadNotifications}
                 </span>
               )}
-            </a>
-          </Button>
+            </Button>
+            {notificationsOpen && (
+              <div
+                role="dialog"
+                aria-label={lang === 'th' ? 'การแจ้งเตือน' : lang === 'ro' ? 'Notificări' : 'Notifications'}
+                className="absolute right-0 top-full z-50 mt-3 max-h-[min(75vh,680px)] w-[min(92vw,460px)] overflow-y-auto rounded-2xl border border-cyan-300/20 bg-slate-950 shadow-2xl shadow-black/50"
+              >
+                <CustomerNotifications compact />
+              </div>
+            )}
+          </div>
           <Button asChild variant="ghost" size="icon" className="h-9 w-9">
             <Link
               to="/dashboard"
